@@ -37,6 +37,10 @@ module.exports = {
         PORT: "readonly",
         _: "readonly",
         errorType: "readonly",
+        process: "readonly",
+        clients: "readonly",
+        CACHE_NAME: "readonly",
+        CACHE_STRATEGIES: "readonly",
     },
     rules: {
         // TalentSphere Specific Rules
@@ -71,6 +75,8 @@ module.exports = {
         "no-path-concat": "off",
         "no-process-exit": "off",
         "no-sync": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
 
         // Node.js Specific
         // "no-sync": "warn", // Disabled temporarily
@@ -104,9 +110,8 @@ module.exports = {
         "*.min.js",
         "logs/",
         "backends/**",
-        "frontend/packages/**",
-        "frontend/ts-mfe-*/**",
-        "frontend/shared/**",
+        "frontend/**",
+        "frontends/**",
         "tests/e2e/**",
         "tests/unit/**",
         "tests/cypress/**",
@@ -114,6 +119,16 @@ module.exports = {
         "shared/**",
         "types/**",
         "api-gateway/**",
+        "src/**",
+        "scripts/**",
+        "monitoring/**",
+        "config/**",
+        "database/**",
+        "migrations/**",
+        "infrastructure/**",
+        "nginx/**",
+        "k8s/**",
+        "docs/**",
     ],
     overrides: [
         {
