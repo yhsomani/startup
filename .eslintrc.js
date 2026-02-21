@@ -111,6 +111,9 @@ module.exports = {
         "tests/unit/**",
         "tests/cypress/**",
         "services/**",
+        "shared/**",
+        "types/**",
+        "api-gateway/**",
     ],
     overrides: [
         {
