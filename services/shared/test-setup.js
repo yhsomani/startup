@@ -10,6 +10,13 @@ process.env.DATABASE_URL = "postgresql://postgres:test@localhost:5432/talentsphe
 process.env.REDIS_URL = "redis://localhost:6379";
 process.env.JWT_SECRET = "test-jwt-secret-for-testing-only";
 
+// Add TextEncoder/TextDecoder for Node.js 18
+if (typeof global.TextEncoder === "undefined") {
+    const { TextEncoder, TextDecoder } = require("util");
+    global.TextEncoder = TextEncoder;
+    global.TextDecoder = TextDecoder;
+}
+
 // Global test timeout
 jest.setTimeout(30000);
 
