@@ -10,6 +10,8 @@
 .env.*.local
 .env.backup
 .env.template
+.env.generated
+*.generated
 *.pem
 *.key
 *.crt
