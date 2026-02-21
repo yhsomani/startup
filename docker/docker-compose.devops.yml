@@ -1,4 +1,3 @@
-version: '3.8.0'
 name: 'talentsphere-devops'
 description: 'TalentSphere DevOps Container'
 services:
