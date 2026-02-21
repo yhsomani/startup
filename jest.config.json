@@ -23,7 +23,10 @@
     "^../../database-connection$": "<rootDir>/shared/database-connection.js",
     "^../../../database-connection$": "<rootDir>/shared/database-connection.js",
     "^../../config$": "<rootDir>/shared/config.js",
-    "^../../../config$": "<rootDir>/shared/config.js"
+    "^../../../config$": "<rootDir>/shared/config.js",
+    "^../../error-handler$": "<rootDir>/backends/shared/error-handler.js",
+    "^../../../error-handler$": "<rootDir>/backends/shared/error-handler.js",
+    "^xss$": "<rootDir>/node_modules/xss/lib/xss.js"
   },
   "transformIgnorePatterns": ["node_modules/(?!(uuid)/)"],
   "projects": [
