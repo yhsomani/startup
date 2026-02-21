@@ -1,0 +1,145 @@
+name: TalentSphere CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # ------------------------------------------------------------------
+  # Frontend Quality Gate
+  # ------------------------------------------------------------------
+  frontend-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [ts-mfe-shell, ts-mfe-lms, ts-mfe-challenge]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        
+    - name: Install Dependencies
+      working-directory: frontend/${{ matrix.app }}
+      run: npm ci
+      
+    - name: Lint
+      working-directory: frontend/${{ matrix.app }}
+      run: npm run lint --if-present
+      
+    - name: Test (Unit & Integration)
+      working-directory: frontend/${{ matrix.app }}
+      run: npm test -- --coverage
+      env:
+        CI: true
+
+  # ------------------------------------------------------------------
+  # Backend Quality Gates
+  # ------------------------------------------------------------------
+  backend-flask:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install Dependencies
+      working-directory: backends/backend-flask
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+        
+    - name: Test & Coverage (Flags OFF)
+      working-directory: backends/backend-flask
+      run: pytest --cov=. --cov-fail-under=90
+
+    - name: Test (Flags ON)
+      working-directory: backends/backend-flask
+      run: pytest
+      env:
+        FF_ENABLE_MANUAL_GRADING: "true"
+        FF_ENABLE_CHALLENGE_MANAGEMENT: "true"
+        FF_ENABLE_USER_HISTORY: "true"
+
+  backend-dotnet:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore & Build
+      working-directory: backends/backend-dotnet
+      run: |
+        dotnet restore
+        dotnet build --no-restore
+        
+    - name: Test
+      working-directory: backends/backend-dotnet
+      run: dotnet test --no-build --verbosity normal
+
+  backend-spring:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Build & Test
+      working-directory: backends/backend-springboot
+      run: ./mvnw clean verify
+
+  backend-node:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        
+    - name: Install Dependencies
+      working-directory: backends/backend-node
+      run: npm ci
+      
+    - name: Lint & Test
+      working-directory: backends/backend-node
+      run: |
+        npm run lint --if-present
+        npm test -- --coverage
+
+  # ------------------------------------------------------------------
+  # End-to-End Validation
+  # ------------------------------------------------------------------
+  e2e-validation:
+    needs: [frontend-check, backend-flask, backend-dotnet, backend-spring, backend-node]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Infrastructure (Docker)
+      run: docker-compose up -d db rabbitmq
+      
+    - name: Run E2E Script
+      shell: pwsh
+      run: ./talentsphere.ps1 diagnose
+
+    - name: Validate API Contracts
+      run: python scripts/validate-api-contracts.py

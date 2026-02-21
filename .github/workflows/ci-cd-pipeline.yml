@@ -1,0 +1,464 @@
+name: 🚀 TalentSphere CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, staging ]
+    tags: [ 'v*.*' ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Daily security scan at 2 AM UTC
+    - cron: '0 2 * * *'
+    # Weekly performance tests on Sunday at 1 AM UTC
+    - cron: '0 1 * * 0'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: talentsphere
+
+jobs:
+  # ==================== CODE QUALITY & SECURITY ====================
+  
+  lint-and-security:
+    name: 🔍 Lint & Security Scan
+    runs-on: ubuntu-latest
+    outputs:
+      security-report: ${{ steps.security-scan.outputs.report }}
+      lint-status: ${{ steps.lint.outputs.status }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        pip install -r backends/backend-flask/requirements.txt
+        pip install -r backends/backend-assistant/requirements.txt
+        pip install -r backends/backend-recruitment/requirements.txt
+        pip install -r backends/backend-gamification/requirements.txt
+        
+    - name: Lint JavaScript/TypeScript
+      id: lint
+      run: |
+        npm run lint
+        echo "status=success" >> $GITHUB_OUTPUT
+      continue-on-error: true
+        
+    - name: Lint Python
+      run: |
+        pip install flake8 black isort
+        flake8 backends/backend-*/ --count --select=E9,F63,F7,F8 --show-source --statistics
+        black --check backends/backend-*/
+        isort --check-only backends/backend-*/
+        
+    - name: Security Scan
+      id: security-scan
+      uses: securecodewarrior/github-action@v8
+      with:
+        args: |
+          --skip-path tests/,docs/,node_modules/ \
+          --severity-threshold high \
+          --ignore-verification \
+          --sarif-file security-report.sarif
+        output: sarif
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-report
+        path: security-report.sarif
+
+  # ==================== TESTING ====================
+  
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-security
+    strategy:
+      matrix:
+        language: [python, javascript]
+    outputs:
+      coverage-py: ${{ steps.coverage-py.outputs.coverage }}
+      coverage-js: ${{ steps.coverage-js.outputs.coverage }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Setup Node.js
+      if: matrix.language == 'javascript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.language }}" = "python" ]; then
+          pip install pytest pytest-cov pytest-asyncio
+          pip install -r backends/backend-flask/requirements.txt
+        else
+          npm install
+        fi
+        
+    - name: Run Python unit tests
+      id: coverage-py
+      if: matrix.language == 'python'
+      run: |
+        pytest backends/backend-*/tests/ \
+          --cov=app \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-fail-under=80 \
+          --junitxml=pytest-results.xml
+        
+    - name: Run JavaScript unit tests
+      id: coverage-js
+      if: matrix.language == 'javascript'
+      run: |
+        npm run test:unit -- --coverage --ci
+        
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: always()
+      with:
+        directory: ./
+        files: ./coverage.xml,./coverage.lcov,./pytest-results.xml
+
+  # ==================== INTEGRATION TESTS ====================
+  
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    outputs:
+      test-results: ${{ steps.integration-tests.outputs.results }}
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_talentsphere
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:6
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup test environment
+      run: |
+        docker-compose -f docker-compose.test.yml up -d
+        sleep 30  # Wait for services to be ready
+        
+    - name: Wait for services
+      run: |
+        timeout 120s bash -c 'until nc -z localhost 5432; do sleep 2; done'
+        timeout 120s bash -c 'until nc -z localhost 6379; do sleep 2; done'
+        
+    - name: Run integration tests
+      id: integration-tests
+      run: |
+        python -m pytest tests/integration/ \
+          --junitxml=integration-results.xml \
+          --maxfail=5 \
+          --disable-warnings
+        
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        docker-compose -f docker-compose.test.yml down -v
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: integration-results.xml
+
+  # ==================== E2E TESTS ====================
+  
+  e2e-tests:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    outputs:
+      e2e-results: ${{ steps.e2e.outputs.results }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Start services
+      run: |
+        docker-compose up -d
+        sleep 60  # Wait for full stack to be ready
+        
+    - name: Wait for health checks
+      run: |
+        timeout 300s bash -c 'until curl -f http://localhost:8000/api/health; do sleep 5; done'
+        
+    - name: Run E2E tests
+      id: e2e
+      run: |
+        cd tests/cypress
+        npm run test:smoke
+        
+    - name: Upload E2E results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-test-results
+        path: tests/cypress/results/
+
+  # ==================== BUILD & DEPLOY ====================
+  
+  build-and-deploy:
+    name: 🏗 Build & Deploy
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Set Docker metadata
+      run: |
+        echo "DOCKER_TAGS=latest,${{ github.ref_name }}" >> $GITHUB_ENV
+        echo "DOCKER_BUILD_DATE=$(date -u +'%Y%m%d.%H%M')" >> $GITHUB_ENV
+        
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build and push images
+      run: |
+        docker-compose build
+        docker-compose push
+        
+    - name: Deploy to staging
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        # Add your staging deployment commands here
+        kubectl apply -f k8s/staging/
+        
+    - name: Deploy to production
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "🚀 Deploying to production environment..."
+        # Add your production deployment commands here
+        kubectl apply -f k8s/production/
+
+  # ==================== PERFORMANCE TESTING ====================
+  
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Install performance testing tools
+      run: |
+        npm install -g artillery
+        npm install lighthouse
+        
+    - name: Run load testing
+      run: |
+        artillery run tests/performance/load-test.yml \
+          --target http://staging.talentsphere.io \
+          --output load-test-results.json
+          
+    - name: Run Lighthouse audit
+      run: |
+        lighthouse http://staging.talentsphere.io \
+          --output=lighthouse-results.json \
+          --output-path=lighthouse-results \
+          --chrome-flags="--headless"
+          
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-test-results
+        path: load-test-results.json,lighthouse-results/
+
+  # ==================== MONITORING & ALERTS ====================
+  
+  post-deployment:
+    name: 📊 Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Health check
+      run: |
+        timeout 300s bash -c 'until curl -f http://talentsphere.io/api/health; do sleep 10; done'
+        
+    - name: Run smoke tests
+      run: |
+        python tests/smoke/smoke_tests.py --url http://talentsphere.io
+        
+    - name: Send deployment notification
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#deployments'
+        text: |
+          🎉 TalentSphere deployed successfully!
+          🚀 Environment: Production
+          📦 Commit: ${{ github.sha }}
+          👤 Deployer: ${{ github.actor }}
+          
+    - name: Send deployment failure notification
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#deployments'
+        text: |
+          ❌ TalentSphere deployment failed!
+          🚀 Environment: Production
+          📦 Commit: ${{ github.sha }}
+          👤 Deployer: ${{ github.actor }}
+
+  # ==================== TEST REPORTING ====================
+  
+  test-reporting:
+    name: 📊 Test Reporting
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Generate test report
+      run: |
+        python scripts/generate-test-report.py \
+          --unit-coverage pytest-results.xml \
+          --integration-results integration-results.xml \
+          --e2e-results e2e-test-results/mochawesome.json \
+          --security-report security-report.sarif \
+          --output test-summary.html
+          
+    - name: Upload test report
+      uses: actions/upload-artifact@v3
+      with:
+        name: comprehensive-test-report
+        path: test-summary.html
+        
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('test-summary.html', 'utf8');
+          const body = `## 🧪 Test Results\\n\\n${report}`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  # ==================== RELEASE ====================
+  
+  create-release:
+    name: 📦 Create Release
+    runs-on: ubuntu-latest
+    needs: [test-reporting]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: TalentSphere ${{ github.ref_name }}
+        body: |
+          ## TalentSphere ${{ github.ref_name }}
+          
+          ### 🚀 Features
+          - Feature 1 description
+          - Feature 2 description
+          
+          ### 🐛 Bug Fixes
+          - Bug fix 1 description
+          - Bug fix 2 description
+          
+          ### 📊 Improvements
+          - Performance improvements
+          - Security enhancements
+          - Developer experience improvements
+          
+        draft: false
+        prerelease: false
+        
+    - name: Update latest tag
+      run: |
+        git tag -f latest main
+        git push origin latest --force

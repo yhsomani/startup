@@ -1,0 +1,20 @@
+{
+    "name": "talentsphere-microfrontends",
+    "version": "1.0.0",
+    "private": true,
+    "packageManager": "pnpm@8.15.0",
+    "scripts": {
+        "dev": "pnpm --parallel -r run dev",
+        "dev:shell": "pnpm --filter ts-mfe-shell dev",
+        "dev:lms": "pnpm --filter ts-mfe-lms dev",
+        "dev:challenge": "pnpm --filter ts-mfe-challenge dev",
+        "build": "pnpm -r run build",
+        "build:packages": "pnpm --filter '@talentsphere/*' build",
+        "test": "pnpm -r run test",
+        "lint": "pnpm -r run lint",
+        "clean": "pnpm -r exec -- rm -rf node_modules dist"
+    },
+    "devDependencies": {
+        "typescript": "^5.2.2"
+    }
+}

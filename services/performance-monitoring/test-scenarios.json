@@ -1,0 +1,130 @@
+[
+    {
+        "name": "homepage-browse",
+        "weight": 3,
+        "description": "Browse homepage and fetch statistics",
+        "steps": [
+            {
+                "path": "/",
+                "method": "GET",
+                "headers": {
+                    "User-Agent": "LoadTester/1.0"
+                },
+                "thinkTime": 2000
+            },
+            {
+                "path": "/api/stats",
+                "method": "GET",
+                "headers": {
+                    "Accept": "application/json"
+                },
+                "thinkTime": 1000
+            },
+            {
+                "path": "/api/jobs/featured?limit=5",
+                "method": "GET",
+                "thinkTime": 1500
+            }
+        ]
+    },
+    {
+        "name": "job-search",
+        "weight": 2,
+        "description": "Search for jobs with various filters",
+        "steps": [
+            {
+                "path": "/api/jobs?location=Remote&limit=20",
+                "method": "GET",
+                "thinkTime": 1000
+            },
+            {
+                "path": "/api/jobs?skills=JavaScript,React&limit=15",
+                "method": "GET",
+                "thinkTime": 1500
+            },
+            {
+                "path": "/api/jobs/123",
+                "method": "GET",
+                "thinkTime": 2000
+            }
+        ]
+    },
+    {
+        "name": "user-authentication",
+        "weight": 1,
+        "description": "User login and profile access",
+        "steps": [
+            {
+                "path": "/api/auth/login",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": {
+                    "email": "test@example.com",
+                    "password": "password123"
+                },
+                "thinkTime": 1000
+            },
+            {
+                "path": "/api/users/me",
+                "method": "GET",
+                "headers": {
+                    "Authorization": "Bearer fake-token"
+                },
+                "thinkTime": 1000
+            },
+            {
+                "path": "/api/profiles/me",
+                "method": "GET",
+                "headers": {
+                    "Authorization": "Bearer fake-token"
+                },
+                "thinkTime": 1500
+            }
+        ]
+    },
+    {
+        "name": "company-browse",
+        "weight": 1,
+        "description": "Browse company listings and details",
+        "steps": [
+            {
+                "path": "/api/companies?limit=20",
+                "method": "GET",
+                "thinkTime": 1500
+            },
+            {
+                "path": "/api/companies/456",
+                "method": "GET",
+                "thinkTime": 2000
+            },
+            {
+                "path": "/api/companies/456/jobs",
+                "method": "GET",
+                "thinkTime": 1000
+            }
+        ]
+    },
+    {
+        "name": "application-submit",
+        "weight": 0.5,
+        "description": "Submit job application (lower frequency)",
+        "steps": [
+            {
+                "path": "/api/applications",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer fake-token"
+                },
+                "body": {
+                    "jobId": "123",
+                    "coverLetter": "Sample cover letter content...",
+                    "resumeId": "resume-789"
+                },
+                "thinkTime": 3000
+            }
+        ]
+    }
+]

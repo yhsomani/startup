@@ -1,0 +1,135 @@
+{
+  "users": {
+    "student": {
+      "email": "student@example.com",
+      "password": "StudentPass123!",
+      "role": "STUDENT",
+      "firstName": "John",
+      "lastName": "Student"
+    },
+    "instructor": {
+      "email": "instructor@example.com",
+      "password": "InstructorPass123!",
+      "role": "INSTRUCTOR",
+      "firstName": "Jane",
+      "lastName": "Instructor"
+    },
+    "admin": {
+      "email": "admin@example.com",
+      "password": "AdminPass123!",
+      "role": "ADMIN",
+      "firstName": "Admin",
+      "lastName": "User"
+    }
+  },
+  "courses": {
+    "sample_course": {
+      "title": "Python Fundamentals",
+      "subtitle": "Learn Python from scratch",
+      "description": "Comprehensive Python course for beginners",
+      "price": 49.99,
+      "currency": "USD",
+      "isPublished": true,
+      "sections": [
+        {
+          "title": "Introduction",
+          "orderIndex": 0,
+          "lessons": [
+            {
+              "title": "Getting Started",
+              "type": "video",
+              "duration": 300,
+              "orderIndex": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "challenges": {
+    "sample_challenge": {
+      "title": "Factorial Challenge",
+      "description": "Write a function to calculate factorial",
+      "evaluationMetric": "accuracy",
+      "passingScore": 70.0,
+      "testCases": [
+        {
+          "input": "5",
+          "expected": 120
+        },
+        {
+          "input": "0",
+          "expected": 1
+        }
+      ]
+    }
+  },
+  "enrollments": {
+    "sample_enrollment": {
+      "courseId": "sample-course-id",
+      "userId": "student-user-id",
+      "progressPercentage": 0,
+      "status": "in_progress"
+    }
+  },
+  "certificates": {
+    "sample_certificate": {
+      "certificateId": "cert-12345",
+      "verificationCode": "CERT-2025-ABC123XYZ",
+      "studentName": "John Student",
+      "courseTitle": "Python Fundamentals",
+      "issuedAt": "2025-12-27T10:00:00Z",
+      "downloadUrl": "/api/v1/certificates/download/cert-12345.pdf"
+    }
+  },
+  "ai_assistant": {
+    "chat_request": {
+      "message": "Explain Python decorators",
+      "context": {
+        "course": "Python Fundamentals",
+        "code": "def decorator(func): return func"
+      }
+    },
+    "code_analysis_request": {
+      "code": "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n-1)",
+      "language": "python",
+      "analysisType": "all"
+    }
+  },
+  "feature_flags": {
+    "all_enabled": {
+      "ENABLE_AI_ASSISTANT": true,
+      "ENABLE_CODE_EXECUTION": true,
+      "ENABLE_MANUAL_GRADING": true,
+      "ENABLE_CHALLENGE_MANAGEMENT": true,
+      "ENABLE_RECRUITMENT": true,
+      "ENABLE_GAMIFICATION": true
+    },
+    "ai_disabled": {
+      "ENABLE_AI_ASSISTANT": false,
+      "ENABLE_CODE_EXECUTION": true,
+      "ENABLE_MANUAL_GRADING": true,
+      "ENABLE_CHALLENGE_MANAGEMENT": true,
+      "ENABLE_RECRUITMENT": true,
+      "ENABLE_GAMIFICATION": true
+    }
+  },
+  "error_responses": {
+    "auth_error": {
+      "message": "Authentication required",
+      "code": "AUTH_REQUIRED"
+    },
+    "not_found": {
+      "message": "Resource not found",
+      "code": "NOT_FOUND"
+    },
+    "forbidden": {
+      "message": "Insufficient permissions",
+      "code": "FORBIDDEN"
+    },
+    "validation_error": {
+      "message": "Validation failed",
+      "code": "VALIDATION_ERROR"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-gamification
+  labels:
+    app: backend-gamification
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-gamification
+  template:
+    metadata:
+      labels:
+        app: backend-gamification
+    spec:
+      containers:
+      - name: backend-gamification
+        image: talentsphere/backend-gamification:latest
+        ports:
+        - containerPort: 5007
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        - name: JWT_SECRET_KEY
+          value: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5007
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-gamification
+spec:
+  selector:
+    app: backend-gamification
+  ports:
+  - protocol: TCP
+    port: 5007
+    targetPort: 5007
+  type: ClusterIP

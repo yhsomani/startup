@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnet
+spec:
+  selector:
+    matchLabels:
+      app: dotnet
+  template:
+    metadata:
+      labels:
+        app: dotnet
+    spec:
+      containers:
+      - name: dotnet
+        image: ts-backend-dotnet:latest
+        imagePullPolicy: Never
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=db;Database=talentsphere;Username=postgres;Password=postgres"
+        - name: Jwt__Secret
+          value: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+        - name: Jwt__Issuer
+          value: "TalentSphere"
+        - name: Jwt__Audience
+          value: "TalentSphereUsers"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dotnet
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: dotnet

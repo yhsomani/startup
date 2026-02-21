@@ -1,0 +1,171 @@
+name: API Contract Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - "Project_Document/API_CONTRACTS.md"
+      - "openapi.yaml"
+      - "backends/**"
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "Project_Document/API_CONTRACTS.md"
+      - "openapi.yaml"
+      - "backends/**"
+
+jobs:
+  validate-api-contracts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema requests
+        
+    - name: Validate API contracts
+      run: |
+        echo "🔍 Starting API contract validation..."
+        python scripts/validate-api-contracts-enhanced.py --verbose
+        
+    - name: Validate OpenAPI specification
+      run: |
+        echo "📄 Validating OpenAPI specification..."
+        python -c "
+import yaml
+import json
+from jsonschema import validate, ValidationError
+
+# Load OpenAPI spec
+with open('openapi.yaml', 'r') as f:
+    spec = yaml.safe_load(f)
+
+# Validate against OpenAPI 3.0 schema
+with open('scripts/openapi-3.0-schema.json', 'r') as f:
+    schema = json.load(f)
+
+try:
+    validate(instance=spec, schema=schema)
+    print('✅ OpenAPI specification is valid!')
+except ValidationError as e:
+    print(f'❌ OpenAPI validation failed: {e}')
+    exit(1)
+        "
+        
+    - name: Check for breaking changes
+      run: |
+        echo "🔄 Checking for breaking changes..."
+        
+        # Install spectral for OpenAPI linting
+        npm install -g @stoplight/spectral-cli
+        
+        # Run spectral linting
+        spectral lint openapi.yaml --ruleset .spectral.yml || {
+          echo "❌ Breaking changes detected!"
+          exit 1
+        }
+        
+        echo "✅ No breaking changes detected!"
+        
+    - name: Generate API diff
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "📊 Generating API changes report..."
+        
+        # Install oas-diff for comparing OpenAPI specs
+        npm install -g oas-diff
+        
+        # Get base branch OpenAPI spec
+        git fetch origin main:main
+        git checkout main -- openapi-base.yaml || echo "No base spec found"
+        
+        if [ -f "openapi-base.yaml" ]; then
+          # Generate diff report
+          oas-diff openapi-base.yaml openapi.yaml --format markdown > api-changes.md
+          
+          # Post comment to PR
+          echo "📋 API Changes:" >> $GITHUB_STEP_SUMMARY
+          cat api-changes.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "📋 This is the first API specification" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+    - name: Security audit
+      run: |
+        echo "🔒 Running security audit..."
+        
+        # Check for sensitive data exposure
+        echo "Checking for potential security issues..."
+        
+        # Scan for hardcoded credentials
+        if grep -r -E "(password|secret|key|token)\s*=\s*[\"'].*[\"']" backends/ --exclude-dir=__pycache__; then
+          echo "❌ Potential hardcoded credentials found!"
+          exit 1
+        fi
+        
+        # Check for insecure endpoints
+        if grep -r "Auth Required.*No" Project_Document/API_CONTRACTS.md | grep -v "⚠️"; then
+          echo "⚠️  Unauthenticated endpoints detected - review required"
+        fi
+        
+        echo "✅ Security audit passed!"
+        
+    - name: Performance validation
+      run: |
+        echo "⚡ Running performance validation..."
+        
+        # Check OpenAPI spec size (should be reasonable)
+        SPEC_SIZE=$(wc -l < openapi.yaml)
+        if [ $SPEC_SIZE -gt 10000 ]; then
+          echo "⚠️  OpenAPI specification is large (${SPEC_SIZE} lines) - consider splitting"
+        fi
+        
+        # Check for response time recommendations
+        echo "📊 API spec statistics:"
+        echo "- Lines: $SPEC_SIZE"
+        echo "- Endpoints: $(grep -c 'paths:' openapi.yaml || echo 'N/A')"
+        echo "- Schemas: $(grep -c 'schemas:' openapi.yaml || echo 'N/A')"
+        
+    - name: Documentation validation
+      run: |
+        echo "📚 Validating documentation quality..."
+        
+        # Check for required documentation sections
+        REQUIRED_SECTIONS=(
+          "API DESIGN PRINCIPLES"
+          "SERVICE REGISTRY"
+          "AUTH SERVICE API"
+          "SHARED SCHEMA COMPONENTS"
+        )
+        
+        for section in "${REQUIRED_SECTIONS[@]}"; do
+          if ! grep -q "$section" Project_Document/API_CONTRACTS.md; then
+            echo "❌ Missing required section: $section"
+            exit 1
+          fi
+        done
+        
+        # Check for examples in major endpoints
+        if ! grep -q "Response Example" Project_Document/API_CONTRACTS.md; then
+          echo "⚠️  Consider adding more response examples"
+        fi
+        
+        echo "✅ Documentation validation passed!"
+        
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-validation-report
+        path: |
+          api-changes.md
+          validation-results.json

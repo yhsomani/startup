@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentSphere API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            background: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .swagger-ui .topbar {
+            background-color: #1a73e8;
+            border-bottom: 1px solid #1a73e8;
+        }
+        .swagger-ui .topbar .download-url-wrapper {
+            display: none;
+        }
+        .swagger-ui .info {
+            margin: 50px 0;
+        }
+        .swagger-ui .info .title {
+            color: #1a73e8;
+            font-size: 36px;
+        }
+        .custom-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .api-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .api-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .api-btn:hover {
+            background: #155ab6;
+        }
+        .api-btn.active {
+            background: #0d47a1;
+        }
+        .example-section {
+            background: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .example-title {
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-header">
+        <h1>🚀 TalentSphere API Documentation</h1>
+        <p>Comprehensive API documentation for the TalentSphere platform services</p>
+    </div>
+    
+    <div class="api-selector">
+        <button class="api-btn active" onclick="loadAPI('flask-backend')">Core Backend</button>
+        <button class="api-btn" onclick="loadAPI('assistant')">AI Assistant</button>
+        <button class="api-btn" onclick="loadAPI('collaboration')">Collaboration</button>
+        <button class="api-btn" onclick="loadAPI('gamification')">Gamification</button>
+        <button class="api-btn" onclick="loadAPI('recruitment')">Recruitment</button>
+    </div>
+
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        const apiConfigs = {
+            'flask-backend': {
+                url: '/api/flask-backend-openapi.yaml',
+                name: 'Core Backend API'
+            },
+            'assistant': {
+                url: '/api/openapi-spec.yaml#assistant',
+                name: 'AI Assistant API'
+            },
+            'collaboration': {
+                url: '/api/collaboration-openapi.yaml',
+                name: 'Collaboration API'
+            },
+            'gamification': {
+                url: '/api/openapi-spec.yaml#gamification',
+                name: 'Gamification API'
+            },
+            'recruitment': {
+                url: '/api/openapi-spec.yaml#recruitment',
+                name: 'Recruitment API'
+            }
+        };
+
+        let currentSwagger = null;
+
+        function loadAPI(apiKey) {
+            // Update button states
+            document.querySelectorAll('.api-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const config = apiConfigs[apiKey];
+            
+            if (currentSwagger) {
+                currentSwagger.specActions.download();
+            }
+
+            currentSwagger = SwaggerUIBundle({
+                url: config.url,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                validatorUrl: null,
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    // Add default headers
+                    request.headers['X-Requested-With'] = 'XMLHttpRequest';
+                    if (localStorage.getItem('authToken')) {
+                        request.headers['Authorization'] = 'Bearer ' + localStorage.getItem('authToken');
+                    }
+                    return request;
+                },
+                responseInterceptor: function(response) {
+                    // Handle 401 responses
+                    if (response.status === 401) {
+                        localStorage.removeItem('authToken');
+                        alert('Authentication required. Please login first.');
+                    }
+                    return response;
+                },
+                onComplete: function() {
+                    console.log("Swagger UI loaded for " + config.name);
+                    addCustomExamples();
+                }
+            });
+        }
+
+        function addCustomExamples() {
+            // Add custom examples and documentation
+            setTimeout(() => {
+                // Add example for authentication
+                const authExamples = {
+                    'register': {
+                        'application/json': {
+                            email: 'student@example.com',
+                            password: 'SecurePassword123!',
+                            role: 'STUDENT'
+                        }
+                    },
+                    'login': {
+                        'application/json': {
+                            email: 'student@example.com',
+                            password: 'SecurePassword123!'
+                        }
+                    }
+                };
+
+                // Add example for AI Assistant chat
+                const chatExample = {
+                    'application/json': {
+                        message: 'How do I implement a binary search tree in Python?',
+                        context: {
+                            course: 'Data Structures',
+                            code: 'class Node:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None'
+                        }
+                    }
+                };
+
+                // Add example for challenge submission
+                const challengeExample = {
+                    'application/json': {
+                        title: 'Binary Search Implementation',
+                        description: 'Implement a binary search algorithm that works on sorted arrays.',
+                        evaluationMetric: 'accuracy',
+                        passingScore: 70.0,
+                        testCases: [
+                            { input: [1, 2, 3, 4, 5], target: 3, expected: 2 },
+                            { input: [1, 3, 5, 7, 9], target: 6, expected: -1 }
+                        ],
+                        language: 'python'
+                    }
+                };
+
+                // Inject examples into the DOM
+                const examples = document.querySelectorAll('.examples');
+                examples.forEach(example => {
+                    const method = example.closest('.opblock').querySelector('.opblock-summary-method').textContent;
+                    const path = example.closest('.opblock').querySelector('.opblock-summary-path span').textContent;
+                    
+                    if (method === 'POST' && path.includes('/auth/register')) {
+                        addExampleContent(example, authExamples.register);
+                    } else if (method === 'POST' && path.includes('/auth/login')) {
+                        addExampleContent(example, authExamples.login);
+                    } else if (method === 'POST' && path.includes('/assistant/chat')) {
+                        addExampleContent(example, chatExample);
+                    } else if (method === 'POST' && path.includes('/challenges') && !path.includes('/submit')) {
+                        addExampleContent(example, challengeExample);
+                    }
+                });
+
+                // Add authentication helper
+                addAuthHelper();
+            }, 1000);
+        }
+
+        function addExampleContent(exampleContainer, exampleData) {
+            const exampleSection = document.createElement('div');
+            exampleSection.className = 'example-section';
+            exampleSection.innerHTML = `
+                <div class="example-title">Example Request</div>
+                <pre><code>${JSON.stringify(exampleData['application/json'], null, 2)}</code></pre>
+            `;
+            exampleContainer.appendChild(exampleSection);
+        }
+
+        function addAuthHelper() {
+            const authInfo = document.createElement('div');
+            authInfo.className = 'example-section';
+            authInfo.style.margin = '20px';
+            authInfo.innerHTML = `
+                <div class="example-title">🔐 Authentication Setup</div>
+                <p>For protected endpoints, you need to authenticate:</p>
+                <ol>
+                    <li>Call <code>POST /api/v1/auth/register</code> or <code>POST /api/v1/auth/login</code></li>
+                    <li>Copy the <code>token</code> from the response</li>
+                    <li>Click the "Authorize" button at the top of this page</li>
+                    <li>Enter "Bearer &lt;your_token_here&gt;" and click Authorize</li>
+                </ol>
+                <button onclick="storeAuthToken()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    Store Test Token (Demo)
+                </button>
+            `;
+            
+            const infoDiv = document.querySelector('.info');
+            if (infoDiv) {
+                infoDiv.appendChild(authInfo);
+            }
+        }
+
+        function storeAuthToken() {
+            // Store a mock token for testing purposes
+            const mockToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkRlbW8gVXNlciIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNTE2MjM5MDIyfQ.4Adcj3UFYzPUVaVF43FmMab6RlaQD8A9V8wFzzht-KQ';
+            localStorage.setItem('authToken', mockToken);
+            alert('Demo authentication token stored! You can now test protected endpoints.');
+        }
+
+        // Load default API
+        window.onload = function() {
+            loadAPI('flask-backend');
+        };
+    </script>
+</body>
+</html>

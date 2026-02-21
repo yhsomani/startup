@@ -1,0 +1,14 @@
+{
+    "name": "collaboration-service",
+    "version": "1.0.0",
+    "description": "Real-time collaboration service using Yjs",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "stripe": "^20.2.0",
+        "ws": "^8.16.0",
+        "y-websocket": "^1.5.0"
+    }
+}

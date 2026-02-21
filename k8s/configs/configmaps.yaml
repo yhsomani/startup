@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: staging-configs
+  namespace: talentsphere-staging
+data:
+  NODE_ENV: 'staging'
+  FLASK_ENV: 'staging'
+  DATABASE_URL: 'postgresql://postgres@postgres:5432/talentsphere'
+  JWT_SECRET_KEY: '' # Set via secretKeyRef
+  CORS_ORIGINS: 'http://staging.talentsphere.com,http://localhost:3000,http://localhost:3005,http://localhost:3006'
+  LOG_LEVEL: 'INFO'
+  ENABLE_CORS: 'true'
+  REDIS_URL: 'redis://redis:6379/0'
+  RABBITMQ_URL: 'amqp://rabbitmq:5672'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: production-configs
+  namespace: talentsphere-production
+data:
+  NODE_ENV: 'production'
+  FLASK_ENV: 'production'
+  DATABASE_URL: 'postgresql://postgres@postgres:5432/talentsphere'
+  JWT_SECRET_KEY: '' # Set via secretKeyRef - DO NOT hardcode
+  CORS_ORIGINS: 'https://talentsphere.com,https://www.talentsphere.com'
+  LOG_LEVEL: 'WARN'
+  ENABLE_CORS: 'true'
+  REDIS_URL: 'redis://redis:6379/0'
+  RABBITMQ_URL: 'amqp://rabbitmq:5672'

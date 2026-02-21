@@ -1,0 +1,40 @@
+{
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "html", "json"],
+  "collectCoverageFrom": ["**/services/**/*.js", "!**/node_modules/**", "!**/coverage/**", "!**/tests/**"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 0,
+      "functions": 0,
+      "lines": 0,
+      "statements": 0
+    }
+  },
+  "testMatch": ["**/tests/unit/**/*.test.js", "**/tests/integration/**/*.test.js"],
+  "testPathIgnorePatterns": ["**/tests/e2e/**"],
+  "setupFilesAfterEnv": ["<rootDir>/services/shared/test-setup.js"],
+  "moduleNameMapper": {
+    "^@talentsphere/(.*)$": "$1",
+    "^shared/(.*)$": "<rootDir>/shared/$1",
+    "^../../shared/(.*)$": "<rootDir>/shared/$1",
+    "^../../../shared/(.*)$": "<rootDir>/shared/$1",
+    "^../../database-connection$": "<rootDir>/shared/database-connection.js",
+    "^../../../database-connection$": "<rootDir>/shared/database-connection.js",
+    "^../../config$": "<rootDir>/shared/config.js",
+    "^../../../config$": "<rootDir>/shared/config.js"
+  },
+  "transformIgnorePatterns": ["node_modules/(?!(uuid)/)"],
+  "projects": [
+    {
+      "displayName": "Unit Tests",
+      "testMatch": ["**/tests/unit/**/*.test.js"]
+    },
+    {
+      "displayName": "Integration Tests",
+      "testMatch": ["**/tests/integration/**/*.test.js"]
+    }
+  ],
+  "verbose": true
+}

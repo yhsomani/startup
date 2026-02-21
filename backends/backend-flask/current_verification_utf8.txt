@@ -1,0 +1,113 @@
+﻿
+--- Verifying POST /run ---
+Status: 200
+Body: {
+  "executionTime": "0.027s",
+  "exitCode": 0,
+  "limits": {
+    "cpu": "1vCPU",
+    "memory": "512MB",
+    "timeout": "5s"
+  },
+  "status": "success",
+  "stderr": "",
+  "stdout": "Hello From Sandbox\n"
+}
+
+--- Verifying POST /test (Correct Code) ---
+Status: 200
+Body: {
+  "failedTests": 0,
+  "passedTests": 3,
+  "results": [
+    {
+      "actual": "8",
+      "duration": "0.025s",
+      "error": "",
+      "expected": "8",
+      "name": "Basic Addition",
+      "status": "passed"
+    },
+    {
+      "actual": "0",
+      "duration": "0.025s",
+      "error": "",
+      "expected": "0",
+      "name": "Zero Check",
+      "status": "passed"
+    },
+    {
+      "actual": "0",
+      "duration": "0.025s",
+      "error": "",
+      "expected": "0",
+      "name": "Negative Numbers",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 3
+}
+
+--- Verifying POST /test (Incorrect Code) ---
+Status: 200
+Body: {
+  "failedTests": 3,
+  "passedTests": 0,
+  "results": [
+    {
+      "actual": "99",
+      "duration": "0.023s",
+      "error": "",
+      "expected": "8",
+      "name": "Basic Addition",
+      "status": "failed"
+    },
+    {
+      "actual": "99",
+      "duration": "0.024s",
+      "error": "",
+      "expected": "0",
+      "name": "Zero Check",
+      "status": "failed"
+    },
+    {
+      "actual": "99",
+      "duration": "0.026s",
+      "error": "",
+      "expected": "0",
+      "name": "Negative Numbers",
+      "status": "failed"
+    }
+  ],
+  "totalTests": 3
+}
+
+--- Verifying Security (Timeout) ---
+Status: 200
+Body: {
+  "executionTime": "0s",
+  "exitCode": 124,
+  "limits": {
+    "cpu": "1vCPU",
+    "memory": "512MB",
+    "timeout": "5s"
+  },
+  "status": "timeout",
+  "stderr": "Error: Execution exceeded timeout of 5s",
+  "stdout": ""
+}
+
+--- Verifying Security (Restricted Import) ---
+Status: 200
+Body: {
+  "executionTime": "0s",
+  "exitCode": 1,
+  "limits": {
+    "cpu": "1vCPU",
+    "memory": "512MB",
+    "timeout": "5s"
+  },
+  "status": "restricted_access",
+  "stderr": "Security Error: Import of module 'os' is restricted.",
+  "stdout": ""
+}

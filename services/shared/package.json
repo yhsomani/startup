@@ -1,0 +1,38 @@
+{
+  "name": "talentsphere-shared-services",
+  "version": "1.0.0",
+  "description": "Shared utilities and common code for TalentSphere services",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
+  },
+  "dependencies": {
+    "joi": "^17.9.2",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "talentsphere",
+    "shared",
+    "utilities",
+    "common",
+    "logging",
+    "configuration",
+    "validation"
+  ],
+  "author": "TalentSphere Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,745 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere API
+  description: |
+    Comprehensive Learning Management System API for course management, 
+    user progress, challenges, certificates, and AI-powered learning.
+    
+    ## Authentication
+    All endpoints (except health checks) require JWT Bearer token authentication.
+    
+    ## Rate Limiting
+    100 requests per minute per authenticated user.
+    
+    ## Versioning
+    Current version: v1.0
+    
+    ## Support
+    API Documentation: https://api.talentsphere.com/docs
+    Support: api-support@talentsphere.com
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Team
+    email: api-support@talentsphere.com
+    url: https://talentsphere.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.talentsphere.com/v1
+    description: Production server
+  - url: https://staging-api.talentsphere.com/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login endpoint
+
+  schemas:
+    # Shared Schemas
+    Pagination:
+      type: object
+      required: [page, limit, total, totalPages, hasNextPage, hasPreviousPage]
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        totalPages:
+          type: integer
+          description: Total number of pages
+        hasNextPage:
+          type: boolean
+          description: Whether next page exists
+        hasPreviousPage:
+          type: boolean
+          description: Whether previous page exists
+
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        service:
+          type: string
+          description: Service name
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+
+    ErrorResponse:
+      type: object
+      required: [message, code]
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        field:
+          type: string
+          description: Field that caused the error (if applicable)
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+        details:
+          type: object
+          description: Additional error details
+
+    # Auth Schemas
+    JWTPayload:
+      type: object
+      required: [sub, email, role, iat, exp]
+      properties:
+        sub:
+          type: string
+          format: uuid
+          description: User ID (subject)
+        email:
+          type: string
+          format: email
+          description: User email address
+        role:
+          type: string
+          enum: [STUDENT, INSTRUCTOR, ADMIN]
+          description: User role
+        iat:
+          type: integer
+          description: Issued at (Unix timestamp)
+        exp:
+          type: integer
+          description: Expiration (Unix timestamp)
+
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          minLength: 8
+          description: User password (min 8 characters)
+        role:
+          type: string
+          enum: [STUDENT, INSTRUCTOR, ADMIN]
+          default: STUDENT
+          description: User role
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          description: User password
+
+    AuthResponse:
+      type: object
+      required: [userId, email, role, accessToken, expiresIn]
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email
+        role:
+          type: string
+          enum: [STUDENT, INSTRUCTOR, ADMIN]
+          description: User role
+        accessToken:
+          type: string
+          description: JWT access token
+        expiresIn:
+          type: integer
+          description: Token expiration time in seconds
+
+    # Course Schemas
+    CourseSummary:
+      type: object
+      required: [id, title, instructorId, instructorName]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Course ID
+        instructorId:
+          type: string
+          format: uuid
+          description: Instructor ID
+        instructorName:
+          type: string
+          description: Instructor name
+        title:
+          type: string
+          description: Course title
+        subtitle:
+          type: string
+          nullable: true
+          description: Course subtitle
+        description:
+          type: string
+          nullable: true
+          description: Course description
+        price:
+          type: number
+          format: decimal
+          description: Course price
+        currency:
+          type: string
+          default: USD
+          description: Price currency
+        thumbnailUrl:
+          type: string
+          nullable: true
+          description: Course thumbnail URL
+        isPublished:
+          type: boolean
+          description: Whether course is published
+        createdAt:
+          type: string
+          format: date-time
+          description: Course creation date
+
+    CourseDetails:
+      type: object
+      required: [id, instructorId, instructorName, title, isPublished]
+      properties:
+        id:
+          type: string
+          format: uuid
+        instructorId:
+          type: string
+          format: uuid
+        instructorName:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+        currency:
+          type: string
+        thumbnailUrl:
+          type: string
+        previewVideoUrl:
+          type: string
+          nullable: true
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+
+    Section:
+      type: object
+      required: [id, title, orderIndex]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        orderIndex:
+          type: integer
+          description: Order within course
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+
+    Lesson:
+      type: object
+      required: [id, title, type, orderIndex]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        type:
+          type: string
+          enum: [video, quiz, challenge, text]
+        description:
+          type: string
+        orderIndex:
+          type: integer
+        videoUrl:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+          minimum: 0
+          description: Duration in seconds
+        challengeId:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Challenge Schemas
+    ChallengeSummary:
+      type: object
+      required: [id, title, evaluationMetric, passingScore]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        evaluationMetric:
+          type: string
+          enum: [accuracy, precision, recall, f1, rmse, mae]
+        passingScore:
+          type: number
+          minimum: 0
+          maximum: 100
+
+    # Progress Schemas
+    Enrollment:
+      type: object
+      required: [id, userId, courseId, progressPercentage, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        courseId:
+          type: string
+          format: uuid
+        courseTitle:
+          type: string
+        progressPercentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum: [in_progress, completed]
+
+    # Certificate Schemas
+    Certificate:
+      type: object
+      required: [certificateId, verificationCode, issuedAt]
+      properties:
+        certificateId:
+          type: string
+          format: uuid
+        verificationCode:
+          type: string
+          description: Unique verification code
+        studentName:
+          type: string
+        courseTitle:
+          type: string
+        issuedAt:
+          type: string
+          format: date-time
+        downloadUrl:
+          type: string
+          format: uri
+
+paths:
+  # Health Check
+  /health:
+    get:
+      tags: [Health]
+      summary: API Gateway health check
+      description: Check if API Gateway is healthy
+      responses:
+        '200':
+          description: Gateway is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # Authentication
+  /auth/health:
+    get:
+      tags: [Authentication]
+      summary: Auth service health check
+      description: Check if authentication service is healthy
+      responses:
+        '200':
+          description: Auth service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/internal/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify JWT token (internal)
+      description: Service-to-service token verification
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  user_id:
+                    type: string
+                    format: uuid
+                  role:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+
+  # Courses
+  /courses:
+    get:
+      tags: [Courses]
+      summary: List courses
+      description: Get paginated list of published courses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: instructorId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: isPublished
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CourseSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags: [Courses]
+      summary: Create course
+      description: Create a new course
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                subtitle:
+                  type: string
+                  maxLength: 500
+                  nullable: true
+                description:
+                  type: string
+                price:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                  default: 0
+                currency:
+                  type: string
+                  default: USD
+                thumbnailUrl:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetails'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{courseId}:
+    get:
+      tags: [Courses]
+      summary: Get course details
+      description: Get detailed information about a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Course details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetails'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Courses]
+      summary: Update course
+      description: Update existing course
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                subtitle:
+                  type: string
+                  maxLength: 500
+                  nullable: true
+                description:
+                  type: string
+                price:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                currency:
+                  type: string
+                thumbnailUrl:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetails'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only course owner or admin can update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Courses]
+      summary: Delete course
+      description: Delete existing course (soft delete)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Course deleted successfully
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only course owner or admin can delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Cannot delete course with active enrollments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Courses
+    description: Course management
+  - name: Challenges
+    description: Programming challenges
+  - name: Progress
+    description: User progress tracking
+  - name: Certificates
+    description: Certificate management
+  - name: AI Assistant
+    description: AI-powered learning assistance

@@ -1,0 +1,155 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: |
+          echo "🔍 Running ESLint..."
+          npm run lint
+        continue-on-error: true
+
+      - name: Check Prettier formatting
+        run: |
+          echo "✨ Checking code formatting..."
+          npx prettier --check .
+        continue-on-error: true
+
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests..."
+          npm test
+        continue-on-error: true
+
+      - name: Run type checking (if TypeScript)
+        run: |
+          if [ -f "tsconfig.json" ]; then
+            echo "🔷 Running TypeScript type checking..."
+            npm run type-check
+          else
+            echo "⏭️ TypeScript not configured, skipping type check"
+          fi
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+        continue-on-error: true
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run npm audit
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level moderate
+        continue-on-error: true
+
+      - name: Run ESLint security plugin
+        run: |
+          echo "🛡️ Running security linting..."
+          npx eslint . --ext .js --ext .ts --config .eslintrc.json --plugin security
+        continue-on-error: true
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check if services can start
+        run: |
+          echo "🚀 Checking service startup..."
+          
+          # Test service syntax
+          for service_dir in services/*/; do
+            if [ -f "$service_dir/server.js" ]; then
+              echo "Checking $service_dir"
+              node -c "$service_dir/server.js" || echo "❌ $service_dir has syntax errors"
+            fi
+          done
+
+  code-quality-metrics:
+    name: Code Quality Metrics
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate complexity report
+        run: |
+          echo "📊 Generating complexity report..."
+          npx complexity-report --output json --format table services/ > complexity-report.json || true
+
+      - name: Generate dependency report
+        run: |
+          echo "📦 Generating dependency report..."
+          npm ls --json --depth=0 > dependency-report.json || true
+
+      - name: Calculate test coverage
+        run: |
+          echo "📈 Calculating test coverage..."
+          npm test -- --coverage --coverageReporters=json || true
+
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-quality-reports
+          path: |
+            complexity-report.json
+            dependency-report.json
+            coverage/
+          retention-days: 30

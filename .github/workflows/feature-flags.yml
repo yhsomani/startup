@@ -1,0 +1,53 @@
+name: Feature Flag Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate-backend-flags:
+    name: Validate Backend Flags
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd backends/backend-flask
+          pip install -r requirements.txt
+      
+      - name: Run flag validation
+        run: |
+          python scripts/validate-flags.py
+
+  validate-frontend-flags:
+    name: Validate Frontend Flags
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd frontend/ts-mfe-shell
+          npm ci
+      
+      - name: Run flag validation
+        run: |
+          cd frontend/ts-mfe-shell
+          npm run validate:flags

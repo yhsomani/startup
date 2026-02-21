@@ -1,0 +1,40 @@
+{
+  "name": "talentsphere-application-service",
+  "version": "1.0.0",
+  "description": "Job application management service for TalentSphere with distributed tracing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint *.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.7.0",
+    "uuid": "^9.0.0",
+    "joi": "^17.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.42.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "application-service",
+    "job-applications",
+    "microservices",
+    "talentsphere",
+    "distributed-tracing",
+    "api"
+  ],
+  "author": "TalentSphere Team",
+  "license": "MIT"
+}

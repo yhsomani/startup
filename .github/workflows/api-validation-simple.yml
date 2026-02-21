@@ -1,0 +1,61 @@
+name: API Contract Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Project_Document/API_CONTRACTS.md'
+      - 'openapi.yaml'
+      - 'backends/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Project_Document/API_CONTRACTS.md'
+      - 'openapi.yaml'
+      - 'backends/**'
+
+jobs:
+  validate-api-contracts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema requests
+        
+    - name: Validate API contracts
+      run: |
+        echo "🔍 Starting API contract validation..."
+        python scripts/validate-api-contracts-enhanced.py --verbose
+        
+    - name: Validate OpenAPI specification
+      run: |
+        echo "📄 Validating OpenAPI specification..."
+        python scripts/validate-openapi.py
+        
+    - name: Security audit
+      run: |
+        echo "🔒 Running security audit..."
+        python scripts/security-audit.py
+        
+    - name: Performance validation
+      run: |
+        echo "⚡ Running performance validation..."
+        python scripts/performance-validation.py
+        
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-validation-report
+        path: |
+          validation-results.json

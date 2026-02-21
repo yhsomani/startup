@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Flask Backend
+  - job_name: 'backend-flask'
+    static_configs:
+      - targets: ['flask:5000']
+    metrics_path: '/metrics'
+
+  # .NET Backend
+  - job_name: 'backend-dotnet'
+    static_configs:
+      - targets: ['dotnet:8080']
+    metrics_path: '/metrics'
+
+  # Spring Boot Backend
+  - job_name: 'backend-springboot'
+    static_configs:
+      - targets: ['springboot:8080']
+    metrics_path: '/actuator/prometheus'
+
+  # AI Assistant
+  - job_name: 'backend-assistant'
+    static_configs:
+      - targets: ['backend-assistant:5005']
+    metrics_path: '/metrics'
+
+  # Recruitment
+  - job_name: 'backend-recruitment'
+    static_configs:
+      - targets: ['backend-recruitment:5006']
+    metrics_path: '/metrics'
+
+  # Gamification
+  - job_name: 'backend-gamification'
+    static_configs:
+      - targets: ['backend-gamification:5007']
+    metrics_path: '/metrics'
+
+  # Nginx API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:80']
+    metrics_path: '/metrics'
+
+  # Node.js Services
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3030']
+    metrics_path: '/metrics'
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

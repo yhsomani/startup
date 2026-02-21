@@ -1,0 +1,9 @@
+
+flask==3.0.0
+flask-socketio==5.3.6
+flask-cors==4.0.0
+flask-jwt-extended==4.5.3
+y-py==0.6.2
+ypy-websocket==0.8.4
+requests==2.31.0
+python-dotenv==1.0.0

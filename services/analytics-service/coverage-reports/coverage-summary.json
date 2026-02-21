@@ -1,0 +1,119 @@
+{
+  "generated": "2026-01-29T19:00:51.952Z",
+  "summary": {
+    "statements": {
+      "covered": 248,
+      "total": 779,
+      "pct": 31.835686777920415
+    },
+    "branches": {
+      "covered": 124,
+      "total": 400,
+      "pct": 31
+    },
+    "functions": {
+      "covered": 32,
+      "total": 146,
+      "pct": 21.91780821917808
+    },
+    "lines": {
+      "covered": 0,
+      "total": 0,
+      "pct": 0
+    }
+  },
+  "files": [
+    {
+      "path": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\services\\analytics-service\\analytics-service.js",
+      "statements": {
+        "covered": 248,
+        "total": 468,
+        "pct": 52.991452991452995
+      },
+      "branches": {
+        "covered": 124,
+        "total": 315,
+        "pct": 39.36507936507937
+      },
+      "functions": {
+        "covered": 32,
+        "total": 78,
+        "pct": 41.02564102564102
+      },
+      "lines": {
+        "covered": 0,
+        "total": 0,
+        "pct": 0
+      }
+    },
+    {
+      "path": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\services\\analytics-service\\api.js",
+      "statements": {
+        "covered": 0,
+        "total": 181,
+        "pct": 0
+      },
+      "branches": {
+        "covered": 0,
+        "total": 32,
+        "pct": 0
+      },
+      "functions": {
+        "covered": 0,
+        "total": 37,
+        "pct": 0
+      },
+      "lines": {
+        "covered": 0,
+        "total": 0,
+        "pct": 0
+      }
+    },
+    {
+      "path": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\services\\analytics-service\\server.js",
+      "statements": {
+        "covered": 0,
+        "total": 28,
+        "pct": 0
+      },
+      "branches": {
+        "covered": 0,
+        "total": 10,
+        "pct": 0
+      },
+      "functions": {
+        "covered": 0,
+        "total": 5,
+        "pct": 0
+      },
+      "lines": {
+        "covered": 0,
+        "total": 0,
+        "pct": 0
+      }
+    },
+    {
+      "path": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\services\\analytics-service\\scripts\\generate-coverage-report.js",
+      "statements": {
+        "covered": 0,
+        "total": 102,
+        "pct": 0
+      },
+      "branches": {
+        "covered": 0,
+        "total": 43,
+        "pct": 0
+      },
+      "functions": {
+        "covered": 0,
+        "total": 26,
+        "pct": 0
+      },
+      "lines": {
+        "covered": 0,
+        "total": 0,
+        "pct": 0
+      }
+    }
+  ]
+}

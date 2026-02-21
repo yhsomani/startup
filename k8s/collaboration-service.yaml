@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collaboration
+spec:
+  selector:
+    matchLabels:
+      app: collaboration
+  template:
+    metadata:
+      labels:
+        app: collaboration
+    spec:
+      containers:
+      - name: collaboration
+        image: ts-collaboration:latest
+        imagePullPolicy: Never
+        env:
+        - name: PORT
+          value: "1234"
+        ports:
+        - containerPort: 1234
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collaboration
+spec:
+  ports:
+  - port: 1234
+  selector:
+    app: collaboration

@@ -1,0 +1,440 @@
+# TalentSphere Docker Compose - Production Template
+version: '3.8'
+
+# Environment variables (to be provided separately)
+# Use: docker-compose --env-file .env.prod up
+
+volumes:
+  postgres_data:
+  postgres: null
+  redis_data:
+    redis: null
+
+services:
+  # 1. Database (Shared by all services)
+  db:
+    image: postgres:15-alpine
+    container_name: ts-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5440:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # 2. Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ts-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  # 3. Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ts-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics", "-l", "uptime", "-p", "${RABBITMQ_DEFAULT_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # 4. API Gateway
+  api-gateway:
+    image: nginx:alpine
+    container_name: ts-api-gateway
+    ports:
+      - "${API_GATEWAY_HTTP_PORT}:80"
+      - "${API_GATEWAY_HTTPS_PORT}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - flask
+      - springboot
+      - backend-assistant
+      - backend-recruitment
+      - backend-gamification
+      - backend-job
+      - backend-network
+      - backend-search
+      - backend-analytics
+      - notification-service
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:${API_GATEWAY_HTTP_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 5. Flask Backend (Auth, Challenges)
+  flask:
+    build: ./backends/backend-flask
+    container_name: ts-backend-flask
+    ports:
+      - "${FLASK_PORT}:5000"
+    environment:
+      FLASK_ENV: ${FLASK_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      FLASK_FLAGS_URL: ${FLASK_FLAGS_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      UPLOAD_FOLDER: ${UPLOAD_FOLDER}
+      LOG_LEVEL: ${LOG_LEVEL}
+    volumes:
+      - ./backends/backend-flask/uploads:/app/uploads
+      - ./logs/flask:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:${FLASK_PORT}/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 6. Spring Boot Backend (Progress Service)
+  springboot:
+    build: ./backends/backend-springboot
+    container_name: ts-backend-springboot
+    ports:
+      - "${SPRINGBOOT_PORT}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # 7. AI Assistant Service
+  backend-assistant:
+    build: ./backends/backend-assistant
+    container_name: ts-backend-assistant
+    ports:
+      - "${ASSISTANT_PORT}:5005"
+    environment:
+      FLASK_ENV: ${FLASK_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      FLASK_FLAGS_URL: ${FLASK_FLAGS_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    volumes:
+      - ./logs/assistant:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${ASSISTANT_PORT}/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 8. Recruitment Service
+  backend-recruitment:
+    build: ./backends/backend-recruitment
+    container_name: ts-backend-recruitment
+    ports:
+      - "${RECRUITMENT_PORT}:5006"
+    environment:
+      FLASK_ENV: ${FLASK_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      PROGRESS_SERVICE_URL: http://ts-backend-springboot:8080
+      FLASK_FLAGS_URL: ${FLASK_FLAGS_URL}
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${RECRUITMENT_PORT}/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 9. Gamification Service
+  backend-gamification:
+    build: ./backends/backend-gamification
+    container_name: ts-backend-gamification
+    ports:
+      - "${GAMIFICATION_PORT}:5007"
+    environment:
+      FLASK_ENV: ${FLASK_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      FLASK_FLAGS_URL: ${FLASK_FLAGS_URL}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${GAMIFICATION_PORT}/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 10. Enhanced Services (Job, Network, Search, Analytics)
+  backend-job:
+    build: ./backends/backend-enhanced/job-service
+    container_name: ts-backend-job
+    ports:
+      - "${JOB_SERVICE_PORT}:3003"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+
+  backend-network:
+    build: ./backends/backend-enhanced/network-service
+    container_name: ts-backend-network
+    ports:
+      - "${NETWORK_SERVICE_PORT}:3004"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  backend-search:
+    build: ./backends/backend-enhanced/search-service
+    container_name: ts-backend-search
+    ports:
+      - "${SEARCH_SERVICE_PORT}:3005"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  backend-analytics:
+    build: ./backends/backend-enhanced/analytics-service
+    container_name: ts-backend-analytics
+    ports:
+      "${ANALYTICS_SERVICE_PORT}:3006"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # 11. Notification Service (WebSocket)
+  notification-service:
+    build: ./backends/backend-node
+    container_name: ts-notification-service
+    ports:
+      "${NOTIFICATION_SERVICE_PORT}:3030"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      JWT_SECRET: ${JWT_SECRET_KEY}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      CORS_ORIGIN: ${CORS_ORIGINS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # 12. Frontend Services (MFE Architecture)
+  # Commented out services can be enabled as needed
+  # shell:
+  #   build: ./frontend/ts-mfe-shell
+  #   ports:
+  #     - "${SHELL_PORT}:3000"
+  #   environment:
+  #     - NODE_ENV: ${NODE_ENV}
+  #   depends_on:
+  #     - lms
+  #     - challenge
+
+  # lms:
+  #   build: ./frontend/ts-mfe-lms
+  #   ports:
+  #     - "${LMS_PORT}:3005"
+  #   environment:
+  #     - VITE_USE_MOCK: "false"
+  #   depends_on:
+  #     - shell
+
+  # challenge:
+  #   build: ./frontend/ts-mfe-challenge
+  #   ports:
+  #     - "${CHALLENGE_PORT}:3006"
+  #   environment:
+  #     - VITE_USE_MOCK: "false"
+
+# Production networking
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+      - gateway: 172.20.0.1
+        dns:
+          - 8.8.8.8
+          - 1.1.1.1
+    internal:
+      - default:
+        driver: bridge

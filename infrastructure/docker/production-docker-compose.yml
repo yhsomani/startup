@@ -1,0 +1,167 @@
+{
+  "name": "production-docker-compose",
+  "version": "3.0.0",
+  "description": "Production Docker Compose for TalentSphere",
+  "services": {
+    "user-auth-service": {
+      "ports": ["3001:3001"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres',
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere',
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres",
+        "JWT_SECRET=production-jwt-secret-key-change-in-production",
+        "REDIS_URL=redis://redis:6379",
+        "REDIS_PORT=6380",
+        "EMAIL_SERVICE_URL=http://email-service:3007",
+        "ANALYTICS_SERVICE_URL=http://analytics-service:3008",
+        "COMPANYTICS_SERVICE_URL=http://company-service:3006",
+        "AUTH_SERVICE_URL=http://user-auth-service:3001"
+      ]
+    },
+    "company-service": {
+      "ports": ["3006:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere",
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres",
+        "COMPANYTICS_SERVICE_URL=http://company-service:3006",
+        "AUTH_SERVICE_URL=http://user-auth-service:3001",
+        "USER_SERVICE_URL=http://user-profile-service:3002"
+      ]
+    },
+    "job-listing-service": {
+      "ports": ["3003:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere",
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres"
+      ]
+    },
+    "notification-service": {
+      "ports": ["3005:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere',
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres",
+        "EMAIL_SERVICE_URL=http://notification-service:3005",
+        "REDIS_URL=redis://redis:6379",
+        "REDIS_PORT=6380",
+        "AUTH_SERVICE_URL=http://user-auth-service:3001",
+        "USER_SERVICE_URL=http://user-profile-service:3002"
+      ]
+    },
+    "email-service": {
+      "ports": ["3007:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere',
+        "DB_USER=postgres',
+        "DB_PASSWORD=postgres",
+        "SMTP_HOST=smtp.gmail.com",
+        "SMTP_PORT": 587',
+        "SMTP_USER=smtp.talentsphere@gmail.com",
+        "SMTP_PASS=${SMTP_PASS}"
+      ]
+    },
+    "analytics-service": {
+      "ports": ["3008:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=talentsphere",
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres"
+      ]
+    }
+  },
+    "company-service": {
+      "ports": ["3006:3010"],
+      "environment": [
+        "NODE_ENV=production",
+        "DB_HOST=postgres",
+        "DB_PORT=5432',
+        "DB_NAME=talentsphere",
+        "DB_USER=postgres",
+        "DB_PASSWORD=postgres"
+      ]
+    }
+  },
+    "front-end": {
+      "ports": ["3100:3100"],
+      "build": {
+        "command": "npm run build && npm start",
+        "script": "npm run start:prod"
+      },
+      "dependencies": {
+        "@react": "^18.2.1",
+        "@reduxjs-toolkit": "^2.1.1",
+        "@mui/material": "^5.14.19",
+        "@emotion/react": "^18.2.0",
+        "@react-router-dom": "^6.6.0",
+        "@reduxjs-toolkit/thunk": "^2.1.0",
+        "@mui/icons-material": "^5.14.19",
+        "@socket.io-client": "^4.7.0"
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "VITE_API_URL=http://localhost:3100",
+        "REACT_APP_URL=http://localhost:3100",
+        "CHAT_SERVICE_URL=http://localhost:3101"
+      }
+    }
+  },
+    "nginx": {
+      "image": "nginx:alpine",
+      "ports": ["80:8080"],
+      "ports": ["3100:3100"],
+      "environment": [
+        "NODE_ENV=production"
+      ],
+      "depends_on": [
+        "user-auth-service",
+        "user-profile-service",
+        "job-listing-service",
+        "company-service",
+        "notification-service",
+        "email-service",
+        "analytics-service",
+        "front-end"
+      ]
+    }
+  },
+  "volumes": {
+    "postgres_data": {
+      "driver: "postgres:15-alpine",
+      "environment: "production",
+      "volumes": ["./data:/var/lib/postgresql/data"],
+      "ports": ["5432:5432"]
+    },
+    "redis_data": {
+      "driver: "redis:7-alpine",
+      "environment: "production",
+      "ports": ["6379:6380"]
+    }
+  }
+  },
+  "networks": {
+    "driver: "bridge",
+    environment: "production"
+  }
+  }
+}
+}

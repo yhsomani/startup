@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere Notification Service API
+  description: Real-time notification and messaging service for TalentSphere platform
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3030
+    description: Notification Service (Development)
+  - url: https://api.talentsphere.io/notifications
+    description: Notification Service (Production)
+
+tags:
+  - name: Notifications
+    description: User notification management
+  - name: WebSocket
+    description: Real-time WebSocket events
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Get service health status
+      description: Returns the health status of the Notification service
+      operationId: getHealthNotification
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /notifications/user/{user_id}:
+    get:
+      tags: [Notifications]
+      summary: Get user notifications
+      description: Retrieve all notifications for a specific user
+      operationId: getUserNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of user notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  total:
+                    type: integer
+                  unread_count:
+                    type: integer
+
+  /notifications/{notification_id}/read:
+    put:
+      tags: [Notifications]
+      summary: Mark notification as read
+      description: Mark a specific notification as read
+      operationId: markNotificationRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+
+  /notifications/{notification_id}/unread:
+    put:
+      tags: [Notifications]
+      summary: Mark notification as unread
+      description: Mark a specific notification as unread
+      operationId: markNotificationUnread
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as unread
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+
+  /notifications/user/{user_id}/read-all:
+    put:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      description: Mark all notifications for a user as read
+      operationId: markAllNotificationsRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updated_count:
+                    type: integer
+
+  /notifications/send:
+    post:
+      tags: [Notifications]
+      summary: Send notification
+      description: Send a notification to one or more users
+      operationId: sendNotification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendNotificationRequest'
+      responses:
+        '201':
+          description: Notification sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+
+  /notifications/settings:
+    get:
+      tags: [Notifications]
+      summary: Get notification settings
+      description: Retrieve notification preferences for the current user
+      operationId: getNotificationSettings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User notification settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+    put:
+      tags: [Notifications]
+      summary: Update notification settings
+      description: Update notification preferences for the current user
+      operationId: updateNotificationSettings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        service:
+          type: string
+          example: notification-service
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [info, success, warning, error, challenge_completed, course_updated, new_message]
+        title:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SendNotificationRequest:
+      type: object
+      required:
+        - recipients
+        - title
+        - message
+        - type
+      properties:
+        recipients:
+          type: array
+          items:
+            type: string
+            format: uuid
+        title:
+          type: string
+          maxLength: 255
+        message:
+          type: string
+          maxLength: 1000
+        type:
+          type: string
+          enum: [info, success, warning, error, challenge_completed, course_updated, new_message]
+        data:
+          type: object
+          additionalProperties: true
+
+    NotificationSettings:
+      type: object
+      properties:
+        email_notifications:
+          type: boolean
+        push_notifications:
+          type: boolean
+        in_app_notifications:
+          type: boolean
+        challenge_updates:
+          type: boolean
+        course_updates:
+          type: boolean
+        messages:
+          type: boolean
+        recruitment_updates:
+          type: boolean
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# WebSocket Events
+x-websocket-events:
+  connect:
+    description: User connects to notification service
+    payload:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        token:
+          type: string
+  notification:
+    description: New notification sent to user
+    payload:
+      $ref: '#/components/schemas/Notification'
+  read_status_update:
+    description: Notification read status updated
+    payload:
+      type: object
+      properties:
+        notification_id:
+          type: string
+          format: uuid
+        is_read:
+          type: boolean
+  disconnect:
+    description: User disconnects from notification service
+    payload:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid

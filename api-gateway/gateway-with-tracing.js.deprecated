@@ -1,0 +1,586 @@
+/**
+ * Enhanced API Gateway with Distributed Tracing Integration
+ * Complete service integration with tracing, circuit breakers, and monitoring
+ */
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { v4: uuidv4 } = require('uuid');
+const http = require('http');
+const { getTracer, TraceMiddleware } = require('../backends/shared/tracing');
+const CircuitBreaker = require('./circuit-breaker');
+
+class ServiceRegistry {
+  constructor() {
+    this.services = new Map();
+    this.healthCheckInterval = 30000; // 30 seconds
+    this.tracer = null;
+    this.traceMiddleware = null;
+    this.initializeTracing();
+    this.startHealthChecking();
+  }
+
+  initializeTracing() {
+    try {
+      this.tracer = getTracer();
+      if (this.tracer) {
+        this.traceMiddleware = new TraceMiddleware(this.tracer);
+      }
+    } catch (error) {
+      console.log('⚠️  Tracing not available in gateway');
+    }
+  }
+
+  async registerService(serviceName, url, options = {}) {
+    const span = this.tracer ? this.tracer.startSpan('gateway.service.register') : null;
+    
+    if (span) {
+      span.setTag('service.name', serviceName);
+      span.setTag('service.url', url);
+      span.setTag('service.options', JSON.stringify(options));
+    }
+
+    const service = {
+      name: serviceName,
+      url,
+      options,
+      healthy: true,
+      lastHealthCheck: Date.now(),
+      failureCount: 0,
+      circuitBreaker: new CircuitBreaker(serviceName, options.circuitBreaker),
+      registeredAt: Date.now()
+    };
+    
+    this.services.set(serviceName, service);
+    console.log(`✅ Registered service: ${serviceName} at ${url}`);
+    
+    if (span) {
+      span.logEvent('Service registered successfully');
+      span.finish();
+    }
+    
+    return service;
+  }
+
+  async getService(serviceName) {
+    const service = this.services.get(serviceName);
+    if (!service) {
+      throw new Error(`Service ${serviceName} not found`);
+    }
+    return service;
+  }
+
+  async getHealthyServices() {
+    return Array.from(this.services.values()).filter(service => service.healthy);
+  }
+
+  async startHealthChecking() {
+    setInterval(async () => {
+      const healthSpan = this.tracer ? this.tracer.startSpan('gateway.health.check') : null;
+      
+      if (healthSpan) {
+        healthSpan.setTag('total.services', this.services.size);
+      }
+
+      for (const [serviceName, service] of this.services) {
+        try {
+          await this.checkServiceHealth(service);
+          if (healthSpan) {
+            healthSpan.logEvent(`Health check passed for ${serviceName}`);
+          }
+        } catch (error) {
+          if (healthSpan) {
+            healthSpan.logError(error, { service: serviceName });
+          }
+        }
+      }
+
+      if (healthSpan) {
+        healthSpan.finish();
+      }
+    }, this.healthCheckInterval);
+  }
+
+  async checkServiceHealth(service) {
+    const healthSpan = this.tracer ? this.tracer.startSpan(`health.check.${service.name}`) : null;
+    
+    try {
+      // Simple health check - can be enhanced
+      const startTime = Date.now();
+      const response = await this.makeHttpRequest({
+        hostname: new URL(service.url).hostname,
+        port: new URL(service.url).port || 80,
+        path: '/health',
+        method: 'GET',
+        timeout: 5000
+      });
+
+      const responseTime = Date.now() - startTime;
+      
+      service.healthy = true;
+      service.lastHealthCheck = Date.now();
+      service.responseTime = responseTime;
+      service.failureCount = 0;
+
+      if (healthSpan) {
+        healthSpan.setTag('health.status', 'healthy');
+        healthSpan.setTag('health.response_time_ms', responseTime);
+        healthSpan.logEvent('Health check passed');
+      }
+
+    } catch (error) {
+      service.healthy = false;
+      service.lastHealthCheck = Date.now();
+      service.failureCount++;
+
+      if (healthSpan) {
+        healthSpan.setTag('health.status', 'unhealthy');
+        healthSpan.setTag('health.failure_count', service.failureCount);
+        healthSpan.logError(error);
+      }
+
+      // Trigger circuit breaker if too many failures
+      if (service.failureCount >= 3) {
+        service.circuitBreaker.recordFailure();
+      }
+    } finally {
+      if (healthSpan) {
+        healthSpan.finish();
+      }
+    }
+  }
+
+  makeHttpRequest(options) {
+    return new Promise((resolve, reject) => {
+      const httpModule = options.protocol === 'https:' ? require('https') : require('http');
+      const req = httpModule.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve({ statusCode: res.statusCode, data });
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
+
+      req.setTimeout(options.timeout || 5000);
+      req.end();
+    });
+  }
+
+  getServiceMetrics() {
+    const metrics = {
+      totalServices: this.services.size,
+      healthyServices: 0,
+      unhealthyServices: 0,
+      services: {}
+    };
+
+    for (const [name, service] of this.services) {
+      if (service.healthy) {
+        metrics.healthyServices++;
+      } else {
+        metrics.unhealthyServices++;
+      }
+
+      metrics.services[name] = {
+        healthy: service.healthy,
+        lastHealthCheck: service.lastHealthCheck,
+        responseTime: service.responseTime,
+        failureCount: service.failureCount,
+        circuitBreakerState: service.circuitBreaker.getState()
+      };
+    }
+
+    return metrics;
+  }
+}
+
+class EnhancedGateway {
+  constructor(config = {}) {
+    this.config = {
+      port: config.port || 3000,
+      environment: config.environment || 'development',
+      enableTracing: config.enableTracing !== false,
+      enableMetrics: config.enableMetrics !== false,
+      rateLimiting: {
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 1000, // limit each IP to 1000 requests per windowMs
+        ...config.rateLimiting
+      },
+      ...config
+    };
+
+    this.app = express();
+    this.server = null;
+    this.serviceRegistry = new ServiceRegistry();
+    this.metrics = {
+      requests: 0,
+      errors: 0,
+      totalResponseTime: 0,
+      requestsByService: new Map(),
+      requestsByStatus: new Map()
+    };
+
+    this.tracer = null;
+    this.traceMiddleware = null;
+    this.initializeMiddleware();
+    this.initializeRoutes();
+    this.initializeMetrics();
+  }
+
+  initializeTracing() {
+    if (this.config.enableTracing) {
+      try {
+        this.tracer = getTracer();
+        if (this.tracer) {
+          this.traceMiddleware = new TraceMiddleware(this.tracer);
+        }
+      } catch (error) {
+        console.log('⚠️  Distributed tracing not available');
+      }
+    }
+  }
+
+  initializeMiddleware() {
+    // Security middleware
+    this.app.use(helmet());
+    this.app.use(cors());
+    
+    // Rate limiting
+    this.app.use(rateLimit(this.config.rateLimiting));
+
+    // Body parsing
+    this.app.use(express.json({ limit: '10mb' }));
+    this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // Request ID middleware
+    this.app.use((req, res, next) => {
+      req.id = req.headers['x-request-id'] || uuidv4();
+      res.setHeader('x-request-id', req.id);
+      next();
+    });
+
+    // Distributed tracing middleware
+    if (this.traceMiddleware) {
+      this.app.use(this.traceMiddleware.express());
+    }
+
+    // Request logging
+    this.app.use((req, res, next) => {
+      const startTime = Date.now();
+      
+      res.on('finish', () => {
+        const duration = Date.now() - startTime;
+        this.updateMetrics(req, res, duration);
+      });
+
+      next();
+    });
+  }
+
+  initializeRoutes() {
+    // Health check
+    this.app.get('/health', (req, res) => {
+      const span = this.tracer ? this.tracer.startSpan('gateway.health') : null;
+      
+      if (span) {
+        span.setTag('component', 'api-gateway');
+        span.setTag('health.check.type', 'gateway');
+      }
+
+      const health = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        version: require('../package.json').version,
+        services: this.serviceRegistry.getServiceMetrics()
+      };
+
+      if (span) {
+        span.finish();
+      }
+
+      res.json(health);
+    });
+
+    // Service status
+    this.app.get('/status', (req, res) => {
+      const span = this.tracer ? this.tracer.startSpan('gateway.status') : null;
+      
+      const status = {
+        gateway: {
+          status: 'running',
+          uptime: process.uptime(),
+          requests: this.metrics.requests,
+          errors: this.metrics.errors,
+          avgResponseTime: this.getAverageResponseTime()
+        },
+        services: this.serviceRegistry.getServiceMetrics()
+      };
+
+      if (span) {
+        span.finish();
+      }
+
+      res.json(status);
+    });
+
+    // Dynamic service routes
+    this.app.use('/api/v1/:service/*', async (req, res, next) => {
+      const serviceName = req.params.service;
+      const path = req.params[0];
+      
+      try {
+        const service = await this.serviceRegistry.getService(serviceName);
+        await this.proxyRequest(req, res, service, path);
+      } catch (error) {
+        const span = this.tracer ? this.tracer.getActiveSpans().find(s => s.getContext().spanId === req.traceContext?.spanId) : null;
+        if (span) {
+          span.logError(error, { service: serviceName, path });
+        }
+        
+        res.status(503).json({
+          error: 'Service unavailable',
+          message: error.message,
+          service: serviceName
+        });
+      }
+    });
+  }
+
+  async proxyRequest(req, res, service, path) {
+    const operationName = `proxy.${service.name}.${path}`;
+    const span = this.tracer ? this.tracer.startSpan(operationName, req.traceContext) : null;
+    
+    if (span) {
+      span.setTag('service.name', service.name);
+      span.setTag('service.url', service.url);
+      span.setTag('http.method', req.method);
+      span.setTag('http.path', path);
+    }
+
+    try {
+      // Check circuit breaker
+      if (service.circuitBreaker.getState().state === 'OPEN') {
+        throw new Error(`Circuit breaker open for ${service.name}`);
+      }
+
+      // Execute through circuit breaker
+      const result = await service.circuitBreaker.execute(async () => {
+        return this.makeProxyRequest(req, service, path);
+      });
+
+      if (span) {
+        span.setTag('http.status_code', result.statusCode);
+        span.logEvent('Proxy request completed successfully');
+      }
+
+      // Set response headers
+      if (result.headers) {
+        Object.keys(result.headers).forEach(key => {
+          if (key.toLowerCase() !== 'content-length') {
+            res.setHeader(key, result.headers[key]);
+          }
+        });
+      }
+
+      res.status(result.statusCode).json(result.data);
+
+    } catch (error) {
+      if (span) {
+        span.logError(error);
+      }
+      
+      throw error;
+    } finally {
+      if (span) {
+        span.finish();
+      }
+    }
+  }
+
+  async makeProxyRequest(req, service, path) {
+    const serviceUrl = new URL(service.url);
+    const proxyOptions = {
+      hostname: serviceUrl.hostname,
+      port: serviceUrl.port || (serviceUrl.protocol === 'https:' ? 443 : 80),
+      path: `/${path}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`,
+      method: req.method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Gateway-Request-ID': req.id,
+        'X-Forwarded-For': req.ip,
+        'X-Forwarded-Proto': req.protocol,
+        ...req.headers
+      },
+      timeout: 30000
+    };
+
+    // Inject tracing headers
+    if (this.traceMiddleware && this.tracer && req.traceContext) {
+      const context = this.tracer.extractFromHeaders(req.headers) || req.traceContext;
+      this.tracer.injectToHeaders({ getContext: () => context }, proxyOptions.headers);
+    }
+
+    // Remove problematic headers
+    delete proxyOptions.headers['host'];
+    delete proxyOptions.headers['content-length'];
+
+    // Add request body for POST/PUT requests
+    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
+      proxyOptions.body = JSON.stringify(req.body);
+    }
+
+    const response = await this.serviceRegistry.makeHttpRequest(proxyOptions);
+    
+    return {
+      statusCode: response.statusCode,
+      headers: {}, // Simplified for this example
+      data: response.data ? JSON.parse(response.data) : null
+    };
+  }
+
+  updateMetrics(req, res, duration) {
+    this.metrics.requests++;
+    this.metrics.totalResponseTime += duration;
+
+    // Track by service
+    const serviceName = req.params.service || 'unknown';
+    const serviceCount = this.metrics.requestsByService.get(serviceName) || 0;
+    this.metrics.requestsByService.set(serviceName, serviceCount + 1);
+
+    // Track by status
+    const statusKey = `status_${res.statusCode}`;
+    const statusCount = this.metrics.requestsByStatus.get(statusKey) || 0;
+    this.metrics.requestsByStatus.set(statusKey, statusCount + 1);
+
+    // Track errors
+    if (res.statusCode >= 400) {
+      this.metrics.errors++;
+    }
+  }
+
+  getAverageResponseTime() {
+    if (this.metrics.requests === 0) return 0;
+    return Math.round(this.metrics.totalResponseTime / this.metrics.requests);
+  }
+
+  initializeMetrics() {
+    if (this.config.enableMetrics) {
+      setInterval(() => {
+        console.log('📊 Gateway Metrics:', {
+          requests: this.metrics.requests,
+          errors: this.metrics.errors,
+          avgResponseTime: this.getAverageResponseTime(),
+          uptime: process.uptime()
+        });
+      }, 60000); // Log metrics every minute
+    }
+  }
+
+  async start() {
+    const startupSpan = this.tracer ? this.tracer.startSpan('gateway.startup') : null;
+    
+    try {
+      this.server = this.app.listen(this.config.port, () => {
+        console.log(`🚀 Enhanced API Gateway running on port ${this.config.port}`);
+        console.log(`📍 Environment: ${this.config.environment}`);
+        console.log(`🔍 Tracing: ${this.config.enableTracing ? 'enabled' : 'disabled'}`);
+        console.log(`📊 Metrics: ${this.config.enableMetrics ? 'enabled' : 'disabled'}`);
+      });
+
+      if (startupSpan) {
+        startupSpan.setTag('port', this.config.port);
+        startupSpan.logEvent('Gateway started successfully');
+        startupSpan.finish();
+      }
+
+    } catch (error) {
+      if (startupSpan) {
+        startupSpan.logError(error);
+        startupSpan.finish();
+      }
+      throw error;
+    }
+  }
+
+  async stop() {
+    const shutdownSpan = this.tracer ? this.tracer.startSpan('gateway.shutdown') : null;
+    
+    try {
+      if (this.server) {
+        await new Promise((resolve) => {
+          this.server.close(resolve);
+        });
+        console.log('🛑 API Gateway stopped');
+      }
+
+      if (shutdownSpan) {
+        shutdownSpan.finish();
+      }
+
+    } catch (error) {
+      if (shutdownSpan) {
+        shutdownSpan.logError(error);
+        shutdownSpan.finish();
+      }
+      throw error;
+    }
+  }
+
+  getMetrics() {
+    return {
+      gateway: {
+        requests: this.metrics.requests,
+        errors: this.metrics.errors,
+        avgResponseTime: this.getAverageResponseTime(),
+        uptime: process.uptime()
+      },
+      services: this.serviceRegistry.getServiceMetrics(),
+      tracing: {
+        enabled: !!this.tracer,
+        activeSpans: this.tracer ? this.tracer.getActiveSpans().length : 0
+      }
+    };
+  }
+}
+
+// Create and export gateway instance
+module.exports = {
+  EnhancedGateway,
+  ServiceRegistry
+};
+
+// Auto-start if this is the main module
+if (require.main === module) {
+  const gateway = new EnhancedGateway({
+    port: process.env.PORT || 3000,
+    environment: process.env.NODE_ENV || 'development'
+  });
+
+  gateway.start().catch(console.error);
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully...');
+    await gateway.stop();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('🛑 SIGINT received, shutting down gracefully...');
+    await gateway.stop();
+    process.exit(0);
+  });
+}

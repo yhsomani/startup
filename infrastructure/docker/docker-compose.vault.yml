@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+    vault:
+        image: hashicorp/vault:1.15
+        container_name: talentsphere-vault
+        restart: unless-stopped
+        ports:
+            - "8200:8200"
+        environment:
+            VAULT_ADDR: http://0.0.0.0:8200
+            VAULT_API_ADDR: http://0.0.0.0:8200
+            VAULT_SEAL_TYPE: shamir
+            VAULT_CLUSTER_ADDR: ""
+        volumes:
+            - vault-data:/vault/file
+            - vault-config:/vault/config
+            - ./vault-policy.hcl:/vault/config/policy.hcl:ro
+        cap_add:
+            - IPC_LOCK
+        command: server -config=/vault/config/vault.hcl
+        healthcheck:
+            test: ["CMD", "vault", "status"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    vault-unseal:
+        image: hashicorp/vault:1.15
+        container_name: talentsphere-vault-unseal
+        depends_on:
+            vault:
+                condition: service_healthy
+        environment:
+            VAULT_ADDR: http://vault:8200
+        volumes:
+            - ./vault-keys:/vault/keys
+        entrypoint: ["/bin/sh", "-c"]
+        command:
+            - |
+                echo "Waiting for Vault to be ready..."
+                sleep 5
+
+                # Check if already unsealed
+                if vault status -format=json | grep -q '"sealed":false'; then
+                  echo "Vault already unsealed"
+                  exit 0
+                fi
+
+                # Check for existing unseal keys
+                if [ -f /vault/keys/unseal.key ]; then
+                  vault operator unseal $(cat /vault/keys/unseal.key)
+                else
+                  echo "No unseal key found. Please manually unseal Vault."
+                  echo "Run: docker exec -it talentsphere-vault vault operator init"
+                  exit 1
+                fi
+
+volumes:
+    vault-data:
+    vault-config:
+
+networks:
+    default:
+        name: talentsphere-network

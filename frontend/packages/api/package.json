@@ -1,0 +1,28 @@
+{
+    "name": "@talentsphere/api",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "dependencies": {
+        "axios": "^1.13.2"
+    },
+    "devDependencies": {
+        "typescript": "^5.2.2"
+    },
+    "peerDependencies": {
+        "axios": "^1.0.0"
+    }
+}

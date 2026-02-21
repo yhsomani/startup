@@ -1,0 +1,613 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere Network Service API
+  description: Professional networking and messaging service for TalentSphere platform
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3004
+    description: Network Service (Development)
+  - url: https://api.talentsphere.io/network
+    description: Network Service (Production)
+
+tags:
+  - name: Connections
+    description: Professional connection management
+  - name: Messages
+    description: Private messaging system
+  - name: Users
+    description: User search and profiles
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Get service health status
+      description: Returns the health status of the Network service
+      operationId: getHealthNetwork
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /connections:
+    get:
+      tags: [Connections]
+      summary: Get user connections
+      description: Retrieve all connections for the current user
+      operationId: getUserConnections
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, blocked]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of user connections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connections:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Connection'
+                  total:
+                    type: integer
+
+  /connections/request:
+    post:
+      tags: [Connections]
+      summary: Send connection request
+      description: Send a connection request to another user
+      operationId: sendConnectionRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipient_id
+              properties:
+                recipient_id:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+                  maxLength: 500
+      responses:
+        '201':
+          description: Connection request sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+
+  /connections/{connection_id}:
+    get:
+      tags: [Connections]
+      summary: Get connection details
+      description: Retrieve details of a specific connection
+      operationId: getConnectionDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: connection_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Connection details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+
+    put:
+      tags: [Connections]
+      summary: Update connection status
+      description: Accept, reject, or block a connection request
+      operationId: updateConnectionStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: connection_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [accepted, rejected, blocked]
+      responses:
+        '200':
+          description: Connection status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+
+    delete:
+      tags: [Connections]
+      summary: Remove connection
+      description: Remove a connection with another user
+      operationId: removeConnection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: connection_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Connection removed successfully
+
+  /messages:
+    get:
+      tags: [Messages]
+      summary: Get conversations
+      description: Retrieve all conversations for the current user
+      operationId: getConversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+                  total:
+                    type: integer
+
+  /messages/{conversation_id}:
+    get:
+      tags: [Messages]
+      summary: Get conversation messages
+      description: Retrieve all messages in a conversation
+      operationId: getConversationMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: before
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+
+  /messages/send:
+    post:
+      tags: [Messages]
+      summary: Send message
+      description: Send a message to another user
+      operationId: sendMessage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /messages/{message_id}/read:
+    put:
+      tags: [Messages]
+      summary: Mark message as read
+      description: Mark a message as read
+      operationId: markMessageRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /users/search:
+    get:
+      tags: [Users]
+      summary: Search users
+      description: Search for users by name, skills, or other criteria
+      operationId: searchUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: skills
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProfile'
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+
+  /users/{user_id}/profile:
+    get:
+      tags: [Users]
+      summary: Get user profile
+      description: Retrieve public profile information for a user
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        service:
+          type: string
+          example: network-service
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    Connection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        requester_id:
+          type: string
+          format: uuid
+        recipient_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, accepted, rejected, blocked]
+        message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        requester_profile:
+          $ref: '#/components/schemas/UserProfile'
+        recipient_profile:
+          $ref: '#/components/schemas/UserProfile'
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        participant_id:
+          type: string
+          format: uuid
+        participant_profile:
+          $ref: '#/components/schemas/UserProfile'
+        last_message:
+          $ref: '#/components/schemas/Message'
+        unread_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversation_id:
+          type: string
+          format: uuid
+        sender_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        message_type:
+          type: string
+          enum: [text, image, file]
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SendMessageRequest:
+      type: object
+      required:
+        - recipient_id
+        - content
+      properties:
+        recipient_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          maxLength: 2000
+        message_type:
+          type: string
+          enum: [text, image, file]
+          default: text
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        headline:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        experience:
+          type: array
+          items:
+            type: object
+            properties:
+              company:
+                type: string
+              position:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+              current:
+                type: boolean
+        education:
+          type: array
+          items:
+            type: object
+            properties:
+              institution:
+                type: string
+              degree:
+                type: string
+              field:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+        profile_image_url:
+          type: string
+        connection_status:
+          type: string
+          enum: [connected, pending, none, blocked]
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# WebSocket Events
+x-websocket-events:
+  connect:
+    description: User connects to messaging service
+    payload:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        token:
+          type: string
+  message:
+    description: New message sent
+    payload:
+      $ref: '#/components/schemas/Message'
+  message_read:
+    description: Message marked as read
+    payload:
+      type: object
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        reader_id:
+          type: string
+          format: uuid
+  typing:
+    description: User is typing
+    payload:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        is_typing:
+          type: boolean
+  disconnect:
+    description: User disconnects from messaging service
+    payload:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid

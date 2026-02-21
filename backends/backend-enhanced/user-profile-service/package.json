@@ -1,0 +1,49 @@
+{
+  "name": "user-profile-service",
+  "version": "1.0.0",
+  "description": "User Profile Service with Production Database",
+  "main": "enhanced-index.js",
+  "scripts": {
+    "start": "node enhanced-index.js",
+    "dev": "nodemon --watch enhanced-index.js",
+    "test": "NODE_ENV=development node enhanced-index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^7.1.1",
+    "uuid": "^9.0.0",
+    "joi": "^17.9.2",
+    "pg": "^8.8.3",
+    "dotenv": "^16.4.0",
+    "multer": "^1.4.2",
+    "mongoose": "^8.0.0",
+    "sharp": "^0.32.0",
+    "aws-sdk": "^2.1658.0",
+    "firebase-admin": "^11.30.1",
+    "bull": "^4.15.0",
+    "ioredis": "^2.4.0",
+    "cloudinary": "^2.10.1",
+    "axios": "^1.6.7",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4",
+    "express-validator": "^7.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "user-profile-service",
+    "talentsphere",
+    "professional-networking",
+    "job-platform",
+    "microservices",
+    "postgresql",
+    "nodejs"
+  ],
+  "author": "TalentSphere Team",
+  "license": "MIT"
+}

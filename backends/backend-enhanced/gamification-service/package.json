@@ -1,0 +1,27 @@
+{
+    "name": "gamification-service",
+    "version": "1.0.0",
+    "description": "TalentSphere Gamification Service — points, badges, streaks, leaderboard",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js",
+        "test": "jest --coverage"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "express-rate-limit": "^7.1.5",
+        "helmet": "^7.1.0",
+        "pg": "^8.11.3",
+        "uuid": "^9.0.0",
+        "winston": "^3.11.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2",
+        "jest": "^29.7.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

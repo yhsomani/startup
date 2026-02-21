@@ -1,0 +1,71 @@
+{
+  "name": "talentsphere-alignment-tools",
+  "version": "1.0.0",
+  "description": "Production-quality project alignment and validation tools for TalentSphere",
+  "main": "index.js",
+  "scripts": {
+    "validate": "node index.js validate-all",
+    "validate:services": "node index.js validate-services",
+    "validate:dependencies": "node index.js validate-dependencies",
+    "validate:structure": "node index.js validate-structure",
+    "fix:package-json": "node index.js fix-package-json",
+    "fix:imports": "node index.js fix-imports",
+    "build:check": "npm run build:check",
+    "test:all": "npm run test:all",
+    "quality:check": "npm run quality-check",
+    "docs:update": "node index.js update-docs",
+    "report:generate": "node index.js generate-report",
+    "start:services": "npm run services:start",
+    "dev:services": "npm run services:dev",
+    "test:services": "npm run services:test",
+    "lint:services": "npm run services:lint",
+    "security:audit": "npm run security:audit",
+    "production:ready": "node index.js validate-production",
+    "cleanup": "node index.js cleanup",
+    "help": "node index.js --help"
+  },
+  "dependencies": {
+    "glob": "^8.1.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.4",
+    "fs-extra": "^9.1.0",
+    "semver": "^7.3.5",
+    "table": "^6.8.1",
+    "yargs": "^16.2.0",
+    "joi": "^17.9.2",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3",
+    "eslint": "^8.57.1",
+    "prettier": "^2.8.1",
+    "husky": "^8.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint-config-prettier": "^10.1.8"
+  },
+  "keywords": [
+    "talentsphere",
+    "alignment",
+    "validation",
+    "quality-gates",
+    "project-structure",
+    "code-quality",
+    "production-readiness",
+    "dependency-management",
+    "security-audit",
+    "documentation",
+    "build-automation",
+    "testing-infrastructure",
+    "development-tools"
+  ],
+  "author": "TalentSphere Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

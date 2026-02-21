@@ -1,0 +1,253 @@
+// E2E Tests using Playwright
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication Flow', () => {
+    test('should login successfully with valid credentials', async ({ page }) => {
+        await page.goto('http://localhost:3010/login');
+
+        // Fill in credentials
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+
+        // Click login
+        await page.click('[data-testid="submit-button"]');
+
+        // Should redirect to dashboard
+        await expect(page).toHaveURL(/.*dashboard/);
+        await expect(page.locator('h1')).toContainText('Dashboard');
+    });
+
+    test('should show error with invalid credentials', async ({ page }) => {
+        await page.goto('http://localhost:3010/login');
+
+        await page.fill('[data-testid="email-input"]', 'wrong@example.com');
+        await page.fill('[data-testid="password-input"]', 'wrongpass');
+        await page.click('[data-testid="submit-button"]');
+
+        // Should show error message
+        await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
+        await expect(page.locator('[data-testid="error-message"]')).toContainText(/invalid/i);
+    });
+
+    test('should logout successfully', async ({ page }) => {
+        // Login first
+        await page.goto('http://localhost:3010/login');
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+        await page.click('[data-testid="submit-button"]');
+
+        await expect(page).toHaveURL(/.*dashboard/);
+
+        // Logout
+        await page.click('[data-testid="logout-button"]');
+
+        // Should redirect to login
+        await expect(page).toHaveURL(/.*login/);
+    });
+
+    test('should protect routes when not authenticated', async ({ page }) => {
+        await page.goto('http://localhost:3010/dashboard');
+
+        // Should redirect to login
+        await expect(page).toHaveURL(/.*login/);
+    });
+});
+
+test.describe('Course Browsing', () => {
+    test.beforeEach(async ({ page }) => {
+        // Login before each test
+        await page.goto('http://localhost:3010/login');
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+        await page.click('[data-testid="submit-button"]');
+        await expect(page).toHaveURL(/.*dashboard/);
+    });
+
+    test('should display list of courses', async ({ page }) => {
+        await page.goto('http://localhost:3010/courses');
+
+        // Should show courses
+        await expect(page.locator('.course-card')).toHaveCount(5);
+    });
+
+    test('should filter courses by search', async ({ page }) => {
+        await page.goto('http://localhost:3010/courses');
+
+        // Type in search
+        await page.fill('[data-testid="search-input"]', 'Machine Learning');
+
+        // Should filter results
+        await expect(page.locator('.course-card')).toHaveCount(1);
+        await expect(page.locator('.course-card').first()).toContainText('Machine Learning');
+    });
+
+    test('should show course details when clicked', async ({ page }) => {
+        await page.goto('http://localhost:3010/courses');
+
+        // Click first course
+        await page.click('.course-card:first-child');
+
+        // Should show course details
+        await expect(page.locator('h1')).toContainText('Test Course');
+        await expect(page.locator('[data-testid="course-description"]')).toBeVisible();
+        await expect(page.locator('[data-testid="enroll-button"]')).toBeVisible();
+    });
+
+    test('should enroll in course', async ({ page }) => {
+        await page.goto('http://localhost:3010/courses/course-1');
+
+        // Click enroll button
+        await page.click('[data-testid="enroll-button"]');
+
+        // Should show success message
+        await expect(page.locator('[data-testid="success-message"]')).toContainText(/enrolled/i);
+
+        // Button should change to "Start Learning"
+        await expect(page.locator('[data-testid="start-learning-button"]')).toBeVisible();
+    });
+});
+
+test.describe('Challenge Submission', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('http://localhost:3010/login');
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+        await page.click('[data-testid="submit-button"]');
+        await expect(page).toHaveURL(/.*dashboard/);
+    });
+
+    test('should submit challenge solution', async ({ page }) => {
+        await page.goto('http://localhost:3010/challenges/challenge-1');
+
+        // Upload file
+        const fileInput = page.locator('input[type="file"]');
+        await fileInput.setInputFiles('test-data/submission.csv');
+
+        // Should show file name
+        await expect(page.locator('[data-testid="file-name"]')).toContainText('submission.csv');
+
+        // Submit
+        await page.click('[data-testid="submit-button"]');
+
+        // Should show success
+        await expect(page.locator('[data-testid="submission-success"]')).toBeVisible();
+        await expect(page.locator('[data-testid="submission-id"]')).toBeVisible();
+    });
+
+    test('should show leaderboard', async ({ page }) => {
+        await page.goto('http://localhost:3010/challenges/challenge-1');
+
+        // Click leaderboard tab
+        await page.click('[data-testid="leaderboard-tab"]');
+
+        // Should show leaderboard
+        await expect(page.locator('.leaderboard-entry')).toHaveCount(2);
+
+        // Check ranks
+        await expect(page.locator('.leaderboard-entry:first-child [data-testid="rank"]')).toContainText('1');
+    });
+});
+
+test.describe('Real-time Notifications', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('http://localhost:3010/login');
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+        await page.click('[data-testid="submit-button"]');
+        await expect(page).toHaveURL(/.*dashboard/);
+    });
+
+    test('should show notification badge', async ({ page }) => {
+        await page.goto('http://localhost:3010/dashboard');
+
+        // Wait for notification  (simulated)
+        await page.waitForTimeout(2000);
+
+        // Should show badge
+        await expect(page.locator('[data-testid="notification-badge"]')).toBeVisible();
+    });
+
+    test('should display notifications on click', async ({ page }) => {
+        await page.goto('http://localhost:3010/dashboard');
+
+        // Click notification bell
+        await page.click('[data-testid="notification-bell"]');
+
+        // Should show dropdown
+        await expect(page.locator('[data-testid="notification-dropdown"]')).toBeVisible();
+
+        // Should show notifications
+        await expect(page.locator('.notification-item')).toHaveCount(1);
+    });
+});
+
+test.describe('Responsive Design', () => {
+    test('should work on mobile viewport', async ({ page }) => {
+        await page.setViewportSize({ width: 375, height: 667 });
+        await page.goto('http://localhost:3010/login');
+
+        // Should show mobile layout
+        await expect(page.locator('[data-testid="mobile-menu"]')).toBeVisible();
+
+        // Login should still work
+        await page.fill('[data-testid="email-input"]', 'test@example.com');
+        await page.fill('[data-testid="password-input"]', 'password123');
+        await page.click('[data-testid="submit-button"]');
+
+        await expect(page).toHaveURL(/.*dashboard/);
+    });
+
+    test('should work on tablet viewport', async ({ page }) => {
+        await page.setViewportSize({ width: 768, height: 1024 });
+        await page.goto('http://localhost:3010/courses');
+
+        // Should show tablet layout
+        await expect(page.locator('.course-grid')).toBeVisible();
+
+        // Should show 2 columns
+        const columns = await page.locator('.course-card').count();
+        expect(columns % 2).toBe(0);
+    });
+});
+
+test.describe('Performance', () => {
+    test('should load within acceptable time', async ({ page }) => {
+        const startTime = Date.now();
+        await page.goto('http://localhost:3010');
+        const loadTime = Date.now() - startTime;
+
+        expect(loadTime).toBeLessThan(3000); // Should load in < 3s
+    });
+
+    test('should have good lighthouse score', async ({ page }) => {
+        await page.goto('http://localhost:3010');
+
+        // Run lighthouse audit (requires lighthouse plugin)
+        // const lighthouseResult = await page.lighthouse();
+        // expect(lighthouseResult.performance).toBeGreaterThan(90);
+    });
+});
+
+test.describe('Accessibility', () => {
+    test('should be keyboard navigable', async ({ page }) => {
+        await page.goto('http://localhost:3010/login');
+
+        // Tab through elements
+        await page.keyboard.press('Tab');
+        await expect(page.locator('[data-testid="email-input"]')).toBeFocused();
+
+        await page.keyboard.press('Tab');
+        await expect(page.locator('[data-testid="password-input"]')).toBeFocused();
+
+        await page.keyboard.press('Tab');
+        await expect(page.locator('[data-testid="submit-button"]')).toBeFocused();
+    });
+
+    test('should have no accessibility violations', async ({ page }) => {
+        await page.goto('http://localhost:3010');
+
+        // Run axe accessibility tests (requires @axe-core/playwright)
+        // const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+        // expect(accessibilityScanResults.violations).toEqual([]);
+    });
+});

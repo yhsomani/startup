@@ -1,0 +1,476 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere Search Service API
+  description: Unified search service for all TalentSphere platform content
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3005
+    description: Search Service (Development)
+  - url: https://api.talentsphere.io/search
+    description: Search Service (Production)
+
+tags:
+  - name: Search
+    description: Search functionality
+  - name: Indexing
+    description: Content indexing management
+  - name: Analytics
+    description: Search analytics and insights
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Get service health status
+      description: Returns the health status of the Search service
+      operationId: getHealthSearch
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /search:
+    get:
+      tags: [Search]
+      summary: Search across all content
+      description: Perform a unified search across courses, challenges, users, and jobs
+      operationId: universalSearch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: type
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [courses, challenges, users, jobs, companies]
+        - name: filters
+          in: query
+          schema:
+            type: object
+            additionalProperties: true
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [relevance, date, rating, popularity]
+            default: relevance
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /search/suggestions:
+    get:
+      tags: [Search]
+      summary: Get search suggestions
+      description: Get autocomplete suggestions for search query
+      operationId: getSearchSuggestions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 20
+      responses:
+        '200':
+          description: Search suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResponse'
+
+  /search/facets:
+    get:
+      tags: [Search]
+      summary: Get search facets
+      description: Get available facets and filters for search
+      operationId: getSearchFacets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [courses, challenges, users, jobs, companies]
+      responses:
+        '200':
+          description: Search facets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacetsResponse'
+
+  /index/rebuild:
+    post:
+      tags: [Indexing]
+      summary: Rebuild search index
+      description: Rebuild the entire search index from database
+      operationId: rebuildSearchIndex
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum: [courses, challenges, users, jobs, companies, all]
+      responses:
+        '202':
+          description: Index rebuild started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  task_id:
+                    type: string
+                    format: uuid
+
+  /index/document:
+    post:
+      tags: [Indexing]
+      summary: Add document to index
+      description: Add or update a single document in the search index
+      operationId: addDocumentToIndex
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndexDocumentRequest'
+      responses:
+        '201':
+          description: Document indexed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_id:
+                    type: string
+                  message:
+                    type: string
+
+  /index/document/{document_id}:
+    delete:
+      tags: [Indexing]
+      summary: Remove document from index
+      description: Remove a document from the search index
+      operationId: removeDocumentFromIndex
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Document removed from index
+
+  /analytics/popular-searches:
+    get:
+      tags: [Analytics]
+      summary: Get popular searches
+      description: Retrieve most popular search terms
+      operationId: getPopularSearches
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: time_range
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: week
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Popular searches
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopularSearchesResponse'
+
+  /analytics/search-metrics:
+    get:
+      tags: [Analytics]
+      summary: Get search metrics
+      description: Get detailed search analytics and metrics
+      operationId: getSearchMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: time_range
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: week
+      responses:
+        '200':
+          description: Search metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchMetricsResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        service:
+          type: string
+          example: search-service
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        elasticsearch_status:
+          type: string
+
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [course, challenge, user, job, company]
+        title:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        score:
+          type: number
+        highlights:
+          type: array
+          items:
+            type: object
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total:
+          type: integer
+        took:
+          type: integer
+        aggregations:
+          type: object
+        has_more:
+          type: boolean
+
+    Suggestion:
+      type: object
+      properties:
+        text:
+          type: string
+        type:
+          type: string
+        score:
+          type: number
+
+    SuggestionsResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suggestion'
+        query_time:
+          type: number
+
+    Facet:
+      type: object
+      properties:
+        name:
+          type: string
+        field:
+          type: string
+        type:
+          type: string
+          enum: [term, range, date]
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              count:
+                type: integer
+              selected:
+                type: boolean
+
+    FacetsResponse:
+      type: object
+      properties:
+        facets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facet'
+
+    IndexDocumentRequest:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - content
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [course, challenge, user, job, company]
+        title:
+          type: string
+        content:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    PopularSearchTerm:
+      type: object
+      properties:
+        query:
+          type: string
+        count:
+          type: integer
+        growth_rate:
+          type: number
+        avg_results:
+          type: number
+
+    PopularSearchesResponse:
+      type: object
+      properties:
+        popular_searches:
+          type: array
+          items:
+            $ref: '#/components/schemas/PopularSearchTerm'
+        time_range:
+          type: string
+        total_searches:
+          type: integer
+
+    SearchMetric:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        total_searches:
+          type: integer
+        unique_users:
+          type: integer
+        avg_response_time:
+          type: number
+        click_through_rate:
+          type: number
+        zero_result_rate:
+          type: number
+
+    SearchMetricsResponse:
+      type: object
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchMetric'
+        summary:
+          type: object
+          properties:
+            total_searches:
+              type: integer
+            unique_users:
+              type: integer
+            avg_response_time:
+              type: number
+            overall_ctr:
+              type: number
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

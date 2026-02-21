@@ -1,0 +1,1024 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere Flask Backend API
+  description: Core backend services for TalentSphere platform including authentication, courses, challenges, and user management
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Flask Backend (Development)
+  - url: https://api.talentsphere.io/v1
+    description: Flask Backend (Production)
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Courses
+    description: Course management and content
+  - name: Challenges
+    description: Coding challenges and submissions
+  - name: Enrollments
+    description: User progress and enrollments
+  - name: Lessons
+    description: Lesson management and content
+  - name: Profile
+    description: User profile management
+  - name: API Keys
+    description: API key management
+  - name: Feature Flags
+    description: Feature flag management
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  # Authentication Routes
+  /api/v1/auth/health:
+    get:
+      tags: [Health]
+      summary: Get auth service health
+      description: Returns the health status of the authentication service
+      operationId: getAuthHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+
+  /api/v1/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Create a new user account
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Bad request - email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/internal/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify JWT token
+      description: Internal endpoint for microservices to verify tokens
+      operationId: verifyToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerificationResponse'
+
+  /api/v1/auth/forgot-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: Send password reset email
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+              required: [email]
+      responses:
+        '200':
+          description: Reset email sent (always returns success for security)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/v1/auth/reset-password:
+    post:
+      tags: [Authentication]
+      summary: Reset password
+      description: Reset password with token
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/v1/auth/verify-reset-token:
+    post:
+      tags: [Authentication]
+      summary: Verify reset token
+      description: Check if password reset token is valid
+      operationId: verifyResetToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Password reset token
+              required: [token]
+      responses:
+        '200':
+          description: Token validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidationResponse'
+
+  # Courses Routes
+  /api/v1/courses:
+    get:
+      tags: [Courses]
+      summary: List courses
+      description: Get paginated list of courses
+      operationId: listCourses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: instructorId
+          in: query
+          schema:
+            type: string
+            description: Filter by instructor ID
+        - name: isPublished
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseListResponse'
+
+  /api/v1/courses/{course_id}:
+    get:
+      tags: [Courses]
+      summary: Get course details
+      description: Retrieve detailed information about a specific course
+      operationId: getCourseDetails
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Course details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetails'
+        '404':
+          description: Course not found
+
+  # Challenges Routes
+  /api/v1/challenges/:
+    get:
+      tags: [Challenges]
+      summary: List challenges
+      description: Get list of active challenges
+      operationId: listChallenges
+      responses:
+        '200':
+          description: List of challenges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Challenge'
+
+    post:
+      tags: [Challenges]
+      summary: Create challenge
+      description: Create a new coding challenge (instructor only)
+      operationId: createChallenge
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChallengeRequest'
+      responses:
+        '201':
+          description: Challenge created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '403':
+          description: Access denied - instructor required
+
+  /api/v1/challenges/{challenge_id}:
+    get:
+      tags: [Challenges]
+      summary: Get challenge details
+      description: Retrieve detailed information about a challenge
+      operationId: getChallengeDetails
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Challenge details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeDetails'
+
+    put:
+      tags: [Challenges]
+      summary: Update challenge
+      description: Update challenge details (instructor/admin only)
+      operationId: updateChallenge
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChallengeRequest'
+      responses:
+        '204':
+          description: Challenge updated
+        '403':
+          description: Access denied or feature disabled
+
+    delete:
+      tags: [Challenges]
+      summary: Delete challenge
+      description: Deactivate a challenge (admin only)
+      operationId: deleteChallenge
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Challenge deleted
+        '403':
+          description: Access denied or feature disabled
+
+  /api/v1/challenges/{challenge_id}/submit:
+    post:
+      tags: [Challenges]
+      summary: Submit solution
+      description: Submit a solution file for a challenge
+      operationId: submitSolution
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Solution file to submit
+              required: [file]
+      responses:
+        '202':
+          description: Submission queued for grading
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+
+  /api/v1/challenges/{challenge_id}/submissions/{submission_id}:
+    get:
+      tags: [Challenges]
+      summary: Get submission status
+      description: Retrieve status and results of a submission
+      operationId: getSubmissionStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: submission_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Submission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetails'
+
+  /api/v1/challenges/{challenge_id}/leaderboard:
+    get:
+      tags: [Challenges]
+      summary: Get challenge leaderboard
+      description: Retrieve leaderboard for a challenge
+      operationId: getLeaderboard
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Leaderboard entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponse'
+
+  /api/v1/challenges/{challenge_id}/run:
+    post:
+      tags: [Challenges]
+      summary: Run code
+      description: Execute code in sandboxed environment
+      operationId: runCode
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunCodeRequest'
+      responses:
+        '200':
+          description: Code execution results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunCodeResponse'
+        '403':
+          description: Feature disabled
+
+  /api/v1/challenges/{challenge_id}/test:
+    post:
+      tags: [Challenges]
+      summary: Test code
+      description: Run unit tests against code
+      operationId: testCode
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: challenge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCodeRequest'
+      responses:
+        '200':
+          description: Test results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResultsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Common Schemas
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: EMAIL_EXISTS
+        message:
+          type: string
+          example: Email already exists
+      required: [error, message]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully
+      required: [message]
+
+    # Authentication Schemas
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          minLength: 8
+          example: "SecurePassword123!"
+        role:
+          type: string
+          enum: [STUDENT, INSTRUCTOR, ADMIN]
+          default: STUDENT
+          example: STUDENT
+      required: [email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          example: "SecurePassword123!"
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token
+        refreshToken:
+          type: string
+          description: JWT refresh token
+        expiresIn:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            role:
+              type: string
+              enum: [STUDENT, INSTRUCTOR, ADMIN]
+      required: [token, refreshToken, expiresIn, user]
+
+    TokenVerificationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [STUDENT, INSTRUCTOR, ADMIN]
+        email:
+          type: string
+          format: email
+      required: [valid, user_id]
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Password reset token
+        password:
+          type: string
+          minLength: 8
+          description: New password
+      required: [token, password]
+
+    TokenValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+        expires_at:
+          type: string
+          format: date-time
+      required: [valid]
+
+    # Courses Schemas
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        instructorId:
+          type: string
+          format: uuid
+        instructorName:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+          default: USD
+        thumbnailUrl:
+          type: string
+          format: uri
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, instructorId, title, price, isPublished, createdAt]
+
+    CourseListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+            hasNextPage:
+              type: boolean
+            hasPreviousPage:
+              type: boolean
+      required: [data, pagination]
+
+    CourseDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        instructorId:
+          type: string
+          format: uuid
+        instructorName:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+        thumbnailUrl:
+          type: string
+          format: uri
+        previewVideoUrl:
+          type: string
+          format: uri
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseSection'
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              skillName:
+                type: string
+      required: [id, instructorId, title, price, isPublished, createdAt, sections, skills]
+
+    CourseSection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        orderIndex:
+          type: integer
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+      required: [id, title, orderIndex, lessons]
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [video, text, quiz, challenge]
+        title:
+          type: string
+        description:
+          type: string
+        orderIndex:
+          type: integer
+        videoUrl:
+          type: string
+          format: uri
+        duration:
+          type: integer
+          description: Duration in seconds
+        challengeId:
+          type: string
+          format: uuid
+      required: [id, type, title, orderIndex]
+
+    # Challenges Schemas
+    Challenge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        evaluationMetric:
+          type: string
+          enum: [accuracy, performance, efficiency]
+        passingScore:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+      required: [id, title, evaluationMetric, passingScore]
+
+    ChallengeDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        evaluationMetric:
+          type: string
+        datasetUrl:
+          type: string
+          format: uri
+        passingScore:
+          type: number
+          format: float
+        testCases:
+          type: array
+          items:
+            type: object
+          description: Test cases for the challenge
+        language:
+          type: string
+          default: python
+      required: [id, title, evaluationMetric, passingScore, testCases, language]
+
+    CreateChallengeRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evaluationMetric:
+          type: string
+          default: accuracy
+        datasetUrl:
+          type: string
+          format: uri
+        passingScore:
+          type: number
+          format: float
+          default: 70.0
+        testCases:
+          type: array
+          items:
+            type: object
+        language:
+          type: string
+          default: python
+      required: [title]
+
+    UpdateChallengeRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evaluationMetric:
+          type: string
+        datasetUrl:
+          type: string
+          format: uri
+        testCases:
+          type: array
+          items:
+            type: object
+        language:
+          type: string
+
+    SubmissionResponse:
+      type: object
+      properties:
+        submissionId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, passed, failed, error]
+        message:
+          type: string
+      required: [submissionId, status, message]
+
+    SubmissionDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, passed, failed, error]
+        score:
+          type: number
+          format: float
+          nullable: true
+        feedback:
+          type: string
+          nullable: true
+        gradedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, status]
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        entries:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                format: uuid
+              username:
+                type: string
+              bestScore:
+                type: number
+                format: float
+              submissionCount:
+                type: integer
+              bestSubmissionAt:
+                type: string
+                format: date-time
+      required: [challengeId, entries]
+
+    RunCodeRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code to execute
+        language:
+          type: string
+          default: python
+      required: [code]
+
+    RunCodeResponse:
+      type: object
+      properties:
+        stdout:
+          type: string
+          description: Standard output
+        stderr:
+          type: string
+          description: Standard error
+        exitCode:
+          type: integer
+          description: Process exit code
+        status:
+          type: string
+          enum: [success, error, timeout]
+        executionTime:
+          type: string
+          description: Execution duration
+        limits:
+          type: object
+          properties:
+            memory:
+              type: string
+              example: 512MB
+            cpu:
+              type: string
+              example: 1vCPU
+            timeout:
+              type: string
+              description: Time limit in seconds
+      required: [stdout, stderr, exitCode, status]
+
+    TestCodeRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code to test
+      required: [code]
+
+    TestResultsResponse:
+      type: object
+      properties:
+        passed:
+          type: integer
+          description: Number of passed tests
+        total:
+          type: integer
+          description: Total number of tests
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              testName:
+                type: string
+              passed:
+                type: boolean
+              output:
+                type: string
+              error:
+                type: string
+      required: [passed, total, results]

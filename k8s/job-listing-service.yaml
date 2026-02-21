@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-listing-service
+  namespace: talentsphere
+  labels:
+    app: job-listing-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: job-listing-service
+  template:
+    metadata:
+      labels:
+        app: job-listing-service
+    spec:
+      containers:
+      - name: job-listing-service
+        image: talentsphere/job-listing-service:latest
+        ports:
+        - containerPort: 3008
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: talentsphere-secrets
+              key: jwt-secret
+        - name: JOB_LISTING_PORT
+          value: "3008"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: talentsphere-secrets
+              key: database-url
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-listing-service
+  namespace: talentsphere
+  labels:
+    app: job-listing-service
+spec:
+  selector:
+    app: job-listing-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3008
+  type: ClusterIP

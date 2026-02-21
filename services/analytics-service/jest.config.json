@@ -1,0 +1,28 @@
+{
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "html", "json"],
+  "collectCoverageFrom": [
+    "**/*.js",
+    "!**/node_modules/**",
+    "!**/coverage/**",
+    "!**/tests/**"
+  ],
+  "transformIgnorePatterns": [
+    "node_modules/(?!(uuid)/)"
+  ],
+  "setupFilesAfterEnv": ["<rootDir>/tests/setup/jest.setup.js"],
+  "testTimeout": 30000,
+  "verbose": true,
+  "projects": [
+    {
+      "displayName": "Unit Tests",
+      "testMatch": ["**/tests/unit/**/*.test.js"]
+    },
+    {
+      "displayName": "Integration Tests", 
+      "testMatch": ["**/tests/integration/**/*.test.js"]
+    }
+  ]
+}

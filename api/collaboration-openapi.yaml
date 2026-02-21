@@ -1,0 +1,685 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere Collaboration Service API
+  description: Real-time collaboration and communication service for TalentSphere platform
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5008
+    description: Collaboration Service (Development)
+  - url: https://api.talentsphere.io/collaboration
+    description: Collaboration Service (Production)
+
+tags:
+  - name: Sessions
+    description: Collaboration session management
+  - name: WebSocket Events
+    description: Real-time WebSocket events
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Get service health status
+      description: Returns the health status of the Collaboration service
+      operationId: getHealthCollaboration
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /sessions:
+    post:
+      tags: [Sessions]
+      summary: Create new collaboration session
+      description: Create a new real-time collaboration session
+      operationId: createSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '200':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSession'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{session_id}:
+    get:
+      tags: [Sessions]
+      summary: Get collaboration session details
+      description: Retrieve detailed information about a specific collaboration session
+      operationId: getSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the collaboration session
+      responses:
+        '200':
+          description: Session details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSession'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{session_id}/join:
+    post:
+      tags: [Sessions]
+      summary: Join collaboration session
+      description: Join an existing collaboration session
+      operationId: joinSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinSessionRequest'
+      responses:
+        '200':
+          description: Joined session successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSession'
+        '400':
+          description: Session full or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{session_id}/leave:
+    post:
+      tags: [Sessions]
+      summary: Leave collaboration session
+      description: Leave a collaboration session
+      operationId: leaveSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveSessionRequest'
+      responses:
+        '200':
+          description: Left session successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveSessionResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# WebSocket Events Documentation
+webhooks:
+  connect:
+    post:
+      summary: WebSocket connection established
+      description: Fired when a client establishes WebSocket connection
+      operationId: handleConnect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectEvent'
+      responses:
+        '200':
+          description: Connection acknowledgement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectResponse'
+
+  join_session:
+    post:
+      summary: Join session via WebSocket
+      description: Join a collaboration session through WebSocket
+      operationId: handleJoinSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinSessionEvent'
+      responses:
+        '200':
+          description: Session state update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStateUpdate'
+
+  code_change:
+    post:
+      summary: Real-time code changes
+      description: Broadcast code changes to all session participants
+      operationId: handleCodeChange
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeChangeEvent'
+      responses:
+        '200':
+          description: Code change broadcast
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeChangeBroadcast'
+
+  cursor_position:
+    post:
+      summary: Real-time cursor positions
+      description: Broadcast cursor position updates to session participants
+      operationId: handleCursorPosition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CursorPositionEvent'
+      responses:
+        '200':
+          description: Cursor position broadcast
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CursorPositionBroadcast'
+
+  chat_message:
+    post:
+      summary: Real-time chat messages
+      description: Send and broadcast chat messages in collaboration sessions
+      operationId: handleChatMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageEvent'
+      responses:
+        '200':
+          description: Chat message broadcast
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageBroadcast'
+
+  disconnect:
+    post:
+      summary: WebSocket disconnection
+      description: Fired when a client disconnects from WebSocket
+      operationId: handleDisconnect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisconnectEvent'
+      responses:
+        '200':
+          description: Disconnection acknowledgement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisconnectResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Common Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        service:
+          type: string
+          example: collaboration-service
+        mode:
+          type: string
+          example: PRODUCTION
+        timestamp:
+          type: string
+          format: date-time
+      required: [status, service, mode, timestamp]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Session not found
+        code:
+          type: string
+          description: Error code
+          example: SESSION_NOT_FOUND
+        message:
+          type: string
+          description: Detailed error message
+      required: [error, code]
+
+    # Session Management Schemas
+    CreateSessionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Session name
+          example: "Python Study Group"
+        type:
+          type: string
+          description: Session type
+          enum: [general, coding_study, interview_practice, code_review]
+          default: general
+          example: coding_study
+        maxParticipants:
+          type: integer
+          minimum: 2
+          maximum: 10
+          description: Maximum number of participants
+          default: 4
+          example: 6
+        settings:
+          type: object
+          description: Session-specific settings
+          properties:
+            allow_code_sharing:
+              type: boolean
+              default: true
+            enable_chat:
+              type: boolean
+              default: true
+            auto_save:
+              type: boolean
+              default: true
+            language:
+              type: string
+              description: Primary programming language
+              example: python
+          example:
+            allow_code_sharing: true
+            enable_chat: true
+            auto_save: true
+            language: python
+      required: [name]
+
+    CollaborationSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique session identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        creator_id:
+          type: string
+          description: User ID of session creator
+          example: "user-123"
+        name:
+          type: string
+          description: Session name
+          example: "Python Study Group"
+        type:
+          type: string
+          enum: [general, coding_study, interview_practice, code_review]
+          example: coding_study
+        max_participants:
+          type: integer
+          minimum: 2
+          maximum: 10
+          description: Maximum number of participants
+          example: 6
+        participants:
+          type: array
+          items:
+            type: string
+          description: List of participant user IDs
+          example: ["user-123", "user-456", "user-789"]
+        created_at:
+          type: string
+          format: date-time
+          description: Session creation timestamp
+          example: "2025-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2025-01-15T11:45:00Z"
+        settings:
+          type: object
+          description: Session-specific settings
+          properties:
+            allow_code_sharing:
+              type: boolean
+            enable_chat:
+              type: boolean
+            auto_save:
+              type: boolean
+            language:
+              type: string
+          example:
+            allow_code_sharing: true
+            enable_chat: true
+            auto_save: true
+            language: python
+      required: [id, creator_id, name, type, max_participants, participants, created_at]
+
+    JoinSessionRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Session ID to join
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      required: [sessionId]
+
+    LeaveSessionRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Session ID to leave
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      required: [sessionId]
+
+    LeaveSessionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Left session successfully"
+      required: [message]
+
+    # WebSocket Event Schemas
+    ConnectEvent:
+      type: object
+      description: WebSocket connection event
+      properties: {}
+      example: {}
+
+    ConnectResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Connected to collaboration service"
+      required: [message]
+
+    JoinSessionEvent:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID to join
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID joining the session
+          example: "user-123"
+      required: [session_id, user_id]
+
+    SessionStateUpdate:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        participants:
+          type: array
+          items:
+            type: string
+          description: Updated list of participants
+          example: ["user-123", "user-456", "user-789"]
+        settings:
+          type: object
+          description: Current session settings
+          example:
+            allow_code_sharing: true
+            enable_chat: true
+            auto_save: true
+            language: python
+      required: [session_id, participants, settings]
+
+    CodeChangeEvent:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID making the change
+          example: "user-123"
+        code:
+          type: string
+          description: Updated code content
+          example: "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"
+      required: [session_id, user_id, code]
+
+    CodeChangeBroadcast:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID who made the change
+          example: "user-123"
+        code:
+          type: string
+          description: Updated code content
+          example: "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the change was made
+          example: "2025-01-15T11:30:00Z"
+      required: [session_id, user_id, code, timestamp]
+
+    CursorPositionEvent:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID
+          example: "user-123"
+        position:
+          type: object
+          description: Cursor position information
+          properties:
+            line:
+              type: integer
+              minimum: 0
+              description: Line number (0-indexed)
+              example: 5
+            column:
+              type: integer
+              minimum: 0
+              description: Column number (0-indexed)
+              example: 12
+            selection_start:
+              type: object
+              properties:
+                line:
+                  type: integer
+                  example: 3
+                column:
+                  type: integer
+                  example: 8
+            selection_end:
+              type: object
+              properties:
+                line:
+                  type: integer
+                  example: 5
+                column:
+                  type: integer
+                  example: 15
+          example:
+            line: 5
+            column: 12
+            selection_start:
+              line: 3
+              column: 8
+            selection_end:
+              line: 5
+              column: 15
+      required: [session_id, user_id, position]
+
+    CursorPositionBroadcast:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID
+          example: "user-123"
+        position:
+          type: object
+          description: Cursor position information
+          example:
+            line: 5
+            column: 12
+            selection_start:
+              line: 3
+              column: 8
+            selection_end:
+              line: 5
+              column: 15
+        timestamp:
+          type: string
+          format: date-time
+          description: When the position was updated
+          example: "2025-01-15T11:30:00Z"
+      required: [session_id, user_id, position, timestamp]
+
+    ChatMessageEvent:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID sending the message
+          example: "user-123"
+        message:
+          type: string
+          description: Chat message content
+          example: "Can someone explain this algorithm?"
+      required: [session_id, user_id, message]
+
+    ChatMessageBroadcast:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message ID
+          example: "550e8400-e29b-41d4-a716-446655440001"
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User ID who sent the message
+          example: "user-123"
+        message:
+          type: string
+          description: Chat message content
+          example: "Can someone explain this algorithm?"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was sent
+          example: "2025-01-15T11:30:00Z"
+      required: [id, session_id, user_id, message, timestamp]
+
+    DisconnectEvent:
+      type: object
+      description: WebSocket disconnection event
+      properties: {}
+      example: {}
+
+    DisconnectResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Disconnected from collaboration service"
+      required: [message]

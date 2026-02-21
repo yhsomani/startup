@@ -1,0 +1,911 @@
+openapi: 3.0.3
+info:
+  title: TalentSphere API Suite
+  description: Comprehensive API documentation for TalentSphere platform services
+  version: 1.0.0
+  contact:
+    name: TalentSphere API Support
+    email: api-support@talentsphere.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5005
+    description: AI Assistant Service (Development)
+  - url: http://localhost:5006
+    description: Recruitment Service (Development)
+  - url: http://localhost:5007
+    description: Gamification Service (Development)
+  - url: https://api.talentsphere.io/assistant
+    description: AI Assistant Service (Production)
+  - url: https://api.talentsphere.io/recruitment
+    description: Recruitment Service (Production)
+  - url: https://api.talentsphere.io/gamification
+    description: Gamification Service (Production)
+
+tags:
+  - name: AI Assistant
+    description: AI-powered tutoring and code analysis services
+  - name: Recruitment
+    description: Job searching and candidate management
+  - name: Gamification
+    description: User engagement and achievement tracking
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  # AI Assistant Service Endpoints
+  /health:
+    get:
+      tags: [Health]
+      summary: Get service health status
+      description: Returns the health status of the AI Assistant service
+      operationId: getHealthAssistant
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/assistant/chat:
+    post:
+      tags: [AI Assistant]
+      summary: AI-powered tutoring chat
+      description: Send a message to the AI assistant for educational assistance
+      operationId: chatWithAI
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful AI response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Bad request - missing message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/assistant/analyze-code:
+    post:
+      tags: [AI Assistant]
+      summary: Analyze code and provide feedback
+      description: Submit code for AI-powered analysis and improvement suggestions
+      operationId: analyzeCode
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeAnalysisRequest'
+      responses:
+        '200':
+          description: Code analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeAnalysisResponse'
+        '400':
+          description: Bad request - missing code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: AI service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/assistant/summary/{lesson_id}:
+    get:
+      tags: [AI Assistant]
+      summary: Generate AI-powered lesson summary
+      description: Generate AI-powered summary notes for a specific lesson
+      operationId: getLessonSummary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: lesson_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the lesson
+      responses:
+        '200':
+          description: Lesson summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonSummaryResponse'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Summary generation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Recruitment Service Endpoints
+  /api/v1/candidates/search:
+    get:
+      tags: [Recruitment]
+      summary: Search for candidates
+      description: Search for candidates by skill and percentile requirements
+      operationId: searchCandidates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: skill
+          in: query
+          schema:
+            type: string
+          description: Skill to search for
+        - name: min_percentile
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 0
+          description: Minimum percentile requirement
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateSearchResponse'
+        '403':
+          description: Access denied - recruiter/admin required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Progress Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/candidates/{candidate_id}/verified-resume:
+    get:
+      tags: [Recruitment]
+      summary: Get verified resume
+      description: Retrieve blockchain-verified resume and certificates for a candidate
+      operationId: getVerifiedResume
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: candidate_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the candidate
+      responses:
+        '200':
+          description: Verified resume information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifiedResumeResponse'
+        '404':
+          description: Candidate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Access denied - recruiter/admin required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/jobs:
+    get:
+      tags: [Recruitment]
+      summary: List all job postings
+      description: Retrieve a list of all available job postings
+      operationId: getJobs
+      responses:
+        '200':
+          description: List of job postings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags: [Recruitment]
+      summary: Create new job posting
+      description: Create a new job posting (recruiter/admin only)
+      operationId: createJob
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreateRequest'
+      responses:
+        '201':
+          description: Job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '403':
+          description: Access denied or feature disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/applications:
+    post:
+      tags: [Recruitment]
+      summary: Submit job application
+      description: Submit a new job application
+      operationId: submitApplication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequest'
+      responses:
+        '201':
+          description: Application submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/applications/{user_id}:
+    get:
+      tags: [Recruitment]
+      summary: Get user applications
+      description: Retrieve all applications submitted by a specific user
+      operationId: getUserApplications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      responses:
+        '200':
+          description: List of user applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '403':
+          description: Feature is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Gamification Service Endpoints
+  /api/v1/users/{user_id}/streaks:
+    get:
+      tags: [Gamification]
+      summary: Get user learning streaks
+      description: Retrieve current and longest learning streaks for a user
+      operationId: getUserStreaks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      responses:
+        '200':
+          description: User streak information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStreaks'
+        '403':
+          description: Feature is disabled or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}/badges:
+    get:
+      tags: [Gamification]
+      summary: Get user badges
+      description: Retrieve all earned badges for a user
+      operationId: getUserBadges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      responses:
+        '200':
+          description: User badges information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBadges'
+        '403':
+          description: Feature is disabled or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}/points:
+    get:
+      tags: [Gamification]
+      summary: Get user points and level
+      description: Retrieve points, level, and progress information for a user
+      operationId: getUserPoints
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      responses:
+        '200':
+          description: User points information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPoints'
+        '403':
+          description: Feature is disabled or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}/award-points:
+    post:
+      tags: [Gamification]
+      summary: Award points to user
+      description: Award points to a user (admin only)
+      operationId: awardPoints
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AwardPointsRequest'
+      responses:
+        '200':
+          description: Points awarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AwardPointsResponse'
+        '403':
+          description: Access denied - admin required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /events/process:
+    post:
+      tags: [Gamification]
+      summary: Process gamification event
+      description: Process internal system events for gamification triggers
+      operationId: processEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      responses:
+        '200':
+          description: Event processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Common Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        service:
+          type: string
+          example: assistant-service
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+        timestamp:
+          type: string
+          format: date-time
+      required: [status, service, mode, timestamp]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Feature is disabled
+        code:
+          type: string
+          description: Error code
+          example: FEATURE_DISABLED
+        message:
+          type: string
+          description: Detailed error message
+      required: [error]
+
+    # AI Assistant Schemas
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: User message to the AI assistant
+          example: "How do I implement a binary search tree in Python?"
+        context:
+          type: object
+          description: Additional context for the AI
+          properties:
+            course:
+              type: string
+              example: "Data Structures"
+            code:
+              type: string
+              example: "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None"
+      required: [message]
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: AI assistant's response
+        source:
+          type: string
+          enum: [mock-ai-model, openai]
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+        timestamp:
+          type: string
+          format: date-time
+      required: [response, source, mode, timestamp]
+
+    CodeAnalysisRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code to analyze
+          example: "def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[0]\n    left = [x for x in arr[1:] if x <= pivot]\n    right = [x for x in arr[1:] if x > pivot]\n    return quicksort(left) + [pivot] + quicksort(right)"
+        language:
+          type: string
+          description: Programming language
+          example: python
+      required: [code]
+
+    CodeAnalysisResponse:
+      type: object
+      properties:
+        quality_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Code quality score
+          example: 0.85
+        suggestions:
+          type: array
+          items:
+            type: string
+          description: Improvement suggestions
+          example: ["Add error handling", "Consider edge cases", "Add docstrings"]
+        strengths:
+          type: array
+          items:
+            type: string
+          description: Code strengths
+          example: ["Clear algorithm", "Good use of list comprehensions"]
+        feedback:
+          type: string
+          description: Detailed feedback from AI
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+        timestamp:
+          type: string
+          format: date-time
+      required: [mode]
+
+    LessonSummaryResponse:
+      type: object
+      properties:
+        lesson_id:
+          type: string
+          description: Lesson identifier
+        title:
+          type: string
+          description: Summary title
+        summary:
+          type: string
+          description: AI-generated lesson summary
+        key_points:
+          type: array
+          items:
+            type: string
+          description: Key learning points
+        study_tips:
+          type: array
+          items:
+            type: string
+          description: Study tips and recommendations
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+        timestamp:
+          type: string
+          format: date-time
+      required: [lesson_id, mode]
+
+    # Recruitment Schemas
+    Candidate:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Alice Johnson"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        skills:
+          type: array
+          items:
+            type: string
+          example: ["Python", "React", "AWS"]
+        verified_resume:
+          type: string
+          format: uri
+          example: "https://talentsphere.io/resumes/alice.pdf"
+        skill_scores:
+          type: object
+          additionalProperties:
+            type: number
+          example: {"Python": 85, "React": 90, "AWS": 75}
+        percentile:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 92
+      required: [id, name, email, skills, percentile]
+
+    CandidateSearchResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of matching candidates
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+      required: [total, candidates]
+
+    VerifiedResumeResponse:
+      type: object
+      properties:
+        candidate_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Alice Johnson"
+        resume_url:
+          type: string
+          format: uri
+        verified:
+          type: boolean
+          example: true
+        verification_date:
+          type: string
+          format: date
+          example: "2025-01-15"
+        badges:
+          type: array
+          items:
+            type: string
+          example: ["Top 10% Python", "Clean Code"]
+        mode:
+          type: string
+          enum: [MOCK, PRODUCTION]
+      required: [candidate_id, name, verified]
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "job-1"
+        title:
+          type: string
+          example: "Junior Developer"
+        company:
+          type: string
+          example: "TechCorp"
+        location:
+          type: string
+          example: "Remote"
+      required: [id, title, company, location]
+
+    JobCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Senior Developer"
+        company:
+          type: string
+          example: "StartupXYZ"
+        location:
+          type: string
+          example: "San Francisco"
+      required: [title, company, location]
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "app-1"
+        userId:
+          type: string
+          example: "user-123"
+        jobId:
+          type: string
+          example: "job-1"
+        status:
+          type: string
+          enum: [submitted, reviewing, accepted, rejected]
+          example: "submitted"
+        submittedAt:
+          type: string
+          format: date-time
+      required: [id, userId, jobId, status, submittedAt]
+
+    ApplicationRequest:
+      type: object
+      properties:
+        jobId:
+          type: string
+          description: Job identifier to apply for
+          example: "job-1"
+      required: [jobId]
+
+    # Gamification Schemas
+    UserStreaks:
+      type: object
+      properties:
+        current_streak:
+          type: integer
+          description: Current consecutive days of activity
+          example: 7
+        longest_streak:
+          type: integer
+          description: Longest consecutive days of activity
+          example: 15
+        last_activity:
+          type: string
+          format: date-time
+          description: Timestamp of last activity
+        streak_start_date:
+          type: string
+          format: date-time
+          description: When current streak started
+      required: [current_streak, longest_streak, last_activity]
+
+    Badge:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "first_course"
+        name:
+          type: string
+          example: "First Course Complete"
+        icon:
+          type: string
+          example: "🎓"
+        earned_at:
+          type: string
+          format: date-time
+          description: When the badge was earned
+      required: [id, name, icon]
+
+    UserBadges:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of earned badges
+          example: 5
+        badges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Badge'
+      required: [total, badges]
+
+    UserPoints:
+      type: object
+      properties:
+        total_points:
+          type: integer
+          description: Total accumulated points
+          example: 1500
+        level:
+          type: integer
+          description: Current user level
+          example: 5
+        points_to_next_level:
+          type: integer
+          description: Points needed for next level
+          example: 200
+      required: [total_points, level, points_to_next_level]
+
+    AwardPointsRequest:
+      type: object
+      properties:
+        points:
+          type: integer
+          minimum: 1
+          description: Number of points to award
+          example: 50
+        reason:
+          type: string
+          description: Reason for awarding points
+          example: "Completed advanced JavaScript course"
+      required: [points]
+
+    AwardPointsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Awarded 50 points for Completed advanced JavaScript course"
+        new_total:
+          type: integer
+          description: Updated total points
+          example: 1550
+        level:
+          type: integer
+          description: Current level after awarding points
+          example: 5
+      required: [message, new_total]
+
+    EventRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Event type
+          example: "course_completed"
+        data:
+          type: object
+          description: Event-specific data
+          example: {"user_id": "user-123", "course_id": "course-456"}
+      required: [type]
+
+    EventResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "processed"
+        event:
+          type: string
+          description: Processed event type
+          example: "course_completed"
+        timestamp:
+          type: string
+          format: date-time
+      required: [status, event, timestamp]

@@ -1,0 +1,46 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "Notification Service with Production Database Integration",
+  "main": "enhanced-index.js",
+  "scripts": {
+    "start": "node enhanced-index.js",
+    "dev": "nodemon --watch enhanced-index.js",
+    "test": "NODE_ENV=development node enhanced-index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^7.1.1",
+    "uuid": "^9.0.0",
+    "joi": "^17.9.2",
+    "pg": "^8.8.3",
+    "nodemailer": "^6.9.1",
+    "socket.io": "^4.7.4",
+    "redis": "^4.6.0",
+    "bull": "^4.15.1",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "dotenv": "^16.4.0",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4",
+    "express-validator": "^7.0.4",
+    "ioredis": "^2.4.0"
+  },
+  "keywords": [
+    "notification-service",
+    "talentsphere",
+    "professional-networking",
+    "real-time",
+    "microservices",
+    "postgresql",
+    "nodejs",
+    "express",
+    "socket.io",
+    "redis",
+    "nodemailer"
+  ],
+  "author": "TalentSphere Team",
+  "license": "MIT"
+}

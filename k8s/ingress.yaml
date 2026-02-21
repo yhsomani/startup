@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: talentsphere-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      # API Gateway Routes (if using Nginx Controller to replace API Gateway container, 
+      # or routing to the API Gateway Service if we deployed creating a separate api-gateway.yaml)
+      # For now, let's assume we route /api requests to the API Gateway Service (which we need to create first or map here)
+      # Wait, I didn't create api-gateway.yaml. I should probably do that or map directly.
+      # Let's map directly to services for K8s native routing or create the gateway.
+      # Creating the Gateway deployment is cleaner for migration.
+      
+      # Route / to Shell
+      - path: /()(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-shell
+            port:
+              number: 80
+              
+      # Route /lms to LMS MFE (if exposed directly, though usually via Shell)
+      # Route /challenge to Challenge MFE

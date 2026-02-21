@@ -1,0 +1,299 @@
+# TalentSphere Redis Cluster Deployment
+#
+# This docker-compose setup provides:
+# - Redis Master-Slave configuration
+# - Redis Sentinel for high availability
+# - Redis Cluster for horizontal scaling
+# - Redis Insight for monitoring
+# - Automatic failover and recovery
+
+version: "3.8"
+
+services:
+    # Redis Master (Primary)
+    redis-master:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-master
+        command: redis-server /usr/local/etc/redis/redis.conf
+        ports:
+            - "6379:6379"
+        volumes:
+            - ./config/redis-production.conf:/usr/local/etc/redis/redis.conf
+            - redis-master-data:/data
+            - redis-master-logs:/var/log/redis
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
+
+    # Redis Slave 1 (Replica)
+    redis-slave-1:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-slave-1
+        command: redis-server /usr/local/etc/redis/redis.conf --replicaof redis-master 6379 --requirepass ${REDIS_PASSWORD}
+        ports:
+            - "6380:6379"
+        volumes:
+            - ./config/redis-slave.conf:/usr/local/etc/redis/redis.conf
+            - redis-slave-1-data:/data
+            - redis-slave-1-logs:/var/log/redis
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
+
+    # Redis Slave 2 (Replica)
+    redis-slave-2:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-slave-2
+        command: redis-server /usr/local/etc/redis/redis.conf --replicaof redis-master 6379 --requirepass ${REDIS_PASSWORD}
+        ports:
+            - "6381:6379"
+        volumes:
+            - ./config/redis-slave.conf:/usr/local/etc/redis/redis.conf
+            - redis-slave-2-data:/data
+            - redis-slave-2-logs:/var/log/redis
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
+
+    # Redis Sentinel 1
+    redis-sentinel-1:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-sentinel-1
+        command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+        ports:
+            - "26379:26379"
+        volumes:
+            - ./config/redis-sentinel.conf:/usr/local/etc/redis/sentinel.conf
+            - redis-sentinel-1-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+
+    # Redis Sentinel 2
+    redis-sentinel-2:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-sentinel-2
+        command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+        ports:
+            - "26380:26379"
+        volumes:
+            - ./config/redis-sentinel.conf:/usr/local/etc/redis/sentinel.conf
+            - redis-sentinel-2-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+
+    # Redis Sentinel 3
+    redis-sentinel-3:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-sentinel-3
+        command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+        ports:
+            - "26381:26379"
+        volumes:
+            - ./config/redis-sentinel.conf:/usr/local/etc/redis/sentinel.conf
+            - redis-sentinel-3-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+
+    # Redis Cluster Node 1 (Alternative to Master-Slave)
+    redis-cluster-1:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-cluster-1
+        command: redis-server /usr/local/etc/redis/redis-cluster.conf
+        ports:
+            - "7001:6379"
+            - "17001:16379"
+        volumes:
+            - ./config/redis-cluster.conf:/usr/local/etc/redis/redis-cluster.conf
+            - redis-cluster-1-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        restart: unless-stopped
+
+    # Redis Cluster Node 2
+    redis-cluster-2:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-cluster-2
+        command: redis-server /usr/local/etc/redis/redis-cluster.conf
+        ports:
+            - "7002:6379"
+            - "17002:16379"
+        volumes:
+            - ./config/redis-cluster.conf:/usr/local/etc/redis/redis-cluster.conf
+            - redis-cluster-2-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        restart: unless-stopped
+
+    # Redis Cluster Node 3
+    redis-cluster-3:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-cluster-3
+        command: redis-server /usr/local/etc/redis/redis-cluster.conf
+        ports:
+            - "7003:6379"
+            - "17003:16379"
+        volumes:
+            - ./config/redis-cluster.conf:/usr/local/etc/redis/redis-cluster.conf
+            - redis-cluster-3-data:/data
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        networks:
+            - talentsphere-network
+        restart: unless-stopped
+
+    # Redis Cluster Setup (Run once to initialize cluster)
+    redis-cluster-setup:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-cluster-setup
+        command: |
+            sh -c "
+            sleep 10
+            redis-cli --cluster create \
+              redis-cluster-1:6379 \
+              redis-cluster-2:6379 \
+              redis-cluster-3:6379 \
+              --cluster-replicas 0 \
+              --cluster-yes \
+              -a ${REDIS_PASSWORD}
+            "
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-cluster-1
+            - redis-cluster-2
+            - redis-cluster-3
+        profiles: ["cluster-setup"]
+
+    # Redis Insight (Monitoring GUI)
+    redis-insight:
+        image: redis/redisinsight:latest
+        container_name: talentsphere-redis-insight
+        ports:
+            - "8001:8001"
+        volumes:
+            - redis-insight-data:/db
+        networks:
+            - talentsphere-network
+        restart: unless-stopped
+        environment:
+            - RI_HOST=0.0.0.0
+            - RI_PORT=8001
+
+    # Redis Exporter (Prometheus Metrics)
+    redis-exporter:
+        image: oliver006/redis_exporter:latest
+        container_name: talentsphere-redis-exporter
+        ports:
+            - "9121:9121"
+        environment:
+            - REDIS_ADDR=redis://redis-master:6379
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - REDIS_EXPORTER_LOG_FORMAT=txt
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+
+    # Backup Service
+    redis-backup:
+        image: redis:7-alpine
+        container_name: talentsphere-redis-backup
+        command: |
+            sh -c "
+            while true; do
+              echo 'Creating backup...'
+              redis-cli -h redis-master -p 6379 -a ${REDIS_PASSWORD} BGSAVE
+              sleep 3600
+            done
+            "
+        volumes:
+            - redis-backups:/backups
+        networks:
+            - talentsphere-network
+        depends_on:
+            - redis-master
+        restart: unless-stopped
+
+volumes:
+    redis-master-data:
+        driver: local
+    redis-master-logs:
+        driver: local
+    redis-slave-1-data:
+        driver: local
+    redis-slave-1-logs:
+        driver: local
+    redis-slave-2-data:
+        driver: local
+    redis-slave-2-logs:
+        driver: local
+    redis-sentinel-1-data:
+        driver: local
+    redis-sentinel-2-data:
+        driver: local
+    redis-sentinel-3-data:
+        driver: local
+    redis-cluster-1-data:
+        driver: local
+    redis-cluster-2-data:
+        driver: local
+    redis-cluster-3-data:
+        driver: local
+    redis-insight-data:
+        driver: local
+    redis-backups:
+        driver: local
+
+networks:
+    talentsphere-network:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.20.0.0/16

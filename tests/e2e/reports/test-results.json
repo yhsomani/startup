@@ -1,0 +1,356 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\playwright.config.js",
+    "rootDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-setup.js",
+    "globalTeardown": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-teardown.js",
+    "globalTimeout": 3600000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "Test Environment": "test",
+      "Test Run ID": "1770667443735",
+      "Base URL": "http://localhost:3000",
+      "API URL": "http://localhost:8000"
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "firefox-desktop",
+        "name": "firefox-desktop",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "webkit-desktop",
+        "name": "webkit-desktop",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "tablet-chrome",
+        "name": "tablet-chrome",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "small-screen",
+        "name": "small-screen",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "large-screen",
+        "name": "large-screen",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "dark-mode",
+        "name": "dark-mode",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "test",
+          "Test Run ID": "1770667443735",
+          "Base URL": "http://localhost:3000",
+          "API URL": "http://localhost:8000"
+        },
+        "id": "high-dpi",
+        "name": "high-dpi",
+        "testDir": "C:/Users/ysoma/OneDrive/Documents/Startup/TalentSphere/tests/e2e",
+        "testIgnore": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "testMatch": [
+          "**/*.test.js",
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "tests/e2e/reports/html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/e2e/reports/test-results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "tests/e2e/reports/test-results.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "line",
+        null
+      ],
+      [
+        "dot",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 8,
+    "webServer": {
+      "command": "node scripts/start-e2e.js",
+      "port": 3000,
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "pipe",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: Service API is not available",
+      "stack": "Error: Service API is not available\n    at waitForServices (C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-setup.js:140:13)\n    at globalSetup (C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-setup.js:46:3)",
+      "location": {
+        "file": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-setup.js",
+        "column": 13,
+        "line": 140
+      },
+      "snippet": "\u001b[90m   at \u001b[39mglobal-setup.js:140\n\n\u001b[0m \u001b[90m 138 |\u001b[39m     } \u001b[36mcatch\u001b[39m (error) {\n \u001b[90m 139 |\u001b[39m       console\u001b[33m.\u001b[39merror(\u001b[32m`❌ ${service.name} is not ready:`\u001b[39m\u001b[33m,\u001b[39m error\u001b[33m.\u001b[39mmessage)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 140 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Service ${service.name} is not available`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 141 |\u001b[39m     }\n \u001b[90m 142 |\u001b[39m   }\n \u001b[90m 143 |\u001b[39m   \u001b[0m"
+    },
+    {
+      "message": "RangeError: Invalid time value",
+      "stack": "RangeError: Invalid time value\n    at generateTestSummary (C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-teardown.js:44:53)\n    at globalTeardown (C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-teardown.js:19:9)",
+      "location": {
+        "file": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\tests\\e2e\\global-teardown.js",
+        "column": 53,
+        "line": 44
+      },
+      "snippet": "\u001b[90m   at \u001b[39mglobal-teardown.js:44\n\n\u001b[0m \u001b[90m 42 |\u001b[39m   \u001b[36mconst\u001b[39m summaryData \u001b[33m=\u001b[39m {\n \u001b[90m 43 |\u001b[39m     testRunId\u001b[33m:\u001b[39m process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mTEST_RUN_ID\u001b[39m \u001b[33m||\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow()\u001b[33m.\u001b[39mtoString()\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 44 |\u001b[39m     startTime\u001b[33m:\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDate\u001b[39m(global\u001b[33m.\u001b[39m__TEST_START_TIME__)\u001b[33m.\u001b[39mtoISOString()\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 45 |\u001b[39m     endTime\u001b[33m:\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDate\u001b[39m()\u001b[33m.\u001b[39mtoISOString()\u001b[33m,\u001b[39m\n \u001b[90m 46 |\u001b[39m     totalDuration\u001b[33m:\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow() \u001b[33m-\u001b[39m global\u001b[33m.\u001b[39m__TEST_START_TIME__\u001b[33m,\u001b[39m\n \u001b[90m 47 |\u001b[39m     environment\u001b[33m:\u001b[39m process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_ENV\u001b[39m \u001b[33m||\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m\u001b[0m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-02-09T20:04:03.739Z",
+    "duration": 35.33800000000008,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

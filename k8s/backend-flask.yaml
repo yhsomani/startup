@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask
+spec:
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+      - name: flask
+        image: ts-backend-flask:latest
+        imagePullPolicy: Never # Assume built locally for dev
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@db:5432/talentsphere"
+        - name: FLASK_ENV
+          value: "production"
+        - name: JWT_SECRET_KEY
+          value: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask
+spec:
+  ports:
+  - port: 5000
+  selector:
+    app: flask

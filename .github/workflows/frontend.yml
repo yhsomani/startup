@@ -1,0 +1,70 @@
+name: Frontend - All MFEs
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mfe: [ts-mfe-shell, ts-mfe-lms, ts-mfe-challenge]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/${{ matrix.mfe }}/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend/${{ matrix.mfe }}
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd frontend/${{ matrix.mfe }}
+        npm test -- --run
+    
+    - name: Build
+      run: |
+        cd frontend/${{ matrix.mfe }}
+        npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      with:
+        name: ${{ matrix.mfe }}-build
+        path: frontend/${{ matrix.mfe }}/dist
+
+  deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        mfe: [ts-mfe-shell, ts-mfe-lms, ts-mfe-challenge]
+    
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: ${{ matrix.mfe }}-build
+        path: dist
+    
+    - name: Deploy to S3/CDN
+      run: |
+        # Example: Deploy to S3
+        # aws s3 sync dist/ s3://your-bucket/${{ matrix.mfe }}/ --delete
+        echo "Deploy ${{ matrix.mfe }} to your hosting provider"

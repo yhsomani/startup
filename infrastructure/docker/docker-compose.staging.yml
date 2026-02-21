@@ -1,0 +1,365 @@
+version: "3.8"
+
+services:
+    # Database (Shared by SpringBoot and .NET)
+    db:
+        image: postgres:15-alpine
+        container_name: ts-db
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: talentsphere
+        ports:
+            - "5440:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+
+    # Message Broker (Used by SpringBoot)
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: ts-rabbitmq
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+
+    # Flask Backend (Auth Service, Challenges)
+    flask:
+        build: ./backends/backend-flask
+        container_name: ts-backend-flask
+        ports:
+            - "5000:5000"
+        environment:
+            FLASK_ENV: staging
+            DATABASE_URL: postgresql://postgres:postgres@db:5432/talentsphere
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            CORS_ORIGINS: "http://staging.talentsphere.com,http://localhost:3000,http://localhost:3005,http://localhost:3006"
+            LOG_LEVEL: "INFO"
+            ENABLE_CORS: "true"
+            REDIS_URL: redis://redis:6379/0
+            RABBITMQ_URL: amqp://rabbitmq:5672
+        volumes:
+            - ./backends/backend-flask/instance:/app/instance
+        depends_on:
+            db:
+                condition: service_healthy
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+
+    # .NET Backend (Courses Service)
+    dotnet:
+        build: ./backends/backend-dotnet
+        container_name: ts-backend-dotnet
+        ports:
+            - "5062:8080"
+        environment:
+            ASPNETCORE_URLS: http://+:8080
+            ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=talentsphere;Username=postgres;Password=postgres
+            Jwt__Secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+            Jwt__ExpirationInMinutes: 15
+        depends_on:
+            db:
+                condition: service_healthy
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+
+    # Spring Boot Backend (Progress Service)
+    springboot:
+        build: ./backends/backend-springboot
+        container_name: ts-backend-springboot
+        ports:
+            - "8080:8080"
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/talentsphere
+            SPRING_DATASOURCE_USERNAME: postgres
+            SPRING_DATASOURCE_PASSWORD: postgres
+            SPRING_RABBITMQ_HOST: rabbitmq
+        depends_on:
+            db:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+
+    # API Gateway (Nginx)
+    api-gateway:
+        image: nginx:alpine
+        container_name: ts-api-gateway
+        ports:
+            - "8000:80" # API Gateway on port 8000
+            - "443:443"
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx/certs:/etc/nginx/certs:ro
+        depends_on:
+            flask:
+                condition: service_started
+            springboot:
+                condition: service_started
+            backend-assistant:
+                condition: service_started
+            backend-recruitment:
+                condition: service_started
+            backend-gamification:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    # Prometheus (Metrics)
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: ts-prometheus
+        volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        ports:
+            - "9090:9090"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    # Grafana (Visualization)
+    grafana:
+        image: grafana/grafana:latest
+        container_name: ts-grafana
+        ports:
+            - "3001:3000"
+        depends_on:
+            - prometheus
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--quiet",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:3000/api/health",
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+    # Collaboration Service (Yjs/Websocket)
+    collaboration:
+        build: ./backends/collaboration-service
+        container_name: ts-collaboration
+        ports:
+            - "1234:1234"
+        environment:
+            HOST: "0.0.0.0"
+            PORT: 1234
+            JWT_SECRET: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            RABBITMQ_URL: amqp://rabbitmq:5672
+            CORS_ORIGIN: "*"
+            NODE_ENV: staging
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        healthcheck:
+            test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+            interval: 30s
+            timeout: 3s
+            retries: 3
+            start_period: 10s
+        depends_on:
+            rabbitmq:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+
+    # Notification Service (WebSocket)
+    notification-service:
+        build: ./backends/backend-node
+        container_name: ts-notification-service
+        ports:
+            - "3030:3030" # WebSocket server
+        environment:
+            PORT: 3030
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            RABBITMQ_URL: amqp://rabbitmq:5672
+            CORS_ORIGIN: "*"
+            NODE_ENV: staging
+        depends_on:
+            rabbitmq:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "node",
+                    "-e",
+                    "require('http').get('http://localhost:3030/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+                ]
+            interval: 30s
+            timeout: 3s
+            retries: 3
+            start_period: 15s
+
+    # 6. Frontend: Shell (Host)
+    shell:
+        build: ./frontend/ts-mfe-shell
+        container_name: ts-mfe-shell
+        ports:
+            - "3000:80"
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+
+    # 7. Frontend: LMS (Remote)
+    lms:
+        build:
+            context: ./frontend/ts-mfe-lms
+            args:
+                VITE_USE_MOCK: "false"
+        container_name: ts-mfe-lms
+        ports:
+            - "3005:80"
+        depends_on:
+            - shell
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+
+    # 8. Frontend: Challenge (Remote)
+    challenge:
+        build:
+            context: ./frontend/ts-mfe-challenge
+        container_name: ts-mfe-challenge
+        ports:
+            - "3006:80"
+        depends_on:
+            - shell
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+
+    # 10. AI Assistant Service
+    backend-assistant:
+        build: ./backends/backend-assistant
+        container_name: ts-backend-assistant
+        ports:
+            - "5005:5005"
+        environment:
+            FLASK_ENV: staging
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            RABBITMQ_URL: amqp://rabbitmq:5672
+            CORS_ORIGIN: "*"
+            NODE_ENV: staging
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:5005/health'')"',
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        depends_on:
+            rabbitmq:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+
+    # 11. Recruitment Service (B2B)
+    backend-recruitment:
+        build: ./backends/backend-recruitment
+        container_name: ts-backend-recruitment
+        ports:
+            - "5006:5006"
+        environment:
+            FLASK_ENV: staging
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            RABBITMQ_URL: amqp://rabbitmq:5672
+            CORS_ORIGIN: "*"
+            NODE_ENV: staging
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:5006/health'')"',
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        depends_on:
+            rabbitmq:
+                condition: service_started
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+
+    # 12. Gamification Service
+    backend-gamification:
+        build: ./backends/backend-gamification
+        container_name: ts-backend-gamification
+        ports:
+            - "5007:5007"
+        environment:
+            FLASK_ENV: staging
+            DATABASE_URL: postgresql://postgres:postgres@db:5432/talentsphere
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+            RABBITMQ_URL: amqp://rabbitmq:5672
+            CORS_ORIGIN: "*"
+            NODE_ENV: staging
+        depends_on:
+            db:
+                condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:5007/health'')"',
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+
+volumes:
+    postgres_data:
+
+networks:
+    talentsphere-network:
+        driver: bridge

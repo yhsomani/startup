@@ -1,0 +1,83 @@
+version: '3.8.0'
+name: 'talentsphere-devops'
+description: 'TalentSphere DevOps Container'
+services:
+  - web:
+      image: 'talentsphere/devops:latest'
+      build:
+        context: ./devops
+        dockerfile: Dockerfile.devops
+      ports:
+        - '8080:8080'  # Prometheus
+        - '3001:3001'  # DevOps Web UI
+      
+  - ansible:
+      image: 'talentsphere/ansible:latest'
+      build:
+        context: ./ansible
+        playbook: playbook.yml
+        
+  - monitoring:
+      image: 'talentsphere/monitoring:latest'
+      build:
+        context: ./monitoring
+        dockerfile: Dockerfile.monitoring
+      ports:
+        - '9090:9090'  # Metrics endpoint
+        - '3001:3001'  # DevOps Web UI
+      
+volumes:
+  - devops_logs:/var/log/talentsphere/devops
+  - k8s_config:/root/.kube
+  - prometheus_data:/prometheus
+  - socket_data:/var/lib/node-exporter/collect
+
+configs:
+  talentsphere_devops:
+    environment:
+      POSTGRES_DB: 'talentsphere_devops'
+      POSTGRES_USER: '${POSTGRES_USER}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_HOST: '${POSTGRES_HOST}'
+      REDIS_HOST: '${REDIS_HOST}'
+      PROMETHEUS_HOST: '${PROMETHEUS_HOST}'
+      ALERT_WEBHOOK_URL: '${ALERT_WEBHOOK_URL}'
+      SONAR_TOKEN: '${SONAR_TOKEN}'
+      SONAR_ORGANIZATION: '${SONAR_ORGANIZATION}'
+      OPENAI_API_KEY: '${OPENAI_API_KEY}'
+      S3_BUCKET: 'talentsphere-devops'
+      AWS_REGION: 'us-west-2'
+      
+    production:
+      environment:
+        POSTGRES_DB: 'talentsphere_prod'
+        POSTGRES_USER: '${POSTGRES_USER}'
+        POSTGRES_PASSWORD: 'POSTGRES_PASSWORD_PROD}'
+        POSTGRES_HOST: '${POSTGRES_HOST}'
+        REDIS_HOST: '${REDIS_HOST}'
+        PROMETHEUS_HOST: '${PROMETHEUS_HOST}'
+        ALERT_WEBHOOK_URL: '${ALERT_WEBHOOK_URL_PROD}'
+        SONAR_TOKEN: '${SONAR_TOKEN}'
+        SONAR_ORGANIZATION: '${SONAR_ORGANIZATION}'
+        OPENAI_API_KEY: '${OPENAI_API_KEY}'
+        S3_BUCKET: 'talentsphere-prod'
+        AWS_REGION: 'us-west-2'
+
+networks:
+  - talentsphere_network:
+    driver: bridge
+    name: talentsphere-network
+    external: false
+    ports:
+      - "80:80"
+      - "3001:3001"
+      - "3002:3002"
+      
+  - monitoring:
+    driver: bridge
+    name: talentsphere-monitoring
+    external: false
+    ports:
+      - "9090:9090"
+      - "3001:3001"
+      - "3002:3002"

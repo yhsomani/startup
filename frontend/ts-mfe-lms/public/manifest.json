@@ -1,0 +1,207 @@
+{
+  "name": "TalentSphere - Learning Management System",
+  "short_name": "TalentSphere",
+  "description": "Comprehensive learning management system with courses, discussions, and interactive learning tools",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "screenshots": [
+    {
+      "src": "/static/media/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "TalentSphere Dashboard"
+    },
+    {
+      "src": "/static/media/screenshots/mobile-courses.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Mobile Course View"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/static/media/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/media/icons/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/media/icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Courses",
+      "short_name": "Courses",
+      "description": "Browse available courses",
+      "url": "/courses",
+      "icons": [{ "src": "/static/media/icons/shortcuts/courses-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your learning dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/static/media/icons/shortcuts/dashboard-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Search",
+      "short_name": "Search",
+      "description": "Search courses and content",
+      "url": "/search",
+      "icons": [{ "src": "/static/media/icons/shortcuts/search-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "share_target": [
+    {
+      "action": "/share",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "params": [
+        {
+          "name": "title",
+          "description": "Title of the content to share"
+        },
+        {
+          "name": "text",
+          "description": "Text content to share"
+        },
+        {
+          "name": "url",
+          "description": "URL to share"
+        },
+        {
+          "name": "file",
+          "description": "File to share"
+        }
+      ]
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+talentsphere",
+      "url": "/handle?protocol=%s",
+      "title": "TalentSphere Protocol Handler"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.talentsphere.mobile",
+      "id": "com.talentsphere.mobile"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/talentsphere/id123456789",
+      "id": "com.talentsphere.mobile"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "capture_links": true,
+  "offline_enabled": true,
+  "prefer_related_applications": false,
+  "display_override": [
+    {
+      "form_factor": "standalone",
+      "display": "standalone"
+    },
+    {
+      "form_factor": "window-controls-overlay",
+      "display": "window-controls-overlay"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/upload-course",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "application/vnd.ms-powerpoint": [".ppt", ".pptx"],
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+        "text/plain": [".txt"],
+        "video/mp4": [".mp4"],
+        "video/webm": [".webm"],
+        "audio/mp3": [".mp3"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/gif": [".gif"],
+        "application/zip": [".zip"]
+      }
+    }
+  ],
+  "url_handlers": [
+    {
+      "origin": "https://talentsphere.com",
+      "path": "/course/*"
+    },
+    {
+      "origin": "https://learn.talentsphere.com",
+      "path": "/*"
+    }
+  ]
+}

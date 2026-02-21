@@ -1,0 +1,119 @@
+groups:
+  - name: talentsphere.performance
+    interval: 30s
+    rules:
+
+      # ── Service availability ────────────────────────────────────────────────
+      - alert: ServiceDown
+        expr: up{job=~"talentsphere-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
+
+      # ── Error rate ──────────────────────────────────────────────────────────
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{status=~"5.."}[5m])
+          /
+          rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High 5xx error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)."
+
+      - alert: CriticalErrorRate
+        expr: |
+          rate(http_requests_total{status=~"5.."}[5m])
+          /
+          rate(http_requests_total[5m]) > 0.15
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical 5xx error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 15%)."
+
+      # ── Response time ───────────────────────────────────────────────────────
+      - alert: SlowResponses
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 3m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "p95 latency > 2s on {{ $labels.job }}"
+          description: "95th percentile response time is {{ $value }}s."
+
+      - alert: VerySlowResponses
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 5
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "p99 latency > 5s on {{ $labels.job }}"
+          description: "99th percentile response time is {{ $value }}s."
+
+      # ── Memory ──────────────────────────────────────────────────────────────
+      - alert: HighMemoryUsage
+        expr: |
+          process_resident_memory_bytes{job=~"talentsphere-.*"}
+          / container_spec_memory_limit_bytes > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Memory > 80% on {{ $labels.job }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} of the container limit."
+
+      - alert: CriticalMemoryUsage
+        expr: |
+          process_resident_memory_bytes{job=~"talentsphere-.*"}
+          / container_spec_memory_limit_bytes > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          team: ops
+        annotations:
+          summary: "Memory > 95% on {{ $labels.job }}"
+          description: "OOM kill imminent on {{ $labels.instance }}."
+
+      # ── Database connections ─────────────────────────────────────────────────
+      - alert: DBConnectionPoolExhausted
+        expr: pg_stat_activity_count > 18
+        for: 2m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "DB connection pool near limit"
+          description: "Active connections: {{ $value }} (max: 20)."
+
+      # ── Cache ────────────────────────────────────────────────────────────────
+      - alert: LowCacheHitRate
+        expr: |
+          sum(rate(cache_hits_total[5m]))
+          /
+          (sum(rate(cache_hits_total[5m])) + sum(rate(cache_misses_total[5m]))) < 0.50
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Cache hit rate < 50%"
+          description: "Current cache hit rate: {{ $value | humanizePercentage }}."

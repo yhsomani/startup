@@ -1,0 +1,5 @@
+packages:
+  - 'packages/*'
+  - 'ts-mfe-shell'
+  - 'ts-mfe-lms'
+  - 'ts-mfe-challenge'

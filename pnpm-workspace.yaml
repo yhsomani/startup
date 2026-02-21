@@ -1,0 +1,16 @@
+# TalentSphere Workspaces Configuration
+# This file defines workspace packages for the monorepo
+
+packages:
+  # Backend services
+  - 'services/*'
+  - 'backends/backend-enhanced/*'
+  - 'backends/backend-flask'
+  - 'backends/backend-dotnet'
+  - 'backends/backend-springboot'
+  - 'backends/collaboration-service'
+
+  # Frontend applications and packages
+  - 'frontends/*'
+  - 'frontend/packages/*'
+  - 'frontend/ts-mfe-*'
