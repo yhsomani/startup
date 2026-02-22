@@ -587,8 +587,12 @@ namespace TalentSphere.API.Services
 
             if (localSubscription != null)
             {
-                localSubscription.Status = SubscriptionStatus.Cancelled;
-                localSubscription.EndDate = subscription.CanceledAt ?? DateTime.UtcNow;
+                // Use current_period_end to allow access until end of billing period
+                // Don't revoke immediately - user has paid for the current period
+                localSubscription.Status = subscription.CancelAtPeriodEnd 
+                    ? SubscriptionStatus.PendingCancellation 
+                    : SubscriptionStatus.Cancelled;
+                localSubscription.EndDate = subscription.CurrentPeriodEnd;
                 localSubscription.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
