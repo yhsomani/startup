@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://talentsphere.com/schemas/events/ChallengeSubmitted.json",
+  "title": "ChallengeSubmitted",
+  "description": "Event fired when a user submits a coding challenge",
+  "type": "object",
+  "required": ["messageId", "timestamp", "data"],
+  "properties": {
+    "messageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "type": "object",
+      "required": ["userId", "challengeId"],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "challengeId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["javascript", "python", "java", "csharp", "go", "rust"]
+        },
+        "pointsAwarded": {
+          "type": "integer",
+          "default": 50
+        }
+      }
+    }
+  }
+}

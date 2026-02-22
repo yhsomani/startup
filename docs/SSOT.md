@@ -174,6 +174,45 @@ The system uses **Distributed Cache-Aside Pattern** with Redis.
 - Use `@Cacheable(value = "courses", key = "#id")` on service methods
 - Use `@CacheEvict` to invalidate on updates
 
+---
+
+## 7.2 Message Queue Architecture
+
+The system uses **Transactional Outbox Pattern** with RabbitMQ.
+
+### Exchange Structure
+
+- **Exchange**: `talentsphere.events` (topic)
+- **Queues**: `gamification.queue`, `notification.queue`, etc.
+- **DLQ**: `gamification.dlq`, etc.
+
+### Publisher (Spring Boot)
+
+- Uses `OutboxEvent` entity to save events atomically with business data
+- `OutboxProcessor` reads pending events and publishes to RabbitMQ
+
+### Consumer (Python/Node/.NET)
+
+- Uses idempotency check (message ID tracking)
+- DLQ support for failed messages (max 3 retries)
+- Explicit ACK after successful processing
+
+### Event Contracts
+
+- Defined in `shared-contracts/events/`
+- JSON Schema for: `UserRegistered`, `CourseCompleted`, `ChallengeSubmitted`
+- All events include `messageId` (UUID) and `timestamp`
+
+### Routing Keys
+
+| Event               | Routing Key           |
+| ------------------- | --------------------- |
+| Course Completed    | `course.completed`    |
+| Challenge Submitted | `challenge.submitted` |
+| User Registered     | `user.registered`     |
+
+- Use `@CacheEvict` to invalidate on updates
+
 ### .NET (Challenges)
 
 - Configure `IDistributedCache` in `Program.cs`

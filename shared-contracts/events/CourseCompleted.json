@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://talentsphere.com/schemas/events/CourseCompleted.json",
+  "title": "CourseCompleted",
+  "description": "Event fired when a user completes a course",
+  "type": "object",
+  "required": ["messageId", "timestamp", "data"],
+  "properties": {
+    "messageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "type": "object",
+      "required": ["userId", "courseId"],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "courseId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pointsAwarded": {
+          "type": "integer",
+          "default": 100
+        }
+      }
+    }
+  }
+}
