@@ -1,124 +1,124 @@
 name: Backend - Phase 10 Services
 
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'backends/backend-assistant/**'
-      - 'backends/backend-recruitment/**'
-      - 'backends/backend-gamification/**'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'backends/backend-assistant/**'
-      - 'backends/backend-recruitment/**'
-      - 'backends/backend-gamification/**'
+    push:
+        branches: [main, develop]
+        paths:
+            - "backends/backend-assistant/**"
+            - "backends/backend-recruitment/**"
+            - "backends/backend-gamification/**"
+    pull_request:
+        branches: [main, develop]
+        paths:
+            - "backends/backend-assistant/**"
+            - "backends/backend-recruitment/**"
+            - "backends/backend-gamification/**"
 
 jobs:
-  test-and-build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [assistant, recruitment, gamification]
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    
-    - name: Install dependencies
-      run: |
-        cd backends/backend-${{ matrix.service }}
-        pip install -r requirements.txt
-    
-    - name: Run tests
-      run: |
-        cd backends/backend-${{ matrix.service }}
-        pytest .
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    
-    - name: Build and push
-      uses: docker/build-push-action@v4
-      with:
-        context: ./backends/backend-${{ matrix.service }}
-        push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        tags: |
-          ${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:latest
-          ${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:buildcache,mode=max
+    test-and-build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                service: [assistant, recruitment, gamification]
 
-  e2e-test-gateway:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    # Run on PRs to develop or pushes to main/develop
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+        steps:
+            - uses: actions/checkout@v3
 
-    steps:
-    - uses: actions/checkout@v3
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.10"
 
-    - name: Setup Node.js for Newman
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+            - name: Install dependencies
+              run: |
+                  cd backends/backend-${{ matrix.service }}
+                  pip install -r requirements.txt
 
-    - name: Install Newman
-      run: npm install -g newman
+            - name: Run tests
+              run: |
+                  cd backends/backend-${{ matrix.service }}
+                  pytest .
 
-    - name: Start all services via Docker Compose
-      run: |
-        # Use a default dev secret for CI environment.
-        export JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-        docker-compose up -d --build
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v2
 
-    - name: Wait for services to become healthy
-      run: |
-        echo "Waiting 60s for all services to initialize..."
-        sleep 60
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v2
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Run Postman E2E tests against the Gateway
-      run: newman run postman_collection.json
+            - name: Build and push
+              uses: docker/build-push-action@v4
+              with:
+                  context: ./backends/backend-${{ matrix.service }}
+                  push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+                  tags: |
+                      ${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:latest
+                      ${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:${{ github.sha }}
+                  cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:buildcache
+                  cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/talentsphere-${{ matrix.service }}:buildcache,mode=max
 
-  deploy-to-k8s:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-    
-    - name: Configure kubectl
-      run: |
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig.yaml
-        export KUBECONFIG=kubeconfig.yaml
-    
-    - name: Update image tags
-      run: |
-        cd k8s
-        sed -i 's|talentsphere/backend-assistant:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-assistant:${{ github.sha }}|g' backend-assistant.yaml
-        sed -i 's|talentsphere/backend-recruitment:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-recruitment:${{ github.sha }}|g' backend-recruitment.yaml
-        sed -i 's|talentsphere/backend-gamification:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-gamification:${{ github.sha }}|g' backend-gamification.yaml
-    
-    - name: Deploy to Kubernetes
-      run: |
-        export KUBECONFIG=kubeconfig.yaml
-        kubectl apply -f k8s/backend-assistant.yaml
-        kubectl apply -f k8s/backend-recruitment.yaml
-        kubectl apply -f k8s/backend-gamification.yaml
-        kubectl rollout status deployment/backend-assistant
-        kubectl rollout status deployment/backend-recruitment
-        kubectl rollout status deployment/backend-gamification
+    e2e-test-gateway:
+        needs: test-and-build
+        runs-on: ubuntu-latest
+        # Run on PRs to develop or pushes to main/develop
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup Node.js for Newman
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
+
+            - name: Install Newman
+              run: npm install -g newman
+
+            - name: Start all services via Docker Compose
+              run: |
+                  # Use secrets from GitHub for CI environment
+                  export JWT_SECRET=${{ secrets.JWT_SECRET }}
+                  docker-compose up -d --build
+
+            - name: Wait for services to become healthy
+              run: |
+                  echo "Waiting 60s for all services to initialize..."
+                  sleep 60
+
+            - name: Run Postman E2E tests against the Gateway
+              run: newman run postman_collection.json
+
+    deploy-to-k8s:
+        needs: test-and-build
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up kubectl
+              uses: azure/setup-kubectl@v3
+
+            - name: Configure kubectl
+              run: |
+                  echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig.yaml
+                  export KUBECONFIG=kubeconfig.yaml
+
+            - name: Update image tags
+              run: |
+                  cd k8s
+                  sed -i 's|talentsphere/backend-assistant:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-assistant:${{ github.sha }}|g' backend-assistant.yaml
+                  sed -i 's|talentsphere/backend-recruitment:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-recruitment:${{ github.sha }}|g' backend-recruitment.yaml
+                  sed -i 's|talentsphere/backend-gamification:latest|${{ secrets.DOCKER_USERNAME }}/talentsphere-gamification:${{ github.sha }}|g' backend-gamification.yaml
+
+            - name: Deploy to Kubernetes
+              run: |
+                  export KUBECONFIG=kubeconfig.yaml
+                  kubectl apply -f k8s/backend-assistant.yaml
+                  kubectl apply -f k8s/backend-recruitment.yaml
+                  kubectl apply -f k8s/backend-gamification.yaml
+                  kubectl rollout status deployment/backend-assistant
+                  kubectl rollout status deployment/backend-recruitment
+                  kubectl rollout status deployment/backend-gamification
