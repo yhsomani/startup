@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: springboot
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: springboot
@@ -12,16 +13,16 @@ spec:
         app: springboot
     spec:
       containers:
-      - name: springboot
-        image: ts-backend-springboot:latest
-        imagePullPolicy: Never
-        env:
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://db:5432/talentsphere"
-        - name: SPRING_RABBITMQ_HOST
-          value: "rabbitmq"
-        ports:
-        - containerPort: 8080
+        - name: springboot
+          image: ts-backend-springboot:latest
+          imagePullPolicy: Never
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:postgresql://db:5432/talentsphere'
+            - name: SPRING_RABBITMQ_HOST
+              value: 'rabbitmq'
+          ports:
+            - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
@@ -29,6 +30,6 @@ metadata:
   name: springboot
 spec:
   ports:
-  - port: 8080
+    - port: 8080
   selector:
     app: springboot

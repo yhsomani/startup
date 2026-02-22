@@ -2,27 +2,54 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: talentsphere-ingress
+  namespace: talentsphere
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-body-size: '50m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
 spec:
   rules:
-  - http:
-      paths:
-      # API Gateway Routes (if using Nginx Controller to replace API Gateway container, 
-      # or routing to the API Gateway Service if we deployed creating a separate api-gateway.yaml)
-      # For now, let's assume we route /api requests to the API Gateway Service (which we need to create first or map here)
-      # Wait, I didn't create api-gateway.yaml. I should probably do that or map directly.
-      # Let's map directly to services for K8s native routing or create the gateway.
-      # Creating the Gateway deployment is cleaner for migration.
-      
-      # Route / to Shell
-      - path: /()(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-shell
-            port:
-              number: 80
-              
-      # Route /lms to LMS MFE (if exposed directly, though usually via Shell)
-      # Route /challenge to Challenge MFE
+    - host: api.talentsphere.com
+      http:
+        paths:
+          # API Gateway routes
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80
+          # Frontend routes
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-shell
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: talentsphere-ws-ingress
+  namespace: talentsphere
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/upstream-hash-by: '$request_uri'
+spec:
+  rules:
+    - host: ws.talentsphere.com
+      http:
+        paths:
+          # WebSocket routes for collaboration
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: collaboration-service
+                port:
+                  number: 8080
