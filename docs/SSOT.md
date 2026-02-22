@@ -5342,11 +5342,286 @@ type Job @key(fields: "id") {
 ### Testing Tools
 
 | Type | Tool | Purpose |
-|------|------|---------|
+|-------|------|---------|
 | Unit | Jest | Component testing |
 | Integration | Supertest | API testing |
 | E2E | Playwright | Browser testing |
 | Contract | Pact | API contracts |
+
+---
+
+## 161. Configuration Management
+
+### Config Files
+
+| File | Purpose |
+|------|---------|
+| `config.js` | Main configuration |
+| `config-reloader.js` | Hot config reload |
+| `config-manager.js` | Config management |
+| `config-validator.js` | Validation |
+
+### Configuration Pattern
+
+```javascript
+const config = {
+  database: {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 5432,
+    pool: { min: 2, max: 10 }
+  },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+  },
+  server: {
+    port: parseInt(process.env.PORT) || 3000
+  }
+};
+```
+
+---
+
+## 162. Environment Setup
+
+### Required Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| NODE_ENV | Environment | development |
+| PORT | Server port | 3000 |
+| DATABASE_URL | PostgreSQL connection | - |
+| REDIS_URL | Redis connection | - |
+| JWT_SECRET | JWT signing secret | - |
+| JWT_REFRESH_SECRET | Refresh token secret | - |
+
+### Optional Variables
+
+| Variable | Description |
+|----------|-------------|
+| OPENAI_API_KEY | OpenAI for AI features |
+| AWS_ACCESS_KEY | S3 file storage |
+| STRIPE_SECRET | Payment processing |
+| SENDGRID_API_KEY | Email delivery |
+
+---
+
+## 163. Security Patterns
+
+### Authentication Flow
+
+```
+User → Login → Auth Service → Validate → JWT Token
+                                    ↓
+                              Refresh Token (stored)
+```
+
+### Security Headers
+
+```javascript
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"]
+    }
+  }
+}));
+```
+
+---
+
+## 164. Rate Limiting Implementation
+
+### Redis Rate Limiter
+
+```javascript
+const rateLimiter = new RateLimiterRedis({
+  store: new RedisStore({
+    client: redisClient,
+    prefix: 'rl:'
+  }),
+  max: 100,
+  windowMs: 60 * 1000
+});
+```
+
+### Custom Rate Limiter
+
+```javascript
+const customLimiter = {
+  keyGenerator: (req) => req.ip,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many requests'
+    });
+  }
+};
+```
+
+---
+
+## 165. Data Encryption
+
+### Encryption at Rest
+
+| Data Type | Method |
+|-----------|--------|
+| Passwords | bcrypt (hashed) |
+| API Keys | AES-256 |
+| Personal Data | AES-256 |
+| Backup | Encrypted archives |
+
+### Encryption in Transit
+
+- TLS 1.3 for all connections
+- Certificate pinning for mobile
+- HSTS headers
+
+---
+
+## 166. Access Control
+
+### Role-Based Access
+
+```javascript
+const roles = {
+  admin: ['*'],
+  employer: ['jobs:read', 'jobs:write', 'applications:read'],
+  jobseeker: ['profile:read', 'profile:write', 'applications:write'],
+  guest: ['jobs:read']
+};
+```
+
+### Middleware Implementation
+
+```javascript
+const authorize = (allowedRoles) => (req, res, next) => {
+  const userRole = req.user.role;
+  if (allowedRoles.includes(userRole) || userRole === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Forbidden' });
+  }
+};
+```
+
+---
+
+## 167. Data Export/Import
+
+### Export Formats
+
+| Format | Use Case |
+|--------|---------|
+| CSV | Spreadsheet compatibility |
+| JSON | API integration |
+| XML | Legacy systems |
+| PDF | Reports |
+
+### Import Processing
+
+```javascript
+const processImport = async (file) => {
+  const records = await parseCSV(file);
+  const validation = await validateRecords(records);
+  if (validation.valid) {
+    await bulkInsert(validation.data);
+    return { success: true, count: records.length };
+  }
+  return { success: false, errors: validation.errors };
+};
+```
+
+---
+
+## 168. Background Jobs
+
+### Job Queue
+
+| Queue | Priority | Processing |
+|-------|----------|------------|
+| default | Normal | Sync |
+| high | High | Immediate |
+| low | Low | Batch |
+| mail | Normal | Async |
+
+### Job Processors
+
+```javascript
+const jobProcessor = async (job) => {
+  switch (job.name) {
+    case 'sendEmail':
+      await sendEmail(job.data);
+      break;
+    case 'processPayment':
+      await processPayment(job.data);
+      break;
+    case 'generateReport':
+      await generateReport(job.data);
+      break;
+  }
+};
+```
+
+---
+
+## 169. Notification System
+
+### Notification Channels
+
+| Channel | Use Case |
+|---------|----------|
+| Email | Important updates |
+| In-app | Real-time alerts |
+| Push | Mobile notifications |
+| SMS | Urgent alerts |
+
+### Notification Events
+
+| Event | Channels |
+|-------|----------|
+| New Application | Email, In-app |
+| Job Status Change | Email, Push |
+| Message Received | In-app, Push |
+| Profile View | In-app |
+
+---
+
+## 170. Payment Integration
+
+### Stripe Integration
+
+```javascript
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
+
+const createPayment = async (amount, currency, customerId) => {
+  const payment = await stripe.paymentIntents.create({
+    amount: amount * 100,
+    currency,
+    customer: customerId
+  });
+  return payment;
+};
+```
+
+### Webhook Handling
+
+```javascript
+app.post('/webhooks/stripe', (req, res) => {
+  const event = req.body;
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      handlePaymentSuccess(event.data.object);
+      break;
+    case 'payment_intent.payment_failed':
+      handlePaymentFailure(event.data.object);
+      break;
+  }
+  res.json({ received: true });
+});
+```
 
 ---
 
