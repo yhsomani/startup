@@ -5072,9 +5072,281 @@ const result = await idempotency.execute(
 - Consistent response format
 - Versioned API
 - Rate limiting
-- Request/response logging
-- Error handling
-- Hypermedia links
+
+---
+
+## 151. Database Schema Files
+
+### Main Schema Files
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `database-schema.sql` | `database/schema/` | Core schema |
+| `database-indexes.sql` | `database/indexes/` | Performance indexes |
+| `database-optimization.sql` | `scripts/` | Query optimization |
+
+### Service-Specific Migrations
+
+| Service | Migration Files |
+|---------|----------------|
+| Auth | `001_create_users_table.sql` |
+| User | `001_create_user_tables.sql` |
+| Job | `001_create_job_tables.sql` |
+| Company | `migration.sql`, `migration-corrected.sql` |
+| Network | `004_create_network_tables.sql` |
+| Notifications | `005_create_notifications_table.sql` |
+| Analytics | `migration.sql` |
+
+### Additional Migrations
+
+| File | Purpose |
+|------|---------|
+| `000_initial_schema.sql` | Initial backend schema |
+| `001_init_schema.sql` | Root migrations |
+| `002_schema_standardization.sql` | Schema standardization |
+| `003_fix_missing_columns.sql` | Column fixes |
+| `004_job_listing_service.sql` | Job listing service |
+| `005_user_profile_service.sql` | User profile service |
+| `006_create_performance_indexes.sql` | Performance indexes |
+| `007_create_refresh_token_tables.sql` | Refresh tokens |
+
+---
+
+## 152. Service Database Migrations
+
+### Auth Service Migrations
+- `001_create_users_table.sql` - User authentication tables
+
+### Backend Enhanced Migrations
+
+| Service | Path |
+|---------|------|
+| User Service | `backends/backend-enhanced/user-service/migrations/` |
+| Job Service | `backends/backend-enhanced/job-service/migrations/` |
+| Company Service | `backends/backend-enhanced/company-service/` |
+
+### Spring Boot Migrations
+
+| Version | Purpose |
+|---------|---------|
+| V3 | Create Certificates Table |
+
+---
+
+## 153. Query Optimization
+
+### Optimization Techniques
+
+| Technique | Description |
+|-----------|-------------|
+| Indexing | B-tree for equality, GIN for text |
+| Query Planning | EXPLAIN ANALYZE |
+| Connection Pooling | pgBouncer |
+| Caching | Redis layer |
+| Partitioning | Range partitioning by date |
+
+### Slow Query Analysis
+
+```sql
+-- Enable timing
+\timing on
+
+-- Analyze slow query
+EXPLAIN ANALYZE
+SELECT * FROM jobs
+WHERE status = 'open'
+AND created_at > '2026-01-01';
+```
+
+### Index Types
+
+| Type | Use Case |
+|------|----------|
+| B-tree | Equality, range queries |
+| GIN | Full-text search, JSONB |
+| Hash | Simple equality |
+| BRIN | Time-series data |
+
+---
+
+## 154. Data Validation
+
+### Validation Layers
+
+| Layer | Implementation |
+|--------|---------------|
+| Client | JavaScript validation |
+| API | Joi/Zod schemas |
+| Database | Constraints, triggers |
+
+### Constraint Types
+
+| Constraint | Usage |
+|------------|-------|
+| NOT NULL | Required fields |
+| UNIQUE | Duplicate prevention |
+| CHECK | Value validation |
+| FOREIGN KEY | Referential integrity |
+| DEFAULT | Default values |
+
+---
+
+## 155. Event Sourcing
+
+### Event Store
+
+| Component | Purpose |
+|-----------|---------|
+| Events Table | Store all events |
+| Snapshots | Performance optimization |
+| Projections | Read models |
+
+### Event Structure
+
+```javascript
+{
+  eventId: 'uuid',
+  aggregateId: 'user123',
+  type: 'UserCreated',
+  payload: { name: 'John', email: 'john@example.com' },
+  metadata: { correlationId: 'abc', causationId: 'xyz' },
+  timestamp: '2026-02-23T12:00:00Z'
+}
+```
+
+---
+
+## 156. CQRS Pattern
+
+### Command Model
+
+| Operation | Handler |
+|-----------|---------|
+| CreateUser | CommandHandler |
+| UpdateJob | CommandHandler |
+| DeleteApplication | CommandHandler |
+
+### Query Model
+
+| Query | Handler |
+|-------|---------|
+| GetUserById | QueryHandler |
+| ListJobs | QueryHandler |
+| SearchProfiles | QueryHandler |
+
+---
+
+## 157. Microservices Patterns
+
+### Communication Patterns
+
+| Pattern | Implementation |
+|---------|---------------|
+| API Gateway | Central entry point |
+| Service Mesh | Istio |
+| Sidecar | Envoy proxies |
+
+### Design Patterns
+
+| Pattern | Purpose |
+|---------|---------|
+| Database per service | Isolation |
+| Event sourcing | Audit trail |
+| CQRS | Performance |
+| Saga | Distributed transactions |
+
+---
+
+## 158. Service Mesh
+
+### Istio Features
+
+| Feature | Benefit |
+|---------|---------|
+| mTLS | Secure communication |
+| Traffic management | Canary deployments |
+| Observability | Tracing, metrics |
+| Policy enforcement | Access control |
+
+### Traffic Splitting
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: job-service
+spec:
+  hosts:
+  - job-service
+  http:
+  - route:
+    - destination:
+        host: job-service
+        subset: v1
+      weight: 90
+    - destination:
+        host: job-service
+        subset: v2
+      weight: 10
+```
+
+---
+
+## 159. API Gateway Patterns
+
+### Gateway Responsibilities
+
+| Responsibility | Implementation |
+|---------------|----------------|
+| Request routing | Path-based |
+| Composition | GraphQL Federation |
+| Protocol translation | REST to gRPC |
+| Authentication | JWT validation |
+| Rate limiting | Redis |
+| Circuit breaker | Custom |
+
+### GraphQL Federation
+
+```graphql
+type Job @key(fields: "id") {
+  id: ID!
+  title: String!
+  company: Company @external
+}
+```
+
+---
+
+## 160. Testing Strategy
+
+### Test Pyramid
+
+```
+        /\
+       /E2E\
+      /------\
+     /Integration\
+    /------------\
+   /    Unit     \
+  /________________\
+```
+
+### Testing Ratios
+
+| Level | Percentage | Speed |
+|-------|-----------|-------|
+| Unit | 70% | Fast |
+| Integration | 20% | Medium |
+| E2E | 10% | Slow |
+
+### Testing Tools
+
+| Type | Tool | Purpose |
+|------|------|---------|
+| Unit | Jest | Component testing |
+| Integration | Supertest | API testing |
+| E2E | Playwright | Browser testing |
+| Contract | Pact | API contracts |
 
 ---
 
