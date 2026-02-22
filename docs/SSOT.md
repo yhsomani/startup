@@ -300,6 +300,38 @@ See `shared-contracts/ROUTING_KEY_TAXONOMY.md` for complete list.
 
 ---
 
+## 7. Service Discovery
+
+The system uses **Kubernetes Native Discovery** (recommended).
+
+### Kubernetes CoreDNS (Server-Side Discovery)
+
+All services define K8s Services which register in CoreDNS:
+
+| Service     | K8s Service Name    | DNS                                                |
+| ----------- | ------------------- | -------------------------------------------------- |
+| Spring Boot | `lms-service`       | `lms-service.talentsphere.svc.cluster.local`       |
+| .NET        | `challenge-service` | `challenge-service.talentsphere.svc.cluster.local` |
+| Flask       | `flask-service`     | `flask-service.talentsphere.svc.cluster.local`     |
+| Node.js     | `auth-service`      | `auth-service.talentsphere.svc.cluster.local`      |
+
+### Custom Registry (Alternative)
+
+For non-K8s environments, use Redis-backed registry:
+
+- Implementation: `services/shared/service-registry.js`
+- Self-registration on startup
+- Heartbeat every 15 seconds
+- TTL: 30 seconds
+
+### Best Practices
+
+- Use K8s DNS names in API Gateway routing
+- Inter-service communication via DNS names
+- No hardcoded IPs
+
+---
+
 ### .NET (Challenges)
 
 - Configure `IDistributedCache` in `Program.cs`
