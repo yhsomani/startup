@@ -2552,34 +2552,172 @@ tests/e2e/
 
 ---
 
-## 63. Compliance & Security
+## 65. Business Operations - Financial Planning
 
-### Security Measures
-- JWT with refresh tokens
-- bcrypt password hashing
-- Rate limiting (Redis-backed)
-- Input validation (Joi)
-- Security headers (Helmet.js)
-- CORS configuration
+### Startup Costs (India)
 
-### Compliance
-- Data encryption at rest
-- SSL/TLS for all connections
-- Audit logging
-- GDPR ready
+#### Initial Setup (₹52K - ₹1.45L)
+
+| Expense | Amount (₹) |
+|---------|-----------|
+| Pvt Ltd Registration | 10,000 - 20,000 |
+| DSC (2 directors) | 2,000 - 4,000 |
+| Virtual Office | 5,000 - 15,000 |
+| Logo & Branding | 5,000 - 25,000 |
+| Website & Domain | 5,000 - 20,000 |
+| Accounting Software | 300 - 500/month |
+| Legal Docs | 5,000 - 15,000 |
+| CA Fees | 10,000 - 25,000 |
+
+#### Monthly Operating Costs
+
+**Bootstrap (₹19K - ₹60K/month):**
+- Co-working: ₹5-15K
+- Internet/Phone: ₹1-2K
+- Marketing: ₹5-20K
+- Tools: ₹2-5K
+
+**Funded Startup (₹3.15L - ₹8.95L/month):**
+- Office: ₹15-50K
+- Salaries (3-5 people): ₹2-5L
+- Tools: ₹10-25K
+- Marketing: ₹50K-2L
 
 ---
 
-## 64. Third-Party Integrations
+## 66. Business Operations - HR & Team
 
-| Service | Purpose | Status |
-|---------|---------|--------|
-| OpenAI | AI Assistant | Configurable |
-| Stripe | Payments | Implemented |
-| SendGrid | Email delivery | Configurable |
-| AWS S3 | File storage | Configurable |
-| LinkedIn | Social login | Planned |
-| GitHub | Social login | Planned |
+### Salary Benchmarks (India 2025)
+
+| Role | Experience | Monthly CTC (₹) | Annual (LPA) |
+|------|------------|-----------------|--------------|
+| Junior Dev | 0-2 yrs | 30-50K | 4-6L |
+| Developer | 2-4 yrs | 50-80K | 6-10L |
+| Senior Dev | 4-7 yrs | 80K-1.5L | 10-18L |
+| Lead/Manager | 7-10 yrs | 1.2-2L | 15-25L |
+| CTO | 10+ yrs | 2-5L | 25-60L |
+| Assoc PM | 0-2 yrs | 40-70K | 5-8L |
+| PM | 2-5 yrs | 70K-1.3L | 8-15L |
+| UI/UX | 0-2 yrs | 25-45K | 3-5.5L |
+
+### City Adjustments
+- **Tier 1** (Bengaluru, Mumbai, Delhi): Full salary
+- **Tier 2** (Jaipur, Ahmedabad): -20-30%
+- **Tier 3/Remote**: -30-40%
+
+### EPF & ESI (Statutory)
+- **EPF**: 12% employee + 12% employer contribution
+- **ESI**: Applicable for 10+ employees
+
+---
+
+## 67. Business Operations - Branding & Marketing
+
+### Brand Identity Basics
+
+**A brand includes:**
+- Visual identity (logo, colors, typography)
+- Voice and messaging
+- Values and personality
+- Customer experience
+- Reputation and trust
+
+### Why Branding Matters
+- **Differentiation:** Stand out in crowded markets
+- **Trust:** Professional branding builds credibility
+- **Premium Pricing:** Strong brands can charge more
+- **Recognition:** Easier for customers to remember
+- **Team Pride:** Employees want to work for brands they're proud of
+
+### Brand Positioning Statement Template
+```
+For [target customer]
+Who [need/opportunity]
+[Brand name] is the [category]
+That [key benefit/differentiation]
+Unlike [competitors]
+We [unique value]
+```
+
+---
+
+## 68. Business Operations - Risk Management
+
+### Market Risks
+
+**Risk: No Market Need**
+- #1 reason startups fail (42%)
+- Warning Signs: Low conversion, high churn, lukewarm feedback
+- Mitigation: Validate with 50-100 customer interviews, get pre-sales
+
+**Risk: Market Too Small**
+- Warning Signs: TAM <$1B, limited growth potential
+- Mitigation: Expand market, pivot strategy
+
+### Risk Management Framework
+1. Identify risks (team, legal, product, financial)
+2. Assess probability and impact
+3. Develop mitigation strategies
+4. Monitor and review regularly
+
+### Scaling Stages
+1. Founder-led sales
+2. Early team building
+3. Departmental organization
+4. Mature company structure
+
+### Exit Strategies
+- Acquisition
+- IPO
+- Bootstrap
+- Aquihire
+- Shutdown
+
+---
+
+## 69. Business Operations - Legal & Compliance
+
+### Company Registration (India)
+- **Pvt Ltd**: Most common for startups
+- **LLP**: For service businesses
+- **OPC**: For single founder
+
+### Required Registrations
+- GST Registration
+- EPF Registration
+- ESI Registration (10+ employees)
+- Professional Tax
+- Shop & Establishment Act
+
+### Compliance Checklist
+- Annual ROC filings
+- Tax returns (GST, Income Tax)
+- Statutory audits
+- Board meetings (4/year)
+- Financial statements
+
+---
+
+## 70. Complete Documentation Index
+
+All documentation files in the TalentSphere project:
+
+| Category | Document | Location |
+|----------|---------|----------|
+| **Architecture (SSOT)** | Single Source of Truth | `docs/SSOT.md` |
+| **Business Ops** | Financial Planning | `business-ops/05_Financial_Funding.md` |
+| **Business Ops** | Team & HR | `business-ops/07_Team_HR.md` |
+| **Business Ops** | Branding & Marketing | `business-ops/08_Branding_Marketing_Sales.md` |
+| **Business Ops** | Risks & Compliance | `business-ops/10_Risks_Compliance_Scaling.md` |
+| **Business Ops** | Legal Registration | `business-ops/04_Legal_Registration_Complete.md` |
+| **Events** | Routing Taxonomy | `shared-contracts/ROUTING_KEY_TAXONOMY.md` |
+| **SDK** | Client SDK Docs | `sdk/README.md` |
+| **Testing** | E2E Tests | `tests/e2e/README.md` |
+| **Testing** | Test Suite | `tests/README.md` |
+| **Coverage** | Coverage Reports | `services/analytics-service/coverage-reports/COVERAGE.md` |
+| **Project** | Task List | `Task.md` |
+| **Project** | Alignment Report | `PROJECT_ALIGNMENT_REPORT.md` |
+| **GitHub** | PR Template | `.github/PULL_REQUEST_TEMPLATE.md` |
 
 ---
 
