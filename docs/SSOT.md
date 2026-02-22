@@ -177,6 +177,61 @@ kubectl apply -f k8s/ingress.yaml
 | **EnhancedSecurityManager** | 716-line monolithic class                                  | Low priority       |
 | **Legacy Gateways**         | Deprecated gateway files exist                             | ⏳ Pending cleanup |
 
+### Polyglot Domain Overlap Resolution Strategy
+
+#### Current State
+
+| Domain         | Services            | Route                  | Status  |
+| -------------- | ------------------- | ---------------------- | ------- |
+| **Courses**    | Spring Boot (.java) | `/api/v1/courses/*`    | Active  |
+|                | Flask (Python)      | `/api/v1/courses/*`    | Active  |
+|                | .NET (C#)           | `/api/courses/*`       | Active  |
+| **Challenges** | Flask (Python)      | `/api/v1/challenges/*` | Active  |
+|                | .NET (C#)           | `/api/challenges/*`    | Active  |
+| **Progress**   | Spring Boot         | `/api/v1/progress/*`   | Primary |
+|                | Flask               | `/api/v1/progress/*`   | Active  |
+
+#### Resolution Decision Matrix
+
+| Domain          | Recommended Owner | Rationale                                                                                    | Action                        |
+| --------------- | ----------------- | -------------------------------------------------------------------------------------------- | ----------------------------- |
+| **Courses**     | Spring Boot       | Java ecosystem better suited for complex domain modeling, ORM (Hibernate), ACID transactions | Deprecate Flask + .NET routes |
+| **Lessons**     | Spring Boot       | Tightly coupled to Courses domain                                                            | Deprecate Flask routes        |
+| **Enrollments** | Spring Boot       | Part of LMS core domain                                                                      | Deprecate Flask routes        |
+| **Challenges**  | .NET              | C# better for code execution sandbox, security                                               | Deprecate Flask routes        |
+| **Submissions** | .NET              | Tightly coupled to Challenges                                                                | Keep .NET only                |
+| **Progress**    | Spring Boot       | Part of LMS core domain                                                                      | Keep Spring Boot              |
+
+#### Migration Steps
+
+1. **Phase 1: Disable Flask Routes (Courses)**
+   - Comment out `/api/v1/courses/*` routes in `backend-flask/app/__init__.py`
+   - Update API Gateway to route ALL `/api/v1/courses/*` to Spring Boot
+   - Test with existing clients
+
+2. **Phase 2: Disable .NET Routes (Courses)**
+   - Comment out `/api/courses/*` in `backend-dotnet`
+   - Update API Gateway routing
+   - Verify no data corruption
+
+3. **Phase 3: Disable Flask Routes (Challenges)**
+   - Comment out `/api/v1/challenges/*` in Flask
+   - Route to .NET only
+   - Migrate any unique Flask features to .NET
+
+4. **Phase 4: Remove Dead Code**
+   - Delete deprecated routes from Flask and .NET
+   - Remove duplicate database models
+   - Update SSOT to reflect single owner per domain
+
+#### API Gateway Routing (Post-Migration)
+
+```yaml
+/api/v1/courses/*    -> backend-springboot:8080 /api/v1/lessons/*    -> backend-springboot:8080 /api/v1/enrollments/* ->
+backend-springboot:8080 /api/v1/progress/*   -> backend-springboot:8080 /api/v1/challenges/* -> backend-dotnet:3006
+/api/v1/submissions/* -> backend-dotnet:3006
+```
+
 ---
 
 ## 11. Code Optimization Status
