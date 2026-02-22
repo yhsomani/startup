@@ -3737,7 +3737,272 @@ if (await featureFlags.isEnabled('new_search_algorithm')) {
 1. Check Redis rate limiter
 2. Identify abusive clients
 3. Adjust rate limits
-4. Scale gateway
+
+---
+
+## 101. Development Scripts
+
+### Available Scripts
+
+| Script | Location | Purpose |
+|--------|----------|---------|
+| `start-service.js` | `scripts/` | Start individual service |
+| `start-services.js` | `scripts/` | Start all services |
+| `start-development.js` | `scripts/` | Development mode |
+| `start-e2e.js` | `scripts/` | Start E2E tests |
+| `validate-project.js` | `scripts/` | Validate project structure |
+| `simple-validate.js` | `scripts/` | Quick validation |
+| `migrate-database.js` | `scripts/` | Run database migrations |
+| `database-backup-manager.js` | `scripts/` | Backup management |
+| `generate-secrets.js` | `scripts/` | Generate secrets |
+| `config-manager.js` | `scripts/` | Configuration management |
+| `alignment-tools/index.js` | `scripts/` | Project alignment |
+
+### Usage Examples
+
+```bash
+# Start a service
+node scripts/start-service.js --service=auth-service
+
+# Run migrations
+node scripts/migrate-database.js --direction=up
+
+# Validate project
+node scripts/validate-project.js
+
+# Generate secrets
+node scripts/generate-secrets.js
+```
+
+---
+
+## 102. Testing Infrastructure
+
+### Test Types
+
+| Type | Location | Framework | Purpose |
+|------|----------|-----------|---------|
+| Unit | `tests/unit/` | Jest | Component testing |
+| Integration | `tests/integration/` | Jest | Service integration |
+| E2E | `tests/e2e/` | Playwright | Full flow testing |
+| Contract | `tests/contract/` | Pact | API contracts |
+| Load | `tests/load/` | k6 | Performance testing |
+| Sanity | `tests/unit/` | Jest | Quick smoke tests |
+
+### Load Testing (k6)
+
+| File | Purpose |
+|------|---------|
+| `k6-load.js` | Load testing |
+| `k6-stress.js` | Stress testing |
+| `k6-smoke.js` | Smoke testing |
+
+### Test Configuration
+
+| File | Purpose |
+|------|---------|
+| `jest.config.json` | Jest configuration |
+| `playwright.config.js` | Playwright config |
+| `tests/setup.js` | Test setup |
+| `tests/fixtures/` | Test data |
+
+---
+
+## 103. Service Communication Patterns
+
+### Synchronous Communication
+- REST API calls between services
+- HTTP/gRPC for direct calls
+- Used for: User profile lookup, job data fetch
+
+### Asynchronous Communication
+- RabbitMQ message broker
+- Event-driven architecture
+- Used for: Notifications, analytics, gamification
+
+### Service Discovery
+- Registry-based discovery
+- Health check integration
+- Dynamic routing
+
+### Circuit Breaker Pattern
+- Implemented in API Gateway
+- States: CLOSED, OPEN, HALF_OPEN
+- Prevents cascade failures
+
+---
+
+## 104. Frontend Architecture
+
+### Micro-Frontends (MFE)
+
+| Application | Framework | Purpose |
+|-------------|-----------|---------|
+| ts-mfe-shell | React + Vite | App shell/host |
+| ts-mfe-lms | React + Vite | Learning management |
+| ts-mfe-challenge | React + Vite | Coding challenges |
+
+### Shared Packages
+
+| Package | Purpose |
+|---------|---------|
+| `packages/ui` | Reusable UI components |
+| `packages/api` | API client library |
+| `packages/state` | State management |
+
+### MFE Configuration
+
+```javascript
+// Module Federation in webpack
+new ModuleFederationPlugin({
+  name: 'ts-mfe-shell',
+  remotes: {
+    lms: 'ts_mfe_lms@http://localhost:3001/remoteEntry.js',
+    challenge: 'ts_mfe_challenge@http://localhost:3002/remoteEntry.js'
+  }
+})
+```
+
+---
+
+## 105. Backend Technologies
+
+### Node.js Services
+- Express.js framework
+- ioredis for Redis
+- pg for PostgreSQL
+- Socket.io for WebSocket
+
+### Python Services
+- Flask framework
+- SQLAlchemy ORM
+- Celery for background tasks
+
+### Java Services
+- Spring Boot
+- Maven build system
+
+### .NET Services
+- ASP.NET Core
+- NuGet packages
+
+---
+
+## 106. Configuration Management
+
+### Environment-Specific Config
+
+| Environment | Variables |
+|-------------|-----------|
+| Development | `NODE_ENV=development` |
+| Staging | `NODE_ENV=staging` |
+| Production | `NODE_ENV=production` |
+
+### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `.env` | Local development |
+| `.env.example` | Template |
+| `configmaps.yaml` | K8s config |
+| `secrets` | Sensitive data |
+
+### Hot Reloading
+- Nodemon for development
+- Config reloader for runtime changes
+
+---
+
+## 107. Performance Optimization
+
+### Backend Optimizations
+- Connection pooling (PostgreSQL)
+- Redis caching layer
+- Gzip compression
+- ETags for caching
+
+### Database Optimizations
+- Indexes on frequently queried columns
+- Query result caching
+- Connection reuse
+- Sharding for scale
+
+### Frontend Optimizations
+- Code splitting
+- Lazy loading
+- Image optimization
+- CDN for static assets
+
+---
+
+## 108. Logging Strategy
+
+### Log Levels
+
+| Level | Usage |
+|-------|-------|
+| ERROR | Critical failures |
+| WARN | Warning conditions |
+| INFO | General info |
+| DEBUG | Debugging |
+| HTTP | HTTP requests |
+
+### Log Aggregation
+- Winston for application logging
+- ELK Stack (Elasticsearch, Logstash, Kibana)
+- Structured JSON logging
+- Correlation IDs for tracing
+
+---
+
+## 109. Backup & Recovery
+
+### Backup Strategy
+
+| Type | Frequency | Retention |
+|------|-----------|-----------|
+| Full DB | Daily | 30 days |
+| Incremental | Hourly | 7 days |
+| Config | Weekly | 90 days |
+| Snapshots | Weekly | 30 days |
+
+### Recovery Procedures
+
+1. **Database Restore**
+   ```bash
+   psql -U talentsphere < backup.sql
+   ```
+
+2. **Service Recovery**
+   - Deploy from last known good
+   - Verify health checks
+   - Run smoke tests
+
+---
+
+## 110. Onboarding Checklist
+
+### New Developer Setup
+
+- [ ] Clone repository
+- [ ] Install Node.js 18+
+- [ ] Install Docker & Docker Compose
+- [ ] Copy `.env.example` to `.env`
+- [ ] Run `docker-compose up -d`
+- [ ] Run database migrations
+- [ ] Start development server
+- [ ] Verify health endpoints
+- [ ] Run local tests
+- [ ] Read SSOT documentation
+
+### Code Review Checklist
+
+- [ ] Code follows style guide
+- [ ] Tests included
+- [ ] No security issues
+- [ ] Documentation updated
+- [ ] No console.log/debug
+- [ ] Error handling added
 
 ---
 
