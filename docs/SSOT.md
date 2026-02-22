@@ -1966,6 +1966,150 @@ Business and operational documentation is maintained in the `business-ops/` dire
 
 ---
 
+## 43. Event Routing Key Taxonomy
+
+All routing keys follow the pattern: `<domain>.<entity>.<action>`
+
+### Domain: Auth (`auth`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `auth.user.registered` | Node.js Auth Service | Gamification, Notification, Analytics | New user registration |
+| `auth.user.login` | Node.js Auth Service | Analytics, Security | User login event |
+| `auth.user.logout` | Node.js Auth Service | Analytics | User logout event |
+| `auth.user.password.changed` | Node.js Auth Service | Notification | Password updated |
+| `auth.user.deleted` | Node.js Auth Service | All services | Account deletion |
+
+### Domain: LMS (`lms`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `lms.course.completed` | Spring Boot | Gamification, Notification, Analytics | Course completion |
+| `lms.lesson.completed` | Spring Boot | Gamification, Analytics | Lesson completion |
+| `lms.enrollment.created` | Spring Boot | Notification, Analytics | New enrollment |
+| `lms.enrollment.cancelled` | Spring Boot | Notification, Analytics | Enrollment cancellation |
+| `lms.certificate.issued` | Spring Boot | Notification | Certificate earned |
+| `lms.progress.updated` | Spring Boot | Analytics | Learning progress update |
+
+### Domain: Challenges (`challenges`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `challenges.submitted` | .NET | Gamification, Analytics | Challenge submission |
+| `challenges.approved` | .NET | Notification, Analytics | Challenge approved |
+| `challenges.rejected` | .NET | Notification | Challenge rejected |
+| `challenges.testcase.passed` | .NET | Analytics | Test case passed |
+| `challenges.testcase.failed` | .NET | Analytics | Test case failed |
+
+### Domain: Jobs (`jobs`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `jobs.post.created` | Node.js Job Service | Analytics, Notification | New job posted |
+| `jobs.post.updated` | Node.js Job Service | Analytics | Job updated |
+| `jobs.post.closed` | Node.js Job Service | Analytics | Job closed |
+| `jobs.application.submitted` | Node.js Application Service | Notification, Analytics | Job application |
+| `jobs.application.viewed` | Node.js Application Service | Analytics | Application viewed |
+
+### Domain: Network (`network`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `network.connection.requested` | Node.js Network Service | Notification | Connection request |
+| `network.connection.accepted` | Node.js Network Service | Analytics | Connection accepted |
+| `network.message.sent` | Node.js Network Service | Notification | Direct message sent |
+
+### Domain: Payments (`payments`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `payments.subscription.created` | .NET | Notification, Analytics | New subscription |
+| `payments.subscription.cancelled` | .NET | Notification, Analytics | Subscription cancelled |
+| `payments.invoice.paid` | .NET | Notification, Analytics | Invoice paid |
+| `payments.payment.failed` | .NET | Notification | Payment failed |
+
+### Domain: Gamification (`gamification`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `gamification.points.awarded` | Python | Analytics, Notification | Points awarded |
+| `gamification.badge.earned` | Python | Notification, Analytics | Badge earned |
+| `gamification.level.up` | Python | Notification | User leveled up |
+
+### Domain: Notification (`notification`)
+
+| Routing Key | Publisher | Subscribers | Description |
+| ----------- | --------- | ----------- | ----------- |
+| `notification.sent` | Node.js | Analytics | Notification sent |
+| `notification.read` | Node.js Analytics | Analytics | Notification read |
+
+---
+
+## 44. Client SDK Documentation
+
+TalentSphere provides multi-language SDKs for easy API integration.
+
+### Supported Languages
+
+| Language | Package | Status |
+|----------|---------|--------|
+| **TypeScript** | `@talentsphere/api-client` | ✅ |
+| **Python** | `talentsphere-client` | ✅ |
+| **Java** | `com.talentsphere.client` | ✅ |
+| **C#/.NET** | `TalentSphere.Client` | ✅ |
+| **Go** | `github.com/talentsphere/client-go` | ✅ |
+
+### Quick Start (TypeScript)
+
+```typescript
+import { TalentSphereClient } from '@talentsphere/api-client';
+const client = new TalentSphereClient({
+  baseURL: 'https://api.talentsphere.com/v1',
+  apiKey: process.env.API_KEY
+});
+```
+
+### SDK Features
+
+| Feature | Description |
+|---------|-------------|
+| **Authentication** | Automatic JWT token management, token refresh handling |
+| **API Coverage** | All REST endpoints across 16 microservices |
+| **WebSocket** | Real-time features (Collaboration, Notifications) |
+| **Error Handling** | Standardized error types, automatic retry logic |
+| **Type Safety** | Generated from OpenAPI spec, compile-time validation |
+| **Performance** | Connection pooling, request caching, async/await |
+
+### Generating SDKs
+
+```bash
+npm run generate:sdk
+npm run generate:sdk -- --lang=typescript
+npm run generate:sdk -- --lang=python
+```
+
+---
+
+## 45. Documentation Index
+
+Complete list of all documentation files and their locations:
+
+| Document | Location | Description |
+|----------|----------|-------------|
+| **SSOT (This File)** | `docs/SSOT.md` | Single Source of Truth - all architecture |
+| API Reference | `docs/API_REFERENCE.md` | API endpoints specification |
+| Development Guide | `docs/DEVELOPMENT.md` | Development setup and practices |
+| System Architecture | `docs/SYSTEM.md` | System design and components |
+| Operations Guide | `docs/OPERATIONS.md` | Deployment and operations |
+| **Routing Taxonomy** | `shared-contracts/ROUTING_KEY_TAXONOMY.md` | Event routing keys |
+| **SDK Documentation** | `sdk/README.md` | Client SDK guides |
+| **Testing** | `tests/README.md` | Testing documentation |
+| **Project Status** | `Task.md` | Implementation TODO list |
+| **Alignment Report** | `PROJECT_ALIGNMENT_REPORT.md` | Project health report |
+| **Business Ops** | `business-ops/` | Legal, financial, marketing docs |
+
+---
+
 ## Maintenance Guidelines
 
 1. **SSOT Enforcement**: `docs/SSOT.md` is the only location for system-wide architectural documentation.
