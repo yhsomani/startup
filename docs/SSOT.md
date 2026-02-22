@@ -4002,7 +4002,287 @@ new ModuleFederationPlugin({
 - [ ] No security issues
 - [ ] Documentation updated
 - [ ] No console.log/debug
-- [ ] Error handling added
+
+---
+
+## 111. Infrastructure Scripts
+
+### Database Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `citus-init.sh` | Initialize Citus distributed database |
+| `database-backup.sh` | Backup database |
+| `database-backup-config.sh` | Configure backup |
+| `migrate.sh` | Run migrations |
+| `migrate-database.sh` | Database migration |
+
+### Deployment Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `deploy.sh` | Deploy to environment |
+| `deploy-production.sh` | Production deployment |
+| `launch-production.sh` | Launch production |
+| `monitor-production.sh` | Monitor production |
+
+### Operations Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `verify-system.sh` | System verification |
+| `cleanup.sh` | Cleanup operations |
+| `continuous-monitoring.sh` | Continuous monitoring |
+| `monitor-dashboard.sh` | Dashboard monitoring |
+
+### SSL & Security Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `generate-ssl-certs.sh` | Generate SSL certificates |
+
+---
+
+## 112. Analytics & Monitoring Scripts
+
+### Analytics Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `analyze-engagement.sh` | Analyze user engagement |
+| `collect-user-analytics.sh` | Collect user analytics |
+| `implement-personalization.sh` | Implement personalization |
+
+### Performance Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `performance-optimizer.sh` | Optimize performance |
+| `optimize-performance.sh` | Optimize system |
+| `optimization-success.sh` | Verify optimization |
+
+---
+
+## 113. API Gateway Configuration
+
+### Gateway Features
+
+| Feature | Implementation |
+|---------|----------------|
+| Routing | http-proxy-middleware |
+| Rate Limiting | Redis-backed |
+| Authentication | JWT validation |
+| Circuit Breaker | Custom implementation |
+| CORS | Middleware |
+| Compression | gzip |
+
+### Gateway Endpoints
+
+| Path | Target Service |
+|------|----------------|
+| `/api/v1/auth/*` | auth-service:3001 |
+| `/api/v1/users/*` | user-service:3002 |
+| `/api/v1/jobs/*` | job-service:3003 |
+| `/api/v1/companies/*` | company-service:3007 |
+| `/api/v1/search/*` | search-service:3008 |
+
+---
+
+## 114. Redis Implementation
+
+### Redis Use Cases
+
+| Use Case | Key Pattern |
+|----------|-------------|
+| Rate Limiting | `ratelimit:{userId}` |
+| Session Cache | `session:{userId}` |
+| API Cache | `cache:{endpoint}` |
+| Feature Flags | `feature:{flagName}` |
+| Distributed Lock | `lock:{resource}` |
+
+### Redis Configuration
+
+```javascript
+{
+  host: 'localhost',
+  port: 6379,
+  maxRetries: 3,
+  retryDelay: 100,
+  enableReadyCheck: true,
+  connectTimeout: 10000
+}
+```
+
+---
+
+## 115. Message Queue Events
+
+### Event Types
+
+| Event | Domain | Description |
+|-------|--------|-------------|
+| `auth.user.registered` | Auth | New user signup |
+| `auth.user.login` | Auth | User login |
+| `jobs.post.created` | Jobs | New job posting |
+| `jobs.application.submitted` | Jobs | Job application |
+| `lms.course.completed` | LMS | Course completion |
+| `challenges.submitted` | Challenges | Code submission |
+| `gamification.points.awarded` | Gamification | Points earned |
+
+### Event Format
+
+```javascript
+{
+  eventType: 'auth.user.registered',
+  eventId: 'uuid',
+  timestamp: 'ISO8601',
+  payload: {
+    userId: 'uuid',
+    email: 'user@example.com'
+  },
+  metadata: {
+    correlationId: 'uuid',
+    source: 'auth-service'
+  }
+}
+```
+
+---
+
+## 116. Authentication & Authorization
+
+### Authentication Methods
+
+| Method | Implementation |
+|--------|----------------|
+| JWT | Access + Refresh tokens |
+| OAuth 2.0 | Google, GitHub, LinkedIn |
+| SAML 2.0 | Enterprise SSO |
+| 2FA | TOTP |
+| Magic Link | Email-based |
+
+### Authorization Model
+
+| Model | Implementation |
+|-------|----------------|
+| RBAC | Role-based access control |
+| ABAC | Attribute-based access |
+| Resource-based | Owner verification |
+
+### Roles
+
+| Role | Permissions |
+|------|-------------|
+| Admin | Full access |
+| Employer | Jobs, applications |
+| Jobseeker | Profile, applications |
+| Guest | Read-only |
+
+---
+
+## 117. CORS Configuration
+
+### Allowed Origins
+
+```javascript
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:3000',
+    'https://talentsphere.com'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400
+};
+```
+
+### CORS Headers
+
+| Header | Value |
+|--------|-------|
+| Access-Control-Allow-Origin | Dynamic |
+| Access-Control-Allow-Methods | GET, POST, PUT, DELETE |
+| Access-Control-Allow-Headers | Content-Type, Authorization |
+| Access-Control-Allow-Credentials | true |
+
+---
+
+## 118. Rate Limiting Configuration
+
+### Rate Limit Tiers
+
+| Tier | Requests | Window | Description |
+|------|----------|--------|-------------|
+| Free | 100 | 1 hour | Basic tier |
+| Standard | 1000 | 1 hour | Standard tier |
+| Premium | 10000 | 1 hour | Premium tier |
+| Enterprise | Unlimited | - | Custom |
+
+### Rate Limit Headers
+
+| Header | Description |
+|--------|-------------|
+| X-RateLimit-Limit | Total requests allowed |
+| X-RateLimit-Remaining | Requests remaining |
+| X-RateLimit-Reset | Reset timestamp |
+
+---
+
+## 119. SSL/TLS Configuration
+
+### Certificate Management
+- Auto-generated self-signed for development
+- Let's Encrypt for staging/production
+- Certificate rotation every 90 days
+
+### TLS Versions
+- Minimum: TLS 1.2
+- Preferred: TLS 1.3
+
+### Security Headers
+
+| Header | Value |
+|--------|-------|
+| Strict-Transport-Security | max-age=31536000 |
+| X-Content-Type-Options | nosniff |
+| X-Frame-Options | DENY |
+| X-XSS-Protection | 1; mode=block |
+| Content-Security-Policy | Custom per environment |
+
+---
+
+## 120. Database Migration Strategy
+
+### Migration Workflow
+
+1. Create migration file
+2. Review SQL changes
+3. Test in staging
+4. Backup production
+5. Run migration
+6. Verify data integrity
+7. Rollback if needed
+
+### Migration Commands
+
+```bash
+# Create migration
+npm run migrate:create -- --name add_users_table
+
+# Run migrations
+npm run migrate:up
+
+# Rollback
+npm run migrate:down
+```
+
+### Migration Best Practices
+- Always backup before migration
+- Test on staging first
+- Use transactions
+- Keep migrations small
+- Never modify existing migrations
 
 ---
 
