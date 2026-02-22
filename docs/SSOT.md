@@ -4547,8 +4547,299 @@ const tracing = {
 | Type | Max Size | Processing |
 |------|----------|------------|
 | Images (jpg, png) | 10MB | Resize, compress |
-| Documents (pdf, docx) | 25MB | Thumbnail |
-| Videos | 500MB | Transcode HLS |
+
+---
+
+## 131. Docker Compose Configurations
+
+### Environment-Specific Compose
+
+| File | Environment | Purpose |
+|------|-------------|---------|
+| `docker-compose.yml` | Development | Local dev stack |
+| `docker-compose.dev.yml` | Dev | Development |
+| `docker-compose.staging.yml` | Staging | Pre-production |
+| `docker-compose.production.yml` | Production | Live environment |
+| `docker-compose.prod.yml` | Production | Production alt |
+| `docker-compose.redis.yml` | All | Redis caching |
+| `docker-compose.vault.yml` | All | Secrets management |
+| `docker-compose.citus.yml` | All | Distributed DB |
+| `docker-compose.infrastructure.yml` | All | Core infrastructure |
+| `docker-compose.devops.yml` | DevOps | DevOps tools |
+
+### Core Services in Compose
+
+| Service | Image | Ports |
+|---------|-------|-------|
+| postgres | postgres:14 | 5432 |
+| redis | redis:7-alpine | 6379 |
+| rabbitmq | rabbitmq:3-management | 5672, 15672 |
+| elasticsearch | elasticsearch:8 | 9200 |
+| vault | vault:1.12 | 8200 |
+| prometheus | prometheus:v2.40 | 9090 |
+| grafana | grafana:9.4 | 3000 |
+| jaeger | jaegertracing/all-in-one | 16686 |
+
+---
+
+## 132. Secrets Management
+
+### HashiCorp Vault
+
+| Secret Engine | Purpose |
+|---------------|---------|
+| KV v2 | Generic secrets |
+| Database | DB credentials |
+| PKI | Certificate management |
+| Transit | Encryption as service |
+
+### Secret Injection
+
+```yaml
+env:
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      name: talentsphere-secrets
+      key: database-url
+```
+
+### Secrets Rotation
+- Database: Every 30 days
+- API Keys: Every 90 days
+- SSL Certificates: Every 60 days
+
+---
+
+## 133. Multi-Tenancy Architecture
+
+### Tenant Isolation
+
+| Approach | Implementation |
+|----------|----------------|
+| Database | Separate schema per tenant |
+| Shared DB | Tenant ID column |
+| Application | Tenant context middleware |
+
+### Tenant Context
+
+```javascript
+// Middleware to extract tenant
+app.use((req, res, next) => {
+  req.tenantId = req.headers['x-tenant-id'];
+  next();
+});
+```
+
+### Tenant Configuration
+
+| Feature | Implementation |
+|---------|----------------|
+| Routing | Host-based or header |
+| Data isolation | Row-level security |
+| Billing | Per-tenant tracking |
+| Limits | Tenant-specific quotas |
+
+---
+
+## 134. Data Archiving Strategy
+
+### Archive Policy
+
+| Data Type | Hot Storage | Cold Storage | Retention |
+|-----------|------------|--------------|-----------|
+| User Activity | 30 days | 2 years | 7 years |
+| Transaction Logs | 90 days | 5 years | 7 years |
+| Analytics | 7 days | 3 years | 5 years |
+| Attachments | 90 days | 2 years | 10 years |
+
+### Archive Implementation
+
+- Use S3 Lifecycle policies
+- Glacier for cold storage
+-定期验证存档完整性
+
+---
+
+## 135. API Rate Limiting Algorithms
+
+### Token Bucket
+
+```
+┌─────────────┐
+│   Bucket    │
+│  ┌───────┐  │
+│  │Tokens │  │
+│  └───────┘  │
+└─────────────┘
+     ↓ refills at rate
+```
+
+### Sliding Window
+
+| Algorithm | Use Case | Pros |
+|-----------|----------|------|
+| Token Bucket | General | Smooth |
+| Leaky Bucket | Outbound | Consistent |
+| Sliding Window | High traffic | Accurate |
+| Fixed Window | Simple | Easy |
+
+### Implementation
+
+```javascript
+const rateLimiter = new TokenBucket({
+  capacity: 100,
+  refillRate: 10 // per second
+});
+```
+
+---
+
+## 136. Cache Invalidation Strategies
+
+### Invalidation Methods
+
+| Method | Use Case | TTL |
+|--------|----------|-----|
+| Time-based | General | 5-60 min |
+| Event-based | Real-time | Instant |
+| Manual | Admin | On-demand |
+| LRU | Memory | Auto |
+
+### Cache Patterns
+
+```javascript
+// Write-through
+await cache.set(key, value);
+await db.save(key, value);
+
+// Write-back
+await cache.set(key, value);
+// Async db.save(key, value);
+
+// Cache-aside
+const data = await cache.get(key);
+if (!data) {
+  data = await db.get(key);
+  await cache.set(key, data);
+}
+```
+
+---
+
+## 137. Disaster Recovery Procedures
+
+### RTO/RPO Targets
+
+| Tier | RTO | RPO |
+|------|-----|-----|
+| Critical | 15 min | 5 min |
+| Standard | 1 hour | 1 hour |
+| Batch | 4 hours | 24 hours |
+
+### Recovery Steps
+
+1. **Detection**: Monitor alerts trigger
+2. **Assessment**: Determine impact scope
+3. **Decision**: Activate DR plan
+4. **Recovery**: Bring up services
+5. **Verification**: Validate integrity
+6. **Communication**: Stakeholder update
+
+### DR Locations
+
+| Site | Role | Distance |
+|------|------|----------|
+| Primary | Production | - |
+| Secondary | Failover | 100+ km |
+| Tertiary | Backup | 500+ km |
+
+---
+
+## 138. Capacity Planning
+
+### Resource Planning
+
+| Metric | Current | 6 months | 12 months |
+|--------|---------|----------|-----------|
+| Users | 10K | 50K | 200K |
+| Requests/day | 100K | 500K | 2M |
+| Storage | 50GB | 200GB | 1TB |
+| Compute | 4 cores | 16 cores | 64 cores |
+
+### Scaling Triggers
+
+| Resource | Threshold | Action |
+|----------|-----------|--------|
+| CPU | >70% | Scale up |
+| Memory | >80% | Scale up |
+| Disk | >85% | Add storage |
+| Requests | >10K/min | Scale out |
+
+---
+
+## 139. Compliance & Audit
+
+### Compliance Standards
+
+| Standard | Scope | Status |
+|----------|-------|--------|
+| GDPR | EU users | Implemented |
+| SOC 2 | Security | In progress |
+| HIPAA | Health data | Planned |
+| PCI DSS | Payments | Not applicable |
+
+### Audit Logging
+
+| Event | Retention |
+|-------|-----------|
+| Authentication | 2 years |
+| Data access | 1 year |
+| Configuration | 5 years |
+| Security events | 3 years |
+
+### Audit Fields
+
+```json
+{
+  "timestamp": "2026-02-23T12:00:00Z",
+  "actor": "user123",
+  "action": "READ",
+  "resource": "profile",
+  "result": "SUCCESS",
+  "ip": "192.168.1.1"
+}
+```
+
+---
+
+## 140. Incident Response
+
+### Severity Levels
+
+| Level | Response Time | Examples |
+|-------|---------------|----------|
+| P1 | 15 min | Full outage |
+| P2 | 1 hour | Feature broken |
+| P3 | 4 hours | Minor issue |
+| P4 | 24 hours | Cosmetic |
+
+### Response Process
+
+1. **Identify**: Alert triggers
+2. **Triage**: Assess severity
+3. **Mitigate**: Stop bleeding
+4. **Resolve**: Fix root cause
+5. **Review**: Post-mortem
+6. **Prevent**: Add monitoring
+
+### On-Call Rotation
+
+| Role | Schedule |
+|------|----------|
+| Primary | Week 1 |
+| Secondary | Week 2 |
+| Escalation | Manager |
 
 ---
 
