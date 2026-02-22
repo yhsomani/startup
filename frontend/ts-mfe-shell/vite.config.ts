@@ -13,7 +13,7 @@ const remotes = {
     challenge: "http://localhost:3002/assets/remoteEntry.js",
     analytics: "http://localhost:3003/assets/remoteEntry.js",
     dashboard: "http://localhost:3004/assets/remoteEntry.js",
-    recruitment: "http://localhost:3005/assets/remoteEntry.js"
+    recruitment: "http://localhost:3005/assets/remoteEntry.js",
 };
 
 // Simple shared dependencies
@@ -23,10 +23,11 @@ const shared = {
     "react-router-dom": { singleton: true, requiredVersion: "^6.0.0" },
     zustand: { singleton: true, requiredVersion: "^4.0.0" },
     axios: { singleton: false },
-    "date-fns": { singleton: false }
+    "date-fns": { singleton: false },
 };
 
 export default defineConfig({
+    base: process.env.CDN_URL || "/",
     plugins: [
         react(),
         VitePWA({
@@ -38,7 +39,7 @@ export default defineConfig({
                 description: "Learning Management System with Coding Challenges",
                 theme_color: "#6366f1",
                 background_color: "#ffffff",
-                display: "standalone"
+                display: "standalone",
             },
             workbox: {
                 globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
@@ -50,12 +51,12 @@ export default defineConfig({
                             cacheName: "api-cache",
                             expiration: {
                                 maxEntries: 100,
-                                maxAgeSeconds: 60 * 60 * 24
-                            }
-                        }
-                    }
-                ]
-            }
+                                maxAgeSeconds: 60 * 60 * 24,
+                            },
+                        },
+                    },
+                ],
+            },
         }),
         federation({
             name: "shell",
@@ -64,10 +65,10 @@ export default defineConfig({
                 "./shell-container": "./src/components/ShellContainer",
                 "./auth-provider": "./src/contexts/AuthContext",
                 "./theme-provider": "./src/contexts/ThemeContext",
-                "./shared-utils": "./src/utils/shared"
+                "./shared-utils": "./src/utils/shared",
             },
-            remotes
-        })
+            remotes,
+        }),
     ],
 
     server: {
@@ -78,14 +79,14 @@ export default defineConfig({
             "/api": {
                 target: "http://localhost:8000",
                 changeOrigin: true,
-                secure: false
+                secure: false,
             },
             "/collaboration": {
                 target: "ws://localhost:1234",
                 ws: true,
-                changeOrigin: true
-            }
-        }
+                changeOrigin: true,
+            },
+        },
     },
 
     build: {
@@ -98,9 +99,12 @@ export default defineConfig({
         chunkSizeWarningLimit: 500,
         rollupOptions: {
             output: {
-                manualChunks: (id) => {
+                manualChunks: id => {
                     // Core React framework
-                    if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
+                    if (
+                        id.includes("node_modules/react") ||
+                        id.includes("node_modules/react-dom")
+                    ) {
                         return "vendor-react";
                     }
                     // Router
@@ -127,31 +131,31 @@ export default defineConfig({
                 // Use content hashes for cache-busting
                 chunkFileNames: "assets/js/[name]-[hash].js",
                 entryFileNames: "assets/js/[name]-[hash].js",
-                assetFileNames: "assets/[ext]/[name]-[hash].[ext]"
+                assetFileNames: "assets/[ext]/[name]-[hash].[ext]",
             },
-            external: (id) => id.includes("remoteEntry")
+            external: id => id.includes("remoteEntry"),
         },
         terserOptions: {
             compress: {
                 drop_console: process.env.NODE_ENV === "production",
                 drop_debugger: true,
-                pure_funcs: ["console.debug", "console.trace"]
+                pure_funcs: ["console.debug", "console.trace"],
             },
             format: {
-                comments: false
-            }
-        }
+                comments: false,
+            },
+        },
     },
 
     preview: {
         port: 3000,
-        host: true
+        host: true,
     },
 
     test: {
         environment: "jsdom",
         globals: true,
-        setupFiles: "./src/test/setup.ts"
+        setupFiles: "./src/test/setup.ts",
     },
 
     define: {
@@ -159,6 +163,6 @@ export default defineConfig({
         "process.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version || "1.0.0"),
         "process.env.VITE_API_URL": JSON.stringify(
             process.env.VITE_API_URL || "http://localhost:8000"
-        )
-    }
+        ),
+    },
 });

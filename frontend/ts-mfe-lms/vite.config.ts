@@ -13,6 +13,7 @@ const sharedDependencies = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: process.env.CDN_URL || "/",
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),

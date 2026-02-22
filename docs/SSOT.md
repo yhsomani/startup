@@ -125,6 +125,32 @@ The platform operates on an event-driven, microservices architecture:
 | **Redis**           | Caching, sessions, rate limiting | `redis://host:6379`                   |
 | **RabbitMQ**        | Event-driven communication       | `amqp://guest:guest@host:5672`        |
 | **HashiCorp Vault** | Secrets management               | Configured in `vault.hcl`             |
+| **CDN**             | Static assets, media delivery    | Configure `CDN_URL` env var           |
+
+## 7.2 CDN Architecture
+
+The system uses **Push/Pull Edge Caching Pattern** for static and dynamic content.
+
+### Frontend Static Assets (Push Pattern)
+
+- Configure `CDN_URL` environment variable in `.env`
+- MFEs configured with CDN base URL in `vite.config.ts`:
+  ```env
+  CDN_URL=https://cdn.talentsphere.com/ts-mfe-shell/
+  ```
+- Vite builds use content hashes for cache-busting: `main-a3b4c.js`
+
+### User-Generated Media (Pull Pattern)
+
+- File service uploads to cloud storage (S3/GCS)
+- Returns CDN URL: `https://media.talentsphere.com/{path}`
+- Append timestamp/hash to user uploads to prevent stale cache
+
+### Nginx Edge Caching
+
+- Static assets: `Cache-Control: public, max-age=31536000, immutable`
+- API routes: `Cache-Control: no-store, no-cache, must-revalidate`
+- CORS headers configured for CDN domain
 
 ## 7.1 Caching Architecture
 
