@@ -3039,5 +3039,420 @@ PORT=3000
 
 ---
 
+## 82. API Contract Definitions
+
+### Authentication API
+
+| Endpoint | Method | Description | Request Body | Response |
+|----------|--------|-------------|--------------|----------|
+| `/api/v1/auth/register` | POST | Register new user | `{email, password, name}` | `{token, user}` |
+| `/api/v1/auth/login` | POST | User login | `{email, password}` | `{token, refreshToken}` |
+| `/api/v1/auth/verify` | GET | Verify token | - | `{valid: true}` |
+| `/api/v1/auth/refresh` | POST | Refresh token | `{refreshToken}` | `{token}` |
+
+### User API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/users/profile/:userId` | GET | Get user profile |
+| `/api/v1/users/profile` | PUT | Update profile |
+| `/api/v1/users/skills` | POST | Add skills |
+| `/api/v1/users/experience` | POST | Add experience |
+| `/api/v1/users/education` | POST | Add education |
+| `/api/v1/users/search` | GET | Search users |
+
+### Job API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/jobs` | GET | List jobs |
+| `/api/v1/jobs` | POST | Create job |
+| `/api/v1/jobs/:id` | GET | Get job |
+| `/api/v1/jobs/:id` | PUT | Update job |
+| `/api/v1/jobs/:id` | DELETE | Delete job |
+| `/api/v1/jobs/:id/apply` | POST | Apply to job |
+
+### Company API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/companies` | GET | List companies |
+| `/api/v1/companies` | POST | Register company |
+| `/api/v1/companies/:id` | GET | Get company |
+| `/api/v1/companies/:id/reviews` | POST | Add review |
+
+---
+
+## 83. Data Models
+
+### User Model
+```typescript
+interface User {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+  role: 'jobseeker' | 'employer' | 'admin';
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Profile Model
+```typescript
+interface Profile {
+  userId: string;
+  headline: string;
+  summary: string;
+  location: string;
+  website: string;
+  github: string;
+  linkedin: string;
+  skills: string[];
+  experience: Experience[];
+  education: Education[];
+}
+```
+
+### Job Model
+```typescript
+interface Job {
+  id: string;
+  companyId: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  location: string;
+  salary: { min: number; max: number };
+  type: 'full-time' | 'part-time' | 'contract';
+  status: 'open' | 'closed';
+  createdAt: Date;
+}
+```
+
+### Application Model
+```typescript
+interface Application {
+  id: string;
+  jobId: string;
+  userId: string;
+  resumeUrl: string;
+  coverLetter: string;
+  status: 'pending' | 'reviewing' | 'accepted' | 'rejected';
+  appliedAt: Date;
+}
+```
+
+---
+
+## 84. Event Schema Definitions
+
+### User Events
+```typescript
+// auth.user.registered
+{
+  eventType: 'auth.user.registered',
+  userId: 'uuid',
+  email: 'user@example.com',
+  timestamp: '2026-02-23T12:00:00Z'
+}
+
+// auth.user.login
+{
+  eventType: 'auth.user.login',
+  userId: 'uuid',
+  ipAddress: '192.168.1.1',
+  timestamp: '2026-02-23T12:00:00Z'
+}
+```
+
+### Job Events
+```typescript
+// jobs.post.created
+{
+  eventType: 'jobs.post.created',
+  jobId: 'uuid',
+  companyId: 'uuid',
+  title: 'Software Engineer',
+  timestamp: '2026-02-23T12:00:00Z'
+}
+
+// jobs.application.submitted
+{
+  eventType: 'jobs.application.submitted',
+  applicationId: 'uuid',
+  jobId: 'uuid',
+  userId: 'uuid',
+  timestamp: '2026-02-23T12:00:00Z'
+}
+```
+
+### LMS Events
+```typescript
+// lms.course.completed
+{
+  eventType: 'lms.course.completed',
+  userId: 'uuid',
+  courseId: 'uuid',
+  completionDate: '2026-02-23T12:00:00Z'
+}
+
+// lms.enrollment.created
+{
+  eventType: 'lms.enrollment.created',
+  userId: 'uuid',
+  courseId: 'uuid',
+  timestamp: '2026-02-23T12:00:00Z'
+}
+```
+
+---
+
+## 85. Error Codes Reference
+
+### HTTP Status Codes
+
+| Code | Meaning | Usage |
+|------|---------|-------|
+| 200 | OK | Successful GET, PUT, DELETE |
+| 201 | Created | Successful POST |
+| 204 | No Content | Successful DELETE |
+| 400 | Bad Request | Invalid input |
+| 401 | Unauthorized | Missing/invalid token |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate resource |
+| 422 | Unprocessable | Validation failed |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Error | Server error |
+| 503 | Service Unavailable | Circuit breaker open |
+
+### Custom Error Codes
+
+| Code | Meaning |
+|------|---------|
+| AUTH_001 | Invalid credentials |
+| AUTH_002 | Token expired |
+| AUTH_003 | User already exists |
+| USER_001 | Profile not found |
+| JOB_001 | Job not found |
+| JOB_002 | Job closed |
+| JOB_003 | Already applied |
+| COMPANY_001 | Company not found |
+| COMPANY_002 | Unauthorized access |
+
+---
+
+## 86. Database Schema Reference
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'jobseeker',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Profiles Table
+```sql
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  headline VARCHAR(255),
+  summary TEXT,
+  location VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Jobs Table
+```sql
+CREATE TABLE jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id UUID REFERENCES companies(id),
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  requirements JSONB,
+  location VARCHAR(255),
+  salary_min INTEGER,
+  salary_max INTEGER,
+  job_type VARCHAR(50),
+  status VARCHAR(50) DEFAULT 'open',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Indexes
+```sql
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_profiles_user_id ON profiles(user_id);
+CREATE INDEX idx_jobs_company_id ON jobs(company_id);
+CREATE INDEX idx_jobs_status ON jobs(status);
+CREATE INDEX idx_jobs_location ON jobs(location);
+```
+
+---
+
+## 87. Message Queue Configuration
+
+### RabbitMQ Exchanges
+
+| Exchange | Type | Purpose |
+|----------|------|---------|
+| `talentsphere.events` | Topic | Main event bus |
+| `talentsphere.auth` | Direct | Auth events |
+| `talentsphere.notifications` | Fanout | Notification broadcasts |
+
+### Queue Definitions
+
+| Queue | Exchange | Routing Key |
+|-------|----------|-------------|
+| `auth.events` | talentsphere.events | auth.* |
+| `gamification.events` | talentsphere.events | gamification.* |
+| `notification.events` | talentsphere.events | notification.* |
+| `analytics.events` | talentsphere.events | analytics.* |
+
+### Consumer Groups
+
+| Service | Queue | Prefetch |
+|---------|-------|----------|
+| gamification-service | gamification.events | 10 |
+| notification-service | notification.events | 5 |
+| analytics-service | analytics.events | 20 |
+
+---
+
+## 88. Kubernetes Deployment Specs
+
+### Service Deployment Template
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {service-name}
+  namespace: talentsphere
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {service-name}
+  template:
+    metadata:
+      labels:
+        app: {service-name}
+    spec:
+      containers:
+      - name: {service-name}
+        image: talentsphere/{service-name}:{version}
+        ports:
+        - containerPort: {port}
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: talentsphere-secrets
+              key: database-url
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+```
+
+### Horizontal Pod Autoscaler
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {service-name}-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {service-name}
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+---
+
+## 89. Security Policies
+
+### Network Policies
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: service-isolation
+spec:
+  podSelector:
+    matchLabels:
+      app: talentsphere
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: api-gateway
+```
+
+### Kyverno Policies
+- Require resource limits
+- Disallow privileged containers
+- Restrict hostPath volumes
+- Require network policies
+
+---
+
+## 90. Monitoring Alert Rules
+
+### Prometheus Alert Rules
+```yaml
+groups:
+- name: talentsphere-alerts
+  rules:
+  - alert: HighErrorRate
+    expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: High error rate detected
+
+  - alert: ServiceDown
+    expr: up{job="talentsphere"} == 0
+    for: 2m
+    labels:
+      severity: critical
+```
+
+### Alert Routing
+| Alert | Channel | Severity |
+|-------|---------|----------|
+| HighErrorRate | Slack + PagerDuty | Critical |
+| ServiceDown | PagerDuty | Critical |
+| HighLatency | Slack | Warning |
+| DiskSpaceLow | Email | Warning |
+
+---
+
 _Last Updated: February 2026_
 ````
