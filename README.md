@@ -1,42 +1,26 @@
 # TalentSphere
 
-> **Single Source of Truth**: [docs/SSOT.md](./docs/SSOT.md)
+Welcome to the TalentSphere repository.
 
-TalentSphere is a comprehensive talent acquisition and professional networking platform built with modern microservices
-architecture.
+TalentSphere is a high-growth edtech platform integrating learning management, coding challenges, professional
+networking, and recruitment, powered by a polyglot microservices mesh and a Micro-Frontend (MFE) UI.
 
-## Quick Links
+## 📚 Documentation
 
-- **Technical Documentation**: [docs/SSOT.md](./docs/SSOT.md)
-- **Business Operations**: [business-ops/](./business-ops/)
-- **API Reference**: See OpenAPI specs in service `/api/` directories
-- **Setup Guide**: See [docs/SSOT.md](./docs/SSOT.md) → Section 6
+All technical, architectural, and operational documentation has been consolidated into a Single Source of Truth (SSOT).
 
-## Project Status
+👉 **[Read the TalentSphere Engineering Master Document (SSOT)](./docs/SSOT.md)**
 
-| Component        | Status                |
-| ---------------- | --------------------- |
-| Backend Services | ✅ 14 microservices   |
-| Frontend (MFE)   | ✅ React + TypeScript |
-| Infrastructure   | ✅ Docker, K8s        |
-| Documentation    | ✅ SSOT established   |
+_Note: Please do not add fragmented `.md` files to the repository root. All architectural updates must be made directly
+to the SSOT._
 
-## Getting Started
+## 🚀 Quick Start (Local Dev)
 
-```bash
-# Clone and setup
-cp .env.example .env
-node scripts/generate-secrets.js
+1. Clone the repository.
+2. Follow the **Configuration & Environment Setup** steps outlined in the
+   [SSOT](./docs/SSOT.md#6-configuration--environment-setup).
+3. Ensure Docker and `pnpm` are installed.
 
-# Start infrastructure
-docker-compose -f infrastructure/docker/docker-compose.yml up -d
+## 🏢 Business & Operations
 
-# Start services
-node scripts/start-services.js
-```
-
-See [docs/SSOT.md](./docs/SSOT.md) for complete setup instructions.
-
----
-
-_For detailed architecture, feature mapping, and development guidelines, see [docs/SSOT.md](./docs/SSOT.md)_
+Legal, financial, and marketing documentation can be found in the [`/business-ops`](./business-ops) directory.
