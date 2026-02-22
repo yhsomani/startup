@@ -173,41 +173,34 @@ kubectl apply -f k8s/ingress.yaml
 
 | Issue                       | Description                                                | Status             |
 | --------------------------- | ---------------------------------------------------------- | ------------------ |
-| **Polyglot Redundancy**     | Courses/Challenges overlap across Spring Boot, .NET, Flask | ⏳ Pending         |
+| **Polyglot Redundancy**     | Courses/Challenges overlap across Spring Boot, .NET, Flask | ✅ Done            |
 | **EnhancedSecurityManager** | 716-line monolithic class                                  | Low priority       |
 | **Legacy Gateways**         | Deprecated gateway files exist                             | ⏳ Pending cleanup |
 
 ### Polyglot Domain Overlap Resolution Strategy
 
-#### Current State
+#### Completed Actions
 
-| Domain         | Services            | Route                  | Status  |
-| -------------- | ------------------- | ---------------------- | ------- |
-| **Courses**    | Spring Boot (.java) | `/api/v1/courses/*`    | Active  |
-|                | Flask (Python)      | `/api/v1/courses/*`    | Active  |
-|                | .NET (C#)           | `/api/courses/*`       | Active  |
-| **Challenges** | Flask (Python)      | `/api/v1/challenges/*` | Active  |
-|                | .NET (C#)           | `/api/challenges/*`    | Active  |
-| **Progress**   | Spring Boot         | `/api/v1/progress/*`   | Primary |
-|                | Flask               | `/api/v1/progress/*`   | Active  |
+| Domain          | Owner       | Action Taken                                      |
+| --------------- | ----------- | ------------------------------------------------- |
+| **Courses**     | Spring Boot | ✅ Deleted Flask routes, Deleted .NET controllers |
+| **Lessons**     | Spring Boot | ✅ Deleted Flask routes, Deleted .NET controllers |
+| **Enrollments** | Spring Boot | ✅ Deleted .NET controllers                       |
+| **Sections**    | Spring Boot | ✅ Deleted .NET controllers                       |
 
-#### Resolution Decision Matrix
+#### Domain Ownership (Post-Migration)
 
-| Domain          | Recommended Owner | Rationale                                                                                    | Action                        |
-| --------------- | ----------------- | -------------------------------------------------------------------------------------------- | ----------------------------- |
-| **Courses**     | Spring Boot       | Java ecosystem better suited for complex domain modeling, ORM (Hibernate), ACID transactions | Deprecate Flask + .NET routes |
-| **Lessons**     | Spring Boot       | Tightly coupled to Courses domain                                                            | Deprecate Flask routes        |
-| **Enrollments** | Spring Boot       | Part of LMS core domain                                                                      | Deprecate Flask routes        |
-| **Challenges**  | .NET              | C# better for code execution sandbox, security                                               | Deprecate Flask routes        |
-| **Submissions** | .NET              | Tightly coupled to Challenges                                                                | Keep .NET only                |
-| **Progress**    | Spring Boot       | Part of LMS core domain                                                                      | Keep Spring Boot              |
+| Domain          | Owner       | Route                   |
+| --------------- | ----------- | ----------------------- |
+| **Courses**     | Spring Boot | `/api/v1/courses/*`     |
+| **Lessons**     | Spring Boot | `/api/v1/lessons/*`     |
+| **Enrollments** | Spring Boot | `/api/v1/enrollments/*` |
+| **Challenges**  | .NET        | `/api/v1/challenges/*`  |
+| **Progress**    | Spring Boot | `/api/v1/progress/*`    |
 
-#### Migration Steps
+---
 
-1. **Phase 1: Disable Flask Routes (Courses)**
-   - Comment out `/api/v1/courses/*` routes in `backend-flask/app/__init__.py`
-   - Update API Gateway to route ALL `/api/v1/courses/*` to Spring Boot
-   - Test with existing clients
+- Test with existing clients
 
 2. **Phase 2: Disable .NET Routes (Courses)**
    - Comment out `/api/courses/*` in `backend-dotnet`

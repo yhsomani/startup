@@ -47,18 +47,14 @@ def create_app(config_class=None):
 
     # Register blueprints
     from .auth import auth_bp
-    from .courses import courses_bp
     from .progress import progress_bp
     from .profile import profile_bp
     from .challenges import challenges_bp
-    from .lessons import lessons_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
-    app.register_blueprint(courses_bp, url_prefix='/api/v1/courses')
     app.register_blueprint(progress_bp, url_prefix='/api/v1/progress')
     app.register_blueprint(profile_bp, url_prefix='/api/v1/profile')
     app.register_blueprint(challenges_bp, url_prefix='/api/v1/challenges')
-    app.register_blueprint(lessons_bp, url_prefix='/api/v1/lessons')
 
         # Health check endpoint
     @app.route('/health')
