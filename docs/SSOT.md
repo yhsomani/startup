@@ -2881,5 +2881,163 @@ All documentation files in the TalentSphere project:
 
 ---
 
+## 76. Pull Request Guidelines
+
+### PR Template
+
+```markdown
+## Description
+<!-- What does this PR do? -->
+
+## Architectural Changes
+<!-- Does this PR affect the system architecture? -->
+
+## Documentation Checklist
+- [ ] I have verified that my changes do not conflict with the architectural guidelines.
+- [ ] I have updated `docs/SSOT.md` if this PR introduces new APIs, Environment Variables, or infrastructural dependencies.
+- [ ] I have NOT added fragmented `.md` files to the root directory.
+
+## Testing
+- [ ] Unit tests passed
+- [ ] E2E tests passed
+```
+
+### PR Requirements
+- All tests must pass before merging
+- SSOT.md must be updated for architectural changes
+- No fragmented markdown files at root
+- Code must pass linting
+- Coverage must not decrease
+
+---
+
+## 77. Contribution Guidelines
+
+### Getting Started
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting
+5. Commit with descriptive messages
+6. Push to your fork
+7. Submit a Pull Request
+
+### Code Standards
+- Use ESLint for JavaScript/TypeScript
+- Use Prettier for code formatting
+- Follow existing code patterns
+- Write unit tests for new features
+- Document public APIs
+
+### Commit Messages
+- Use imperative mood
+- First line: Short description (50 chars max)
+- Body: Detailed explanation
+- Reference issues: `Closes #123`
+
+---
+
+## 78. Version History
+
+### Version Scheme
+- **Major**: Breaking changes
+- **Minor**: New features (backward compatible)
+- **Patch**: Bug fixes
+
+### Release History
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0.0 | Jan 2026 | Initial release |
+| v1.4.0 | Jan 2026 | Alignment updates |
+| v1.5.0 | Feb 2026 | SSOT consolidation |
+
+---
+
+## 79. Support & Resources
+
+### Technical Support
+- **Documentation**: docs/SSOT.md
+- **Issues**: GitHub Issues
+- **Discussions**: GitHub Discussions
+
+### External Resources
+- Node.js: https://nodejs.org
+- React: https://react.dev
+- PostgreSQL: https://postgresql.org
+- Redis: https://redis.io
+- Docker: https://docker.com
+- Kubernetes: https://kubernetes.io
+
+### Learning Resources
+- Microservices patterns
+- Event-driven architecture
+- Kubernetes deployment
+- CI/CD best practices
+
+---
+
+## 80. Glossary
+
+| Term | Definition |
+|------|------------|
+| **SSOT** | Single Source of Truth - the authoritative documentation |
+| **MFE** | Micro-Frontend - isolated frontend applications |
+| **Microservice** | Small, independent service with its own domain |
+| **Event Bus** | Message broker for async communication (RabbitMQ) |
+| **Circuit Breaker** | Pattern to prevent cascading failures |
+| **Rate Limiting** | Control request rates to prevent abuse |
+| **Sharding** | Horizontal database partitioning |
+| **CDN** | Content Delivery Network for static assets |
+| **ETag** | HTTP caching mechanism for conditional requests |
+| **JWT** | JSON Web Token for authentication |
+| **WebSocket** | Real-time bidirectional communication |
+| **CRDT** | Conflict-free Replicated Data Type |
+| **OpenTelemetry** | Distributed tracing standard |
+| **Prometheus** | Metrics collection and alerting |
+| **Grafana** | Metrics visualization |
+
+---
+
+## 81. Quick Reference Cards
+
+### Essential Commands
+```bash
+# Development
+npm run dev          # Start development server
+npm run lint        # Run linter
+npm run test        # Run tests
+
+# Build & Deploy
+npm run build       # Build for production
+docker-compose up   # Start all services
+
+# Monitoring
+kubectl get pods    # Check pod status
+kubectl logs -f    # Stream logs
+```
+
+### Port Reference
+| Service | Port | URL |
+|---------|------|-----|
+| Frontend | 3000 | http://localhost:3000 |
+| API Gateway | 8000 | http://localhost:8000 |
+| Auth Service | 3001 | http://localhost:3001 |
+| User Service | 3002 | http://localhost:3002 |
+| Job Service | 3003 | http://localhost:3003 |
+| PostgreSQL | 5432 | localhost:5432 |
+| Redis | 6379 | localhost:6379 |
+| RabbitMQ | 5672 | localhost:5672 |
+
+### Environment Variables
+```
+NODE_ENV=development
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+JWT_SECRET=your-secret
+PORT=3000
+```
+
+---
+
 _Last Updated: February 2026_
 ````
