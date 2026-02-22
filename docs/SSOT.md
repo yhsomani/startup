@@ -109,10 +109,39 @@ The API Gateway (`api-gateway/index.js`) is the single entry point for all front
 ### Request Flow
 
 ```
-Frontend → API Gateway → [Auth] → [Rate Limit] → [Proxy] → Backend Service
+Frontend → API Gateway → [Auth] → [Rate Limit] → [Circuit Breaker] → [Proxy] → Backend Service
                     ↓
             Correlation ID Injection
 ```
+
+---
+
+## 6. Circuit Breaker Pattern
+
+The system uses Circuit Breaker to prevent cascading failures.
+
+### API Gateway (Node.js)
+
+- Implementation: `api-gateway/circuit-breaker.js`
+- Library: Custom implementation with state machine (CLOSED, OPEN, HALF_OPEN)
+- Config: failureThreshold: 5, resetTimeout: 60s, timeout: 5s
+
+### Spring Boot (Java)
+
+- Implementation: Resilience4j
+- Dependency: `resilience4j-spring-boot3`
+- Configuration: `application.properties`
+
+### .NET (C#)
+
+- Implementation: Polly
+- Package: `Microsoft.Extensions.Http.Polly`
+
+### Best Practices
+
+- Timeout separation: HTTP timeout < Circuit Breaker timeout
+- Do NOT apply to async queues (RabbitMQ)
+- Fallback responses for degraded service
 
 | `/api/v1/gamification/*` | backend-gamification | 3004 | | `/api/v1/assistant/*` | backend-assistant | 3005 |
 
