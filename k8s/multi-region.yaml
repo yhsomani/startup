@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: multi-region-config
+  namespace: talentsphere
+data:
+  regions.yaml: |
+    primary: us-east-1
+    secondary: eu-west-1
+    tertiary: ap-southeast-1
+
+    failover:
+      enabled: true
+      health_check_interval: 30s
+      failure_threshold: 3
+      recovery_threshold: 2
+      
+    traffic:
+      routing_policy: latency-based
+      weight_primary: 100
+      weight_secondary: 0
+      weight_tertiary: 0
+      
+    sync:
+      enabled: true
+      replication_lag_threshold: 5s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: talentsphere-global
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: 'nlb'
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: 'true'
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-gateway
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+    - port: 443
+      targetPort: 3000
+      name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: talentsphere-primary
+  namespace: talentsphere
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  selector:
+    app: api-gateway
+    region: primary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: talentsphere-secondary
+  namespace: talentsphere
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  selector:
+    app: api-gateway
+    region: secondary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: talentsphere-tertiary
+  namespace: talentsphere
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  selector:
+    app: api-gateway
+    region: tertiary
+---
+apiVersion: v1
+kind: Ingress
+metadata:
+  name: talentsphere-global-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-global-retry: 'true'
+    nginx.ingress.kubernetes.io/proxy-body-size: '10m'
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '10'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '60'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '60'
+spec:
+  rules:
+    - host: api.talentsphere.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: talentsphere-global
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - api.talentsphere.com
+      secretName: talentsphere-tls
+---
+apiVersion: v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-primary-hpa
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max

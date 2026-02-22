@@ -1,0 +1,107 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: api-gateway-chaos
+  namespace: talentsphere
+spec:
+  appinfo:
+    appns: talentsphere
+    applabel: 'app=api-gateway'
+  chaosServiceAccount: litmus-admin
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '30'
+            - name: CHAOS_INTERVAL
+              value: '10'
+            - name: FORCE
+              value: 'false'
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: backend-service-chaos
+  namespace: talentsphere
+spec:
+  appinfo:
+    appns: talentsphere
+    applabel: 'tier=backend'
+  chaosServiceAccount: litmus-admin
+  experiments:
+    - name: pod-network-loss
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '30'
+            - name: NETWORK_LOSS_PERCENTAGE
+              value: '50'
+            - name: CONTAINER_RUNTIME
+              value: 'docker'
+            - name: SOCKET_PATH
+              value: '/var/run/docker.sock'
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '30'
+            - name: CPU_CORES
+              value: '1'
+            - name: NUMBER_OF_WORKERS
+              value: '2'
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: database-chaos
+  namespace: talentsphere
+spec:
+  appinfo:
+    appns: talentsphere
+    applabel: 'app=citus-coordinator'
+  chaosServiceAccount: litmus-admin
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '60'
+            - name: CHAOS_INTERVAL
+              value: '30'
+            - name: FORCE
+              value: 'false'
+---
+apiVersion: litmus.io/v1alpha1
+kind: ChaosServiceAccount
+metadata:
+  name: litmus-admin
+  namespace: talentsphere
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: litmus-admin
+rules:
+  - apiGroups: ['*']
+    resources: ['*']
+    verbs: ['*']
+  - nonResourceURLs: ['*']
+    verbs: ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: litmus-admin
+subjects:
+  - kind: ServiceAccount
+    name: litmus-admin
+    namespace: talentsphere
+roleRef:
+  kind: ClusterRole
+  name: litmus-admin
+  apiGroup: rbac.authorization.k8s.io

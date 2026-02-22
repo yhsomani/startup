@@ -460,6 +460,26 @@ class ServiceRegistry extends EventEmitter {
 
         console.log("Service registry shutdown complete");
     }
+
+    /**
+     * Get healthy nodes for a service (for load balancing)
+     */
+    getHealthyNodes(serviceName) {
+        const service = this.services.get(serviceName);
+        if (!service) return [];
+
+        return service.instances
+            .filter(instance => instance.status === "healthy")
+            .map(instance => instance.url);
+    }
+
+    /**
+     * Get nodes for consistent hashing ring
+     * Returns only healthy instances for stateful routing
+     */
+    getNodesForHashRing(serviceName) {
+        return this.getHealthyNodes(serviceName);
+    }
 }
 
 // Singleton instance

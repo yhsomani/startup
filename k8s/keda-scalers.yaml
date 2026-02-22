@@ -1,0 +1,152 @@
+# KEDA Event-Driven Autoscaling for Background Workers
+# Applied via: kubectl apply -f k8s/keda-scalers.yaml
+
+---
+# 1. Gamification Worker - scales on RabbitMQ queue depth
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: gamification-worker-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: backend-gamification
+  pollingInterval: 10
+  cooldownPeriod: 300
+  minReplicaCount: 1
+  maxReplicaCount: 15
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: gamification_events
+        queueLength: '50'
+        host: amqp://guest:guest@rabbitmq-service:5672
+    - type: rabbitmq
+      metadata:
+        queueName: points_updates
+        queueLength: '100'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# 2. Notification Worker - scales on notification queue
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: notification-worker-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: notification-service
+  pollingInterval: 15
+  cooldownPeriod: 300
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: notifications
+        queueLength: '100'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# 3. Email Worker - scales on email queue
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: email-worker-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: email-service
+  pollingInterval: 30
+  cooldownPeriod: 600
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: email_queue
+        queueLength: '200'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# 4. Video Processing Worker - scales on video queue
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: video-processor-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: video-service
+  pollingInterval: 10
+  cooldownPeriod: 180
+  minReplicaCount: 0
+  maxReplicaCount: 8
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: video_processing
+        queueLength: '10'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# 5. Analytics Worker - scales on events queue
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: analytics-worker-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: analytics-service
+  pollingInterval: 20
+  cooldownPeriod: 300
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: analytics_events
+        queueLength: '500'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# 6. Search Indexer - scales on index queue
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: search-indexer-scaled
+  namespace: talentsphere
+spec:
+  scaleTargetRef:
+    name: search-service
+  pollingInterval: 15
+  cooldownPeriod: 300
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+    - type: rabbitmq
+      metadata:
+        queueName: search_index_updates
+        queueLength: '100'
+        host: amqp://guest:guest@rabbitmq-service:5672
+
+---
+# TriggerAuthentication for secure RabbitMQ connection
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: rabbitmq-trigger-auth
+  namespace: talentsphere
+spec:
+  secretTargetRef:
+    - parameter: host
+      name: rabbitmq-credentials
+      key: host
+    - parameter: username
+      name: rabbitmq-credentials
+      key: username
+    - parameter: password
+      name: rabbitmq-credentials
+      key: password

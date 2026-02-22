@@ -1,0 +1,203 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: citus-config
+data:
+  CITUS_COORDINATOR_IP: 'citus-coordinator'
+  CITUS_WORKER_IPS: 'citus-worker-1,citus-worker-2,citus-worker-3'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: citus-coordinator
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  selector:
+    app: citus-coordinator
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: citus-coordinator
+spec:
+  serviceName: citus-coordinator
+  replicas: 1
+  selector:
+    matchLabels:
+      app: citus-coordinator
+  template:
+    metadata:
+      labels:
+        app: citus-coordinator
+        citus-role: coordinator
+    spec:
+      containers:
+        - name: coordinator
+          image: citusdata/citus:12.1.1
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: username
+                  optional: true
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: password
+                  optional: true
+            - name: POSTGRES_DB
+              value: talentsphere
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - name: citus-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '1Gi'
+              cpu: '500m'
+          livenessProbe:
+            exec:
+              command:
+                - psql
+                - -U
+                - postgres
+                - -c
+                - 'SELECT 1'
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - psql
+                - -U
+                - postgres
+                - -c
+                - 'SELECT 1'
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: citus-storage
+      spec:
+        accessModes: ['ReadWriteOnce']
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: citus-workers
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  clusterIP: None
+  selector:
+    app: citus-worker
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: citus-worker
+spec:
+  serviceName: citus-workers
+  replicas: 3
+  selector:
+    matchLabels:
+      app: citus-worker
+  template:
+    metadata:
+      labels:
+        app: citus-worker
+        citus-role: worker
+    spec:
+      containers:
+        - name: worker
+          image: citusdata/citus:12.1.1
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: username
+                  optional: true
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: password
+                  optional: true
+            - name: POSTGRES_DB
+              value: talentsphere
+            - name: CITUS_COORDINATOR_HOST
+              value: citus-coordinator
+            - name: CITUS_COORDINATOR_PORT
+              value: '5432'
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - name: citus-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '1Gi'
+              cpu: '500m'
+          livenessProbe:
+            exec:
+              command:
+                - psql
+                - -U
+                - postgres
+                - -h
+                - citus-coordinator
+                - -c
+                - 'SELECT 1'
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - psql
+                - -U
+                - postgres
+                - -h
+                - citus-coordinator
+                - -c
+                - 'SELECT 1'
+            initialDelaySeconds: 10
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: citus-storage
+      spec:
+        accessModes: ['ReadWriteOnce']
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secrets
+type: Opaque
+stringData:
+  username: talentsphere
+  password: <GENERATE_STRONG_PASSWORD>

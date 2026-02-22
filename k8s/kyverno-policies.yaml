@@ -1,0 +1,256 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-non-root-user
+  annotations:
+    policies.kyverno.io/title: Require Non-Root User
+    policies.kyverno.io/description: >
+      Containers must run as non-root user to prevent privilege escalation.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: validate-runAsNonRoot
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Container {{ request.container.name }} in Pod {{ request.object.metadata.name }}
+          must run as non-root user with UID > 10000.
+        deny:
+          conditions:
+            - key: '{{ request.container.securityContext.runAsUser }}'
+              operator: NotEquals
+              value: ''
+            - key: '{{ request.container.securityContext.runAsUser }}'
+              operator: LessThan
+              value: '10000'
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  runAsNonRoot: true
+                  runAsUser: '>10000'
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-containers
+  annotations:
+    policies.kyverno.io/title: Disallow Privileged Containers
+    policies.kyverno.io/description: >
+      Privileged containers can access host resources and should be disallowed.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: validate-privileged
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Container {{ request.container.name }} in Pod {{ request.object.metadata.name }}
+          must not run in privileged mode.
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  privileged: false
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-capabilities
+  annotations:
+    policies.kyverno.io/title: Disallow Additional Capabilities
+    policies.kyverno.io/description: >
+      Disallow default capabilities beyond CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: drop-all-capabilities
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Container {{ request.container.name }} must not add capabilities.
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-readonly-rootfs
+  annotations:
+    policies.kyverno.io/title: Require Read-Only Root Filesystem
+    policies.kyverno.io/description: >
+      Containers should use read-only root filesystem to prevent tampering.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: validate-readOnlyRootFileSystem
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Container {{ request.container.name }} must use read-only root filesystem.
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  readOnlyRootFilesystem: true
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-service-account-token-mount
+  annotations:
+    policies.kyverno.io/title: Restrict Service Account Token Mount
+    policies.kyverno.io/description: >
+      Prevent automatic mounting of ServiceAccount tokens.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: validate-automountServiceAccountToken
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Pod {{ request.object.metadata.name }} must not automatically mount
+          ServiceAccount token.
+        pattern:
+          spec:
+            automountServiceAccountToken: false
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-host-path
+  annotations:
+    policies.kyverno.io/title: Restrict Host Path Mounts
+    policies.kyverno.io/description: >
+      Prevent pods from mounting host paths that could be used for escape.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: deny-host-path
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: >-
+          Host path volumes are forbidden.
+      pattern:
+        spec:
+          volumes:
+            - name: '*'
+              =(hostPath): null
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-network-policy
+  annotations:
+    policies.kyverno.io/title: Require NetworkPolicy
+    policies.kyverno.io/description: >
+      Namespaces must have a NetworkPolicy to restrict pod communication.
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+    - name: require-network-policy
+      match:
+        resources:
+          kinds:
+            - Namespace
+      validate:
+        message: >-
+          Namespace {{ request.object.metadata.name }} must have a NetworkPolicy.
+        anyPattern:
+          - spec:
+              networkPolicy: '?*'
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-external-names
+  annotations:
+    policies.kyverno.io/title: Restrict External Names
+    policies.kyverno.io/description: >
+      Prevent ExternalName services to avoid DNS rebinding attacks.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: reject-external-name
+      match:
+        resources:
+          kinds:
+            - Service
+      validate:
+        message: >-
+          ExternalName services are not allowed.
+        pattern:
+          spec:
+            =(type): '!ExternalName'
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+  annotations:
+    policies.kyverno.io/title: Require Labels
+    policies.kyverno.io/description: >
+      Require specific labels on resources for better organization.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: require-environment-label
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - Service
+      validate:
+        message: >-
+          Resource must have 'environment' label.
+        pattern:
+          metadata:
+            labels:
+              environment: '?*'
+    - name: require-team-label
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - Service
+      validate:
+        message: >-
+          Resource must have 'team' label.
+        pattern:
+          metadata:
+            labels:
+              team: '?*'

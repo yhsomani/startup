@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-replication-config
+  namespace: talentsphere
+data:
+  replication.yaml: |
+    topology:
+      primary:
+        region: us-east-1
+        instance: citus-coordinator-primary
+        endpoint: db-primary.talentsphere.internal
+        
+      replicas:
+        - region: eu-west-1
+          instance: citus-coordinator-replica-1
+          endpoint: db-replica-1.talentsphere.internal
+          sync_mode: async
+          
+        - region: ap-southeast-1
+          instance: citus-coordinator-replica-2
+          endpoint: db-replica-2.talentsphere.internal
+          sync_mode: async
+
+    failover:
+      strategy: automatic
+      detection_timeout: 10s
+      promotion_timeout: 5m
+      
+    backup:
+      schedule: "0 2 * * *"  # Daily at 2 AM UTC
+      retention_days: 30
+      s3_bucket: talentsphere-db-backups
+      encryption: aws:kms
+      
+    sync:
+      method: streaming_replication
+      wal_senders: 5
+      max_wal_senders: 10
+      hot_standby: on
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-backup
+  namespace: talentsphere
+spec:
+  schedule: '0 2 * * *'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: db-backup
+          containers:
+            - name: backup
+              image: citusdata/citus:12.1.1
+              env:
+                - name: POSTGRES_HOST
+                  value: 'citus-coordinator'
+                - name: POSTGRES_DB
+                  value: 'talentsphere'
+                - name: BACKUP_S3_BUCKET
+                  value: 'talentsphere-db-backups'
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  DATE=$(date +%Y%m%d_%H%M%S)
+                  pg_dump -h $POSTGRES_HOST -U postgres -d $POSTGRES_DB > /backup/backup_$DATE.sql
+                  aws s3 cp /backup/backup_$DATE.sql s3://$BACKUP_S3_BUCKET/backup_$DATE.sql
+                  echo "Backup completed: $DATE"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+          volumes:
+            - name: backup-storage
+              emptyDir: {}
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: db-backup
+  namespace: talentsphere
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: db-backup
+  namespace: talentsphere
+rules:
+  - apiGroups: ['']
+    resources: ['pods']
+    verbs: ['get', 'list']
+  - apiGroups: ['']
+    resources: ['pods/exec']
+    verbs: ['create']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: db-backup
+  namespace: talentsphere
+subjects:
+  - kind: ServiceAccount
+    name: db-backup
+    namespace: talentsphere
+roleRef:
+  kind: Role
+  name: db-backup
+  apiGroup: rbac.authorization.k8s.io
