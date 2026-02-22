@@ -6117,7 +6117,223 @@ const transaction = async (client) => {
 | Runtime | NullReference |
 | Network | Timeout |
 | Validation | Invalid input |
-| Auth | Token expired |
+
+---
+
+## 191. API Versioning
+
+### Version Strategies
+
+| Strategy | Example | Pros | Cons |
+|----------|---------|------|------|
+| URL Path | /v1/users | Clear | Duplication |
+| Header | Accept: v1 | Clean | Complex |
+| Query | ?v=1 | Simple | Caching |
+
+### Version Lifecycle
+
+| Phase | Duration |
+|-------|----------|
+| Current | Active |
+| Deprecated | 6 months |
+| Sunset | 3 months |
+| Removed | After sunset |
+
+---
+
+## 192. Response Compression
+
+### Compression Methods
+
+| Method | Ratio | CPU |
+|--------|-------|-----|
+| gzip | High | Medium |
+| Brotli | Highest | High |
+| Deflate | Medium | Low |
+
+### Configuration
+
+```javascript
+app.use(compression({
+  threshold: 1024,
+  level: 6,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
+```
+
+---
+
+## 193. Connection Pooling
+
+### Pool Configuration
+
+```javascript
+const pool = {
+  min: 2,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000
+};
+```
+
+### Monitoring
+
+| Metric | Alert |
+|--------|-------|
+| Active connections | >80% |
+| Wait time | >100ms |
+| Idle connections | <2 |
+
+---
+
+## 194. Database Connections
+
+### Connection Types
+
+| Type | Use |
+|------|-----|
+| Pooled | Web requests |
+| Dedicated | Batch jobs |
+| Read replica | Read queries |
+
+### Failover
+
+- Automatic reconnection
+- Connection string failover
+- Health check before use
+
+---
+
+## 195. API Throttling
+
+### Throttling Levels
+
+| Level | Requests | Period |
+|-------|----------|--------|
+| Free | 100 | Hour |
+| Basic | 1000 | Hour |
+| Pro | 10000 | Hour |
+| Enterprise | Unlimited | - |
+
+### Implementation
+
+```javascript
+const throttle = {
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests'
+};
+```
+
+---
+
+## 196. Health Checks
+
+### Check Types
+
+| Type | Frequency | Purpose |
+|------|-----------|---------|
+| Liveness | 10s | Container alive |
+| Readiness | 30s | Service ready |
+| Startup | 60s | Startup complete |
+
+### Check Response
+
+```json
+{
+  "status": "healthy",
+  "checks": {
+    "database": "pass",
+    "redis": "pass",
+    "external_api": "fail"
+  }
+}
+```
+
+---
+
+## 197. Graceful Shutdown
+
+### Shutdown Sequence
+
+1. Stop accepting new requests
+2. Wait for in-flight requests
+3. Close database connections
+4. Flush logs
+5. Exit process
+
+### Implementation
+
+```javascript
+process.on('SIGTERM', async () => {
+  server.close(() => {
+    await pool.end();
+    logger.info('Shutdown complete');
+    process.exit(0);
+  });
+});
+```
+
+---
+
+## 198. Data Sanitization
+
+### Sanitization Rules
+
+| Input | Action |
+|-------|--------|
+| SQL | Parameterized queries |
+| XSS | HTML escape |
+| CSRF | Token validation |
+| Input length | Truncation |
+
+---
+
+## 199. Session Management
+
+### Session Storage
+
+| Storage | Use |
+|---------|-----|
+| Redis | Production |
+| Memory | Development |
+| Database | Fallback |
+
+### Session Config
+
+```javascript
+const session = {
+  store: new RedisStore({ client: redis }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: true, httpOnly: true }
+};
+```
+
+---
+
+## 200. API Authentication
+
+### Auth Methods
+
+| Method | Use Case |
+|--------|----------|
+| JWT | API access |
+| API Key | Service-to-service |
+| OAuth 2.0 | Third-party |
+| Basic Auth | Legacy |
+
+### Token Types
+
+| Token | Expiry | Use |
+|-------|--------|-----|
+| Access | 15 min | API calls |
+| Refresh | 7 days | New access token |
+| API Key | Long-lived | Service auth |
 
 ---
 
