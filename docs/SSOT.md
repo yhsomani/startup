@@ -4833,13 +4833,248 @@ if (!data) {
 5. **Review**: Post-mortem
 6. **Prevent**: Add monitoring
 
-### On-Call Rotation
+---
 
-| Role | Schedule |
-|------|----------|
-| Primary | Week 1 |
-| Secondary | Week 2 |
-| Escalation | Manager |
+## 141. Database Migrations
+
+### Migration Files
+
+| File | Purpose |
+|------|---------|
+| `001_initial_schema.sql` | Initial schema |
+| `001_initial_schema_rollback.sql` | Rollback initial |
+| `002_gamification_and_collaboration.sql` | Gamification tables |
+| `002_add_performance_indexes.sql` | Performance indexes |
+| `003_fix_schema_inconsistencies.sql` | Schema fixes |
+| `003_optimize_indexes.sql` | Index optimization |
+| `008_implement_sharding.sql` | Sharding implementation |
+
+### Migration Schema
+
+```sql
+CREATE TABLE migrations (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  executed_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 142. Performance Monitoring
+
+### Monitoring Stack
+
+| Tool | Purpose |
+|------|---------|
+| Prometheus | Metrics collection |
+| Grafana | Visualization |
+| Jaeger | Distributed tracing |
+| ELK Stack | Log aggregation |
+| P95 | Uptime monitoring |
+
+### Key Metrics
+
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| CPU Usage | >80% | Alert |
+| Memory | >85% | Alert |
+| Response Time P99 | >2s | Investigate |
+| Error Rate | >1% | Alert |
+| Availability | <99.9% | Alert |
+
+---
+
+## 143. Error Handling Patterns
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "AUTH_001",
+    "message": "Invalid credentials",
+    "details": {},
+    "traceId": "abc123"
+  }
+}
+```
+
+### Error Categories
+
+| Category | HTTP Code | Handling |
+|----------|-----------|----------|
+| Validation | 400 | Return errors |
+| Auth | 401 | Redirect login |
+| Forbidden | 403 | Show message |
+| Not Found | 404 | Show 404 page |
+| Server | 500 | Log, generic msg |
+
+---
+
+## 144. Pagination Strategies
+
+### Offset Pagination
+
+```sql
+SELECT * FROM jobs LIMIT 20 OFFSET 40;
+```
+
+### Cursor Pagination
+
+```sql
+SELECT * FROM jobs
+WHERE id > cursor
+ORDER BY id
+LIMIT 20;
+```
+
+### Comparison
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| Offset | Simple | Slow on large pages |
+| Cursor | Fast | No random access |
+| Keyset | Very fast | Limited sorting |
+
+---
+
+## 145. Search Implementation
+
+### Search Features
+
+| Feature | Implementation |
+|---------|----------------|
+| Full-text | PostgreSQL tsvector |
+| Filters | Multiple criteria |
+| Autocomplete | Prefix matching |
+| Faceted | Aggregations |
+| Relevance | BM25 ranking |
+
+### Search Optimization
+
+- Index frequently queried columns
+- Use covering indexes
+- Cache results
+- Limit result set
+- Async reindexing
+
+---
+
+## 146. Caching Architecture
+
+### Cache Layers
+
+| Layer | Technology | TTL |
+|-------|------------|-----|
+| CDN | CloudFlare | 1 day |
+| API Gateway | Redis | 5 min |
+| Application | Redis/In-memory | 1 min |
+| Database | Query cache | 30 sec |
+
+### Cache Headers
+
+```
+Cache-Control: public, max-age=300
+ETag: "abc123"
+Last-Modified: Mon, 23 Feb 2026 12:00:00Z
+```
+
+---
+
+## 147. Webhook System
+
+### Webhook Configuration
+
+```javascript
+const webhook = new WebhookHandler({
+  retryAttempts: 3,
+  retryDelay: 1000,
+  timeout: 30000,
+  secret: process.env.WEBHOOK_SECRET
+});
+```
+
+### Webhook Events
+
+| Event | Payload | Retry |
+|-------|---------|-------|
+| user.created | User data | 3x |
+| job.posted | Job data | 3x |
+| payment.completed | Payment data | 5x |
+| subscription.renewed | Subscription | 5x |
+
+---
+
+## 148. Idempotency Implementation
+
+### Idempotency Key
+
+```javascript
+// Request with idempotency key
+POST /api/v1/payments
+Idempotency-Key: unique-key-123
+{
+  "amount": 100,
+  "currency": "USD"
+}
+```
+
+### Implementation
+
+```javascript
+const result = await idempotency.execute(
+  'payment-123',
+  () => processPayment(data)
+);
+```
+
+### Key Storage
+
+- Redis with 24h TTL
+- Composite key: `${method}:${path}:${idempotencyKey}`
+
+---
+
+## 149. Batch Processing
+
+### Batch Endpoints
+
+| Endpoint | Batch Size | Timeout |
+|----------|------------|---------|
+| /users/import | 1000 | 5 min |
+| /jobs/bulk-update | 500 | 2 min |
+| /notifications/send | 10000 | 10 min |
+
+### Processing Strategy
+
+- Queue-based processing
+- Progress tracking
+- Partial failure handling
+- Retry failed items
+
+---
+
+## 150. API Design Principles
+
+### RESTful Guidelines
+
+| Principle | Implementation |
+|-----------|----------------|
+| Resource naming | Nouns, plural: /users |
+| HTTP verbs | GET/POST/PUT/DELETE |
+| Status codes | 200/201/204/400/401/404/500 |
+| Versioning | URL: /v1/ |
+| Pagination | ?page=1&limit=20 |
+
+### Best Practices
+
+- Consistent response format
+- Versioned API
+- Rate limiting
+- Request/response logging
+- Error handling
+- Hypermedia links
 
 ---
 
