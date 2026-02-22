@@ -126,6 +126,38 @@ The platform operates on an event-driven, microservices architecture:
 | **RabbitMQ**        | Event-driven communication       | `amqp://guest:guest@host:5672`        |
 | **HashiCorp Vault** | Secrets management               | Configured in `vault.hcl`             |
 
+## 7.1 Caching Architecture
+
+The system uses **Distributed Cache-Aside Pattern** with Redis.
+
+### Node.js Services
+
+- Use `services/shared/talentsphere-cache.js` or `backends/backend-enhanced/shared/redis-client.js`
+- Default TTL: 300s (5 minutes)
+- Key naming: `{service}:{entity}:{id}` (e.g., `jobs:job:123`)
+
+### Spring Boot (LMS)
+
+- Configure in `application.properties`:
+  ```properties
+  spring.cache.type=redis
+  spring.data.redis.host=${REDIS_HOST}
+  spring.cache.redis.time-to-live=3600000
+  ```
+- Use `@EnableCaching` annotation on main class
+- Use `@Cacheable(value = "courses", key = "#id")` on service methods
+- Use `@CacheEvict` to invalidate on updates
+
+### .NET (Challenges)
+
+- Configure `IDistributedCache` in `Program.cs`
+- Use `IDistributedCache` with `SetSlidingExpiration`
+
+### Cache Invalidation Strategy
+
+- Use reasonable TTL (never cache permanently)
+- Publish events via RabbitMQ for cross-service invalidation
+
 ---
 
 ## 8. Development Workflow
