@@ -3454,5 +3454,292 @@ groups:
 
 ---
 
+## 91. CI/CD Workflows
+
+### GitHub Actions Workflows
+
+| Workflow | Purpose | Trigger |
+|----------|---------|---------|
+| `ci.yml` | Main CI pipeline | Push/PR |
+| `ci-cd.yml` | CI/CD pipeline | Push to main |
+| `code-quality.yml` | Linting, formatting | Push/PR |
+| `frontend.yml` | Frontend build/test | Push/PR |
+| `security-scan.yml` | Security scanning | Weekly |
+| `feature-flags.yml` | Feature flag updates | Manual |
+
+### CI Pipeline Stages
+1. Checkout code
+2. Setup Node.js
+3. Install dependencies
+4. Run linting
+5. Run tests
+6. Build artifacts
+7. Upload artifacts
+
+### CD Pipeline Stages
+1. Build Docker images
+2. Push to registry
+3. Deploy to staging
+4. Run smoke tests
+5. Deploy to production
+
+---
+
+## 92. Kubernetes Resources
+
+### Core Resources
+
+| Resource | File | Purpose |
+|----------|------|---------|
+| Namespaces | `namespaces.yaml` | Environment isolation |
+| ConfigMaps | `configs/configmaps.yaml` | Configuration |
+| Secrets | - | Sensitive data |
+| Services | Service files | Network exposure |
+| Deployments | Service files | Application pods |
+| HPA | `hpa.yaml` | Auto-scaling |
+
+### Service Deployments
+
+| Service | File | Replicas |
+|---------|------|----------|
+| api-gateway | `api-gateway.yaml` | 3 |
+| auth-service | `backend-enhanced` | 3 |
+| user-service | `backend-enhanced` | 3 |
+| job-service | `backend-enhanced` | 3 |
+| company-service | `backend-enhanced` | 3 |
+| search-service | `backend-enhanced` | 3 |
+| analytics-service | `backend-enhanced` | 2 |
+| notification-service | `backend-enhanced` | 2 |
+| collaboration-service | `collaboration-service.yaml` | 2 |
+| Flask Backend | `backend-flask.yaml` | 2 |
+| Spring Boot | `backend-springboot.yaml` | 2 |
+| .NET | `backend-dotnet.yaml` | 2 |
+
+### Infrastructure Resources
+
+| Resource | File | Purpose |
+|----------|------|---------|
+| PostgreSQL | `postgres.yaml` | Database |
+| Redis | `rabbitmq.yaml` | Cache/Queue |
+| RabbitMQ | `rabbitmq.yaml` | Message broker |
+| Citus | `citus.yaml` | Distributed DB |
+
+---
+
+## 93. Service Mesh & Networking
+
+### Istio Configuration
+- mTLS between services
+- Traffic management
+- Observability
+- Security policies
+
+### Network Policies
+- Service isolation
+- Ingress control
+- Egress rules
+- DNS policies
+
+### Ingress Configuration
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: talentsphere-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+  - host: api.talentsphere.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+```
+
+---
+
+## 94. Database Infrastructure
+
+### Citus Distributed Database
+
+| Component | Purpose |
+|-----------|---------|
+| Coordinator | Query routing |
+| Worker 1 | Shard 1 |
+| Worker 2 | Shard 2 |
+| Worker 3 | Shard 3 |
+
+### Sharding Strategy
+- User data: Shard by user_id
+- Job data: Shard by company_id
+- Application data: Shard by job_id
+
+### Replication
+- Primary-standby for each shard
+- Async replication
+- Automatic failover
+
+---
+
+## 95. Multi-Region Deployment
+
+### Region Configuration
+| Region | Role | Services |
+|--------|------|----------|
+| us-east-1 | Primary | All |
+| eu-west-1 | Secondary | Read replicas |
+| ap-south-1 | Tertiary | Backup |
+
+### Failover Strategy
+- DNS failover to secondary
+- Read replicas promote to primary
+- Data sync via CDC
+
+---
+
+## 96. Chaos Engineering
+
+### Chaos Experiments
+
+| Experiment | Target | Failure Mode |
+|------------|--------|--------------|
+| pod-kill | Random pod | Pod termination |
+| network-loss | Service | Network partition |
+| cpu-load | Service | High CPU |
+| memory-load | Service | Memory exhaustion |
+| disk-fill | Database | Disk full |
+
+### Running Experiments
+```bash
+kubectl apply -f k8s/chaos-experiments.yaml
+```
+
+---
+
+## 97. Autoscaling Configuration
+
+### KEDA Scalers
+
+| Service | Scaler | Metric |
+|---------|--------|--------|
+| api-gateway | HTTP | Request rate |
+| job-service | RabbitMQ | Queue depth |
+| search-service | PostgreSQL | Connection count |
+| notification-service | Redis | List size |
+
+### HPA Configuration
+```yaml
+metrics:
+- type: Resource
+  resource:
+    name: cpu
+    target:
+      type: Utilization
+      averageUtilization: 70
+- type: Pods
+  pods:
+    metric:
+      name: http_requests_per_second
+    target:
+      type: AverageValue
+      averageValue: 1000
+```
+
+---
+
+## 98. OpenAPI Specifications
+
+### API Specifications
+
+| Service | File | Status |
+|---------|------|--------|
+| Auth | `api/openapi.yaml` | ✅ |
+| Search | `api/search-service-openapi.yaml` | ✅ |
+| Network | `api/network-service-openapi.yaml` | ✅ |
+| Notification | `api/notification-service-openapi.yaml` | ✅ |
+| Collaboration | `api/collaboration-openapi.yaml` | ✅ |
+| Flask | `api/flask-backend-openapi.yaml` | ✅ |
+
+### OpenAPI Structure
+```yaml
+openapi: 3.0.0
+info:
+  title: TalentSphere API
+  version: 1.0.0
+servers:
+  - url: https://api.talentsphere.com/v1
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      tags:
+        - Authentication
+```
+
+---
+
+## 99. Feature Flags
+
+### Feature Flag System
+- Implemented in `shared/feature-flags.js`
+- Redis-backed for distributed access
+- Dashboard for management
+
+### Active Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `new_search_algorithm` | false | AI-powered search |
+| `video_interviews` | true | Video interview feature |
+| `ai_recommendations` | false | ML job recommendations |
+| `dark_mode` | true | Dark theme support |
+
+### Usage
+```javascript
+const { featureFlags } = require('./shared/feature-flags');
+
+if (await featureFlags.isEnabled('new_search_algorithm')) {
+  // New search logic
+}
+```
+
+---
+
+## 100. Runbooks
+
+### Common Issues & Resolution
+
+**High CPU Usage**
+1. Check running processes: `top`
+2. Identify heavy pods: `kubectl top pods`
+3. Scale horizontally: `kubectl scale deployment`
+4. Check logs for errors
+
+**Database Connection Issues**
+1. Check PostgreSQL status
+2. Verify connection string
+3. Check connection pool
+4. Review connection limits
+
+**Service Not Responding**
+1. Check pod status: `kubectl get pods`
+2. View logs: `kubectl logs`
+3. Check health endpoint
+4. Verify network policies
+
+**Rate Limit Errors**
+1. Check Redis rate limiter
+2. Identify abusive clients
+3. Adjust rate limits
+4. Scale gateway
+
+---
+
 _Last Updated: February 2026_
 ````
