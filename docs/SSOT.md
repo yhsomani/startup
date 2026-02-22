@@ -99,7 +99,7 @@ The platform operates on an event-driven, microservices architecture:
 
 ---
 
-## 4. Feature-to-Code Mapping
+## 5. Feature-to-Code Mapping
 
 | Feature                       | Frontend MFE       | Backend Service(s)                                | Primary Data Entities           |
 | ----------------------------- | ------------------ | ------------------------------------------------- | ------------------------------- |
@@ -115,7 +115,7 @@ The platform operates on an event-driven, microservices architecture:
 
 ---
 
-## 5. API / Route Documentation
+## 6. API / Route Documentation
 
 | Path                   | Service            | Port |
 | ---------------------- | ------------------ | ---- |
@@ -126,7 +126,7 @@ The platform operates on an event-driven, microservices architecture:
 
 ---
 
-## 5.1 API Gateway Architecture
+## 6.1 API Gateway Architecture
 
 The API Gateway (`api-gateway/index.js`) is the single entry point for all frontend requests.
 
@@ -163,7 +163,7 @@ Injection
 
 ---
 
-## 6. Circuit Breaker Pattern
+## 7. Circuit Breaker Pattern
 
 The system uses Circuit Breaker to prevent cascading failures.
 
@@ -197,7 +197,7 @@ The system uses Circuit Breaker to prevent cascading failures.
 
 ---
 
-## 6. Configuration & Environment Setup
+## 7.1 Configuration & Environment Setup
 
 ### Prerequisites
 
@@ -231,7 +231,7 @@ The system uses Circuit Breaker to prevent cascading failures.
 
 ---
 
-## 7. Database & External Services
+## 8. Database & External Services
 
 | Service             | Purpose                          | Connection                            |
 | ------------------- | -------------------------------- | ------------------------------------- |
