@@ -2099,8 +2099,8 @@ Complete list of all documentation files and their locations:
 | **SSOT (This File)** | `docs/SSOT.md` | Single Source of Truth - all architecture |
 | API Reference | `docs/API_REFERENCE.md` | API endpoints specification |
 | Development Guide | `docs/DEVELOPMENT.md` | Development setup and practices |
-| System Architecture | `docs/SYSTEM.md` | System design and components |
-| Operations Guide | `docs/OPERATIONS.md` | Deployment and operations |
+| System Architecture | `docs/SYSTEM.md.bak` | System design and components |
+| Operations Guide | `docs/ops/` | Deployment and operations |
 | **Routing Taxonomy** | `shared-contracts/ROUTING_KEY_TAXONOMY.md` | Event routing keys |
 | **SDK Documentation** | `sdk/README.md` | Client SDK guides |
 | **Testing** | `tests/README.md` | Testing documentation |
@@ -2338,6 +2338,248 @@ Client → WebSocket → Collaboration Service → Yjs CRDT
 2. **PR Review Check**: Add checklist item: _"Does this PR require an update to `docs/SSOT.md`?"_
 3. **API Documentation**: Use OpenAPI/Swagger (`/api/openapi.yaml`). Do not manually document API routes.
 4. **Bi-weekly Audits**: Review technical debt, specifically duplicate Course/Challenge services.
+
+---
+
+## 55. End-to-End (E2E) Testing
+
+### Test Coverage
+
+**Critical User Journeys:**
+- ✅ Authentication Flow - Registration, login, logout, password recovery
+- ✅ Job Application Process - Search, apply, track applications, save jobs
+- ✅ Employer Dashboard - Job posting, candidate management, analytics
+- ✅ Performance Testing - Load times, responsiveness, concurrent users
+
+### Browser Coverage
+- Chromium (Chrome/Edge)
+- Firefox
+- WebKit (Safari)
+- Mobile devices (iOS/Android)
+- Tablet devices
+- Dark/Light mode
+- Responsive design
+
+### Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Install Playwright browsers
+npx playwright install
+
+# Run all tests
+npm run test:e2e
+
+# Run headed mode (watch browser)
+npm run test:e2e:headed
+
+# Generate HTML report
+npm run test:e2e:report
+```
+
+### Performance Thresholds
+
+| Metric | Threshold |
+|--------|-----------|
+| Page Load | < 3 seconds |
+| API Response | < 2 seconds |
+| Search | < 2 seconds |
+| File Upload | < 10 seconds |
+| Form Submit | < 5 seconds |
+
+### Test Structure
+
+```
+tests/e2e/
+├── setup.js                 # Global test setup
+├── authentication.test.js    # User authentication tests
+├── job-application.test.js  # Job application flow tests
+├── employer-dashboard.test.js # Employer functionality tests
+├── performance.test.js      # Performance tests
+├── reports/                 # Test reports
+├── screenshots/             # Test screenshots
+├── videos/                  # Test videos
+└── traces/                  # Test traces
+```
+
+### Mobile Testing Viewports
+- Mobile: 375x667 (iPhone SE)
+- Tablet: 768x1024 (iPad)
+- Desktop: 1280x720
+- Large: 1920x1080
+
+---
+
+## 56. Code Coverage Report
+
+### Overall Coverage (analytics-service)
+
+| Metric | Covered | Total | Percentage |
+|--------|---------|-------|------------|
+| Statements | 248 | 779 | 31.8% |
+| Branches | 124 | 400 | 31.0% |
+| Functions | 32 | 146 | 21.9% |
+
+### Coverage Status: 🔴 Needs Improvement
+
+### File Coverage
+
+| File | Statements | Branches | Functions |
+|------|------------|----------|-----------|
+| analytics-service.js | 53.0% | 39.4% | 41.0% |
+| api.js | 0.0% | 0.0% | 0.0% |
+| server.js | 0.0% | 0.0% | 0.0% |
+
+### Coverage Quality
+- **High Coverage (>80%)**: 0 files
+- **Medium Coverage (60-80%)**: 0 files
+- **Low Coverage (<60%)**: 4 files
+
+### Recommendations
+- Aim for at least 80% coverage
+- Add tests for low coverage files
+- Focus on branch coverage for conditional logic
+
+---
+
+## 57. Development Commands Reference
+
+### Package Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run start` | Start production server |
+| `npm run dev` | Start development server |
+| `npm run build` | Build TypeScript |
+| `npm run typecheck` | TypeScript type check |
+| `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Fix ESLint errors |
+| `npm run format` | Format with Prettier |
+| `npm run test` | Run Jest tests |
+| `npm run test:unit` | Run unit tests |
+| `npm run test:integration` | Run integration tests |
+| `npm run test:e2e` | Run E2E tests |
+| `npm run test:coverage` | Run tests with coverage |
+| `npm run security:audit` | Run npm audit |
+
+---
+
+## 58. GitHub Actions CI/CD
+
+### Workflows
+
+| Workflow | Purpose |
+|----------|---------|
+| `ci.yml` | Continuous Integration |
+| `deploy.yml` | Deployment pipeline |
+| `security-scan.yml` | Security scanning |
+
+### CI Pipeline
+- Code checkout
+- Install dependencies
+- Lint and format check
+- TypeScript compilation
+- Unit tests
+- Integration tests
+- Build verification
+
+---
+
+## 59. Docker & Kubernetes
+
+### Docker Compose Services
+- PostgreSQL database
+- Redis cache
+- RabbitMQ message broker
+- Elasticsearch
+- All microservices
+
+### Kubernetes Resources
+- Deployments for each service
+- Services and Ingress
+- ConfigMaps and Secrets
+- Horizontal Pod Autoscaling (HPA)
+- Service mesh (Istio)
+
+---
+
+## 60. Environment Configuration
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NODE_ENV` | Environment (development/production) |
+| `PORT` | Server port |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string |
+| `JWT_SECRET` | JWT signing secret |
+| `OPENAI_API_KEY` | OpenAI API key |
+
+---
+
+## 61. Monitoring & Observability
+
+### Tools
+- **Metrics**: Prometheus + Grafana
+- **Logging**: ELK Stack (Elasticsearch, Logstash, Kibana)
+- **Tracing**: Jaeger
+- **Alerting**: Prometheus Alerts
+
+### Dashboards
+- Service health dashboard
+- Performance metrics
+- Error rates
+- Resource utilization
+
+---
+
+## 62. Disaster Recovery
+
+### Backup Strategy
+- Daily automated database backups
+- Weekly full system snapshots
+- Off-site backup storage
+- Backup encryption
+
+### Recovery Procedures
+- Database restore procedure
+- Service recovery steps
+- Rollback procedures
+- Communication plan
+
+---
+
+## 63. Compliance & Security
+
+### Security Measures
+- JWT with refresh tokens
+- bcrypt password hashing
+- Rate limiting (Redis-backed)
+- Input validation (Joi)
+- Security headers (Helmet.js)
+- CORS configuration
+
+### Compliance
+- Data encryption at rest
+- SSL/TLS for all connections
+- Audit logging
+- GDPR ready
+
+---
+
+## 64. Third-Party Integrations
+
+| Service | Purpose | Status |
+|---------|---------|--------|
+| OpenAI | AI Assistant | Configurable |
+| Stripe | Payments | Implemented |
+| SendGrid | Email delivery | Configurable |
+| AWS S3 | File storage | Configurable |
+| LinkedIn | Social login | Planned |
+| GitHub | Social login | Planned |
 
 ---
 
