@@ -200,18 +200,40 @@ The system uses **Transactional Outbox Pattern** with RabbitMQ.
 ### Event Contracts
 
 - Defined in `shared-contracts/events/`
-- JSON Schema for: `UserRegistered`, `CourseCompleted`, `ChallengeSubmitted`
+- JSON Schema for: `UserRegistered`, `UserLogin`, `CourseCompleted`, `LessonCompleted`, `ChallengeSubmitted`
 - All events include `messageId` (UUID) and `timestamp`
+
+### Pub/Sub Architecture
+
+The system uses **Topic Exchange** (`talentsphere.events`) for Pub/Sub.
+
+**Publisher Pattern:**
+
+- Use `EventPublisher` class to publish to exchange (not queue)
+- Format: `{ eventId, timestamp, data }`
+- Persistent messages with delivery mode 2
+
+**Subscriber Pattern:**
+
+- Each service creates dedicated queue
+- Bind to exchange with routing keys (e.g., `user.*`, `lms.course.*`)
+- Use wildcards for multiple events
 
 ### Routing Keys
 
-| Event               | Routing Key           |
-| ------------------- | --------------------- |
-| Course Completed    | `course.completed`    |
-| Challenge Submitted | `challenge.submitted` |
-| User Registered     | `user.registered`     |
+| Event               | Routing Key            | Format                       |
+| ------------------- | ---------------------- | ---------------------------- |
+| User Registered     | `auth.user.registered` | `<domain>.<entity>.<action>` |
+| User Login          | `auth.user.login`      | `<domain>.<entity>.<action>` |
+| Course Completed    | `lms.course.completed` | `<domain>.<entity>.<action>` |
+| Lesson Completed    | `lms.lesson.completed` | `<domain>.<entity>.<action>` |
+| Challenge Submitted | `challenges.submitted` | `<domain>.<entity>.<action>` |
 
-- Use `@CacheEvict` to invalidate on updates
+### Routing Key Taxonomy
+
+See `shared-contracts/ROUTING_KEY_TAXONOMY.md` for complete list.
+
+---
 
 ### .NET (Challenges)
 
