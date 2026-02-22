@@ -171,11 +171,11 @@ kubectl apply -f k8s/ingress.yaml
 
 ## 10. Known Issues / Technical Debt
 
-| Issue                       | Description                                                | Status             |
-| --------------------------- | ---------------------------------------------------------- | ------------------ |
-| **Polyglot Redundancy**     | Courses/Challenges overlap across Spring Boot, .NET, Flask | ✅ Done            |
-| **EnhancedSecurityManager** | 716-line monolithic class                                  | Low priority       |
-| **Legacy Gateways**         | Deprecated gateway files exist                             | ⏳ Pending cleanup |
+| Issue                       | Description                                                | Status                              |
+| --------------------------- | ---------------------------------------------------------- | ----------------------------------- |
+| **Polyglot Redundancy**     | Courses/Challenges overlap across Spring Boot, .NET, Flask | ✅ Done                             |
+| **EnhancedSecurityManager** | 716-line monolithic class                                  | Low priority                        |
+| **Legacy Gateways**         | Deprecated gateway files exist                             | ✅ Done (no deprecated files found) |
 
 ### Polyglot Domain Overlap Resolution Strategy
 
