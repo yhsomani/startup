@@ -4277,12 +4277,278 @@ npm run migrate:up
 npm run migrate:down
 ```
 
-### Migration Best Practices
-- Always backup before migration
-- Test on staging first
-- Use transactions
-- Keep migrations small
-- Never modify existing migrations
+---
+
+## 121. Docker Containerization
+
+### Service Dockerfiles
+
+| Service | Dockerfile | Base Image |
+|---------|------------|------------|
+| Node.js Backend | `Dockerfile.backend` | node:18-alpine |
+| Flask Backend | `backend-flask/Dockerfile` | python:3.11-slim |
+| Spring Boot | `backend-springboot/Dockerfile` | openjdk:17-slim |
+| .NET | `backend-dotnet/Dockerfile` | mcr.microsoft.com/dotnet/aspnet:7.0 |
+| Frontend MFE | `ts-mfe-*/Dockerfile` | node:18-alpine |
+| Nginx | `nginx/Dockerfile` | nginx:alpine |
+
+### Docker Best Practices
+
+- Use multi-stage builds
+- Minimize image size with Alpine
+- Don't run as root
+- Use .dockerignore
+- Layer caching optimization
+- Health check instructions
+
+### Docker Compose Services
+
+| Service | Image | Ports |
+|---------|-------|-------|
+| postgres | postgres:14 | 5432 |
+| redis | redis:7-alpine | 6379 |
+| rabbitmq | rabbitmq:3-management | 5672, 15672 |
+| elasticsearch | elasticsearch:8 | 9200 |
+
+---
+
+## 122. Container Orchestration
+
+### Kubernetes Architecture
+
+```
+┌─────────────────────────────────────────┐
+│              Ingress                     │
+│         (api.talentsphere.com)          │
+└─────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────┐
+│            API Gateway                   │
+│         (api-gateway)                    │
+└─────────────────────────────────────────┘
+                    │
+    ┌───────────┬───┴────┬───────────┐
+    ▼           ▼         ▼           ▼
+Service A   Service B  Service C   Service D
+```
+
+### Namespace Strategy
+
+| Namespace | Purpose |
+|-----------|---------|
+| production | Live services |
+| staging | Pre-production testing |
+| development | Development environments |
+| monitoring | Observability stack |
+
+### Resource Limits
+
+| Resource | Request | Limit |
+|----------|---------|-------|
+| Memory | 256Mi | 512Mi |
+| CPU | 250m | 500m |
+| Storage | 1Gi | 10Gi |
+
+---
+
+## 123. Service Dependencies
+
+### Dependency Graph
+
+```
+API Gateway
+    ├── Auth Service
+    │   └── PostgreSQL
+    ├── User Service
+    │   ├── PostgreSQL
+    │   └── Redis
+    ├── Job Service
+    │   ├── PostgreSQL
+    │   └── RabbitMQ
+    ├── Search Service
+    │   ├── Elasticsearch
+    │   └── PostgreSQL
+    ├── Notification Service
+    │   ├── Redis
+    │   └── RabbitMQ
+    └── Analytics Service
+        ├── PostgreSQL
+        └── Redis
+```
+
+### Startup Order
+
+1. Infrastructure (DB, Redis, MQ)
+2. Core Services (Auth, User)
+3. Business Services (Job, Company)
+4. Feature Services (Search, Analytics)
+5. API Gateway
+
+---
+
+## 124. Health Check Implementation
+
+### Health Check Types
+
+| Type | Endpoint | Purpose |
+|------|----------|---------|
+| Liveness | `/health/live` | Container alive |
+| Readiness | `/health/ready` | Service ready |
+| Startup | `/health/startup` | Startup complete |
+
+### Health Check Response
+
+```json
+{
+  "status": "healthy",
+  "uptime": 3600,
+  "dependencies": {
+    "database": "healthy",
+    "redis": "healthy",
+    "rabbitmq": "healthy"
+  },
+  "version": "1.0.0"
+}
+```
+
+---
+
+## 125. Log Management
+
+### Log Collection
+
+| Component | Tool | Purpose |
+|-----------|------|---------|
+| Application | Winston | Structured logging |
+| Container | Docker logs | Stdout capture |
+| Aggregation | Fluentd | Log forwarding |
+| Storage | Elasticsearch | Log storage |
+| Visualization | Kibana | Log analysis |
+
+### Log Format
+
+```json
+{
+  "timestamp": "2026-02-23T12:00:00Z",
+  "level": "info",
+  "message": "Request processed",
+  "service": "auth-service",
+  "correlationId": "abc123",
+  "userId": "user123",
+  "duration": 45
+}
+```
+
+---
+
+## 126. Metrics Collection
+
+### Prometheus Metrics
+
+| Metric Type | Example | Purpose |
+|-------------|---------|---------|
+| Counter | http_requests_total | Request count |
+| Gauge | active_connections | Current state |
+| Histogram | request_duration_seconds | Latency distribution |
+| Summary | request_size_bytes | Request size |
+
+### Custom Metrics
+
+| Metric | Service | Labels |
+|--------|---------|--------|
+| job_applications_total | job-service | status, company |
+| user_logins_total | auth-service | method |
+| search_queries_total | search-service | type |
+
+---
+
+## 127. Distributed Tracing
+
+### Trace Context
+
+| Header | Purpose |
+|--------|---------|
+| X-Trace-ID | Overall trace ID |
+| X-Span-ID | Current span ID |
+| X-Parent-Span-ID | Parent span |
+
+### Jaeger Configuration
+
+```javascript
+const tracing = {
+  serviceName: 'auth-service',
+  sampler: {
+    type: 'const',
+    param: 1
+  },
+  reporter: {
+    logSpans: true,
+    agentEndpoint: 'jaeger:6831'
+  }
+};
+```
+
+---
+
+## 128. API Versioning Strategy
+
+### Versioning Approaches
+
+| Approach | Example | Pros | Cons |
+|----------|---------|------|------|
+| URL Path | /v1/users | Clear | URL pollution |
+| Header | Accept: v1 | Clean | Complex |
+| Query | ?version=1 | Simple | Caching issues |
+
+### Version Lifecycle
+
+| Phase | Duration | Support |
+|-------|----------|---------|
+| Active | Current | Full |
+| Deprecated | 6 months | Security only |
+| sunset | 3 months | Returns 410 |
+| Removed | After sunset | Not available |
+
+---
+
+## 129. WebSocket Implementation
+
+### Socket.io Events
+
+| Event | Direction | Purpose |
+|-------|-----------|---------|
+| connect | Client→Server | Establish connection |
+| disconnect | Server→Client | Connection closed |
+| notification | Server→Client | Push notification |
+| message | Bidirectional | Real-time chat |
+
+### Connection Management
+
+- Heartbeat every 30 seconds
+- Reconnection with exponential backoff
+- Room-based message routing
+- Authentication via JWT
+
+---
+
+## 130. File Upload Handling
+
+### Upload Flow
+
+1. Client requests pre-signed URL
+2. Server validates auth, returns URL
+3. Client uploads directly to S3
+4. Client confirms upload to server
+5. Server processes file (resize, scan)
+6. Returns file URL to client
+
+### File Types Supported
+
+| Type | Max Size | Processing |
+|------|----------|------------|
+| Images (jpg, png) | 10MB | Resize, compress |
+| Documents (pdf, docx) | 25MB | Thumbnail |
+| Videos | 500MB | Transcode HLS |
 
 ---
 
