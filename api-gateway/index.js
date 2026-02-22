@@ -31,6 +31,16 @@ const securityConfig = new SecurityConfig();
 const app = express();
 const PORT = getServicePort("gateway");
 
+// Correlation ID middleware for distributed tracing
+app.use((req, res, next) => {
+    const correlationId = req.headers["x-correlation-id"] || uuidv4();
+    req.headers["x-correlation-id"] = correlationId;
+    res.setHeader("x-correlation-id", correlationId);
+    req.correlationId = correlationId;
+    logger.debug(`[${correlationId}] ${req.method} ${req.url}`);
+    next();
+});
+
 // Security middleware with proper configuration
 app.use(helmet(securityConfig.getSecurityHeaders()));
 app.use(compression());

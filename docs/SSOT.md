@@ -71,14 +71,50 @@ The platform operates on an event-driven, microservices architecture:
 
 ## 5. API / Route Documentation
 
-| Path                     | Service              | Port |
-| ------------------------ | -------------------- | ---- |
-| `/api/v1/auth/*`         | auth-service         | 3001 |
-| `/api/v1/jobs/*`         | job-service          | 3002 |
-| `/api/v1/courses/*`      | backend-springboot   | 3003 |
-| `/api/v1/challenges/*`   | backend-dotnet       | 3006 |
-| `/api/v1/gamification/*` | backend-gamification | 3004 |
-| `/api/v1/assistant/*`    | backend-assistant    | 3005 |
+| Path                   | Service            | Port |
+| ---------------------- | ------------------ | ---- |
+| `/api/v1/auth/*`       | auth-service       | 3001 |
+| `/api/v1/jobs/*`       | job-service        | 3002 |
+| `/api/v1/courses/*`    | backend-springboot | 3003 |
+| `/api/v1/challenges/*` | backend-dotnet     | 3006 |
+
+---
+
+## 5.1 API Gateway Architecture
+
+The API Gateway (`api-gateway/index.js`) is the single entry point for all frontend requests.
+
+### Features
+
+| Feature             | Implementation                                        |
+| ------------------- | ----------------------------------------------------- |
+| **Routing**         | http-proxy-middleware to backend services             |
+| **Authentication**  | JWT validation, strips token, adds `x-user-id` header |
+| **Rate Limiting**   | Redis-backed (distributed)                            |
+| **CORS**            | Centralized CORS middleware                           |
+| **Correlation IDs** | `x-correlation-id` header for distributed tracing     |
+| **Circuit Breaker** | Implemented in `api-gateway/circuit-breaker.js`       |
+| **Security**        | Helmet.js, compression                                |
+
+### Routing by Domain
+
+| Path Pattern           | Target Service          | Domain     |
+| ---------------------- | ----------------------- | ---------- |
+| `/api/v1/auth/*`       | auth-service:3001       | Identity   |
+| `/api/v1/jobs/*`       | job-service:3002        | Jobs       |
+| `/api/v1/courses/*`    | backend-springboot:8080 | LMS        |
+| `/api/v1/challenges/*` | backend-dotnet:5000     | Challenges |
+| `/api/v1/ai/*`         | backend-flask:5000      | AI         |
+
+### Request Flow
+
+```
+Frontend → API Gateway → [Auth] → [Rate Limit] → [Proxy] → Backend Service
+                    ↓
+            Correlation ID Injection
+```
+
+| `/api/v1/gamification/*` | backend-gamification | 3004 | | `/api/v1/assistant/*` | backend-assistant | 3005 |
 
 **OpenAPI Specifications**: Located in service-specific `/api/` directories. Access Swagger UI via
 `/api/swagger-ui.html` when running.
