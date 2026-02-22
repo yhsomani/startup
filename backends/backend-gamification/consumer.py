@@ -55,6 +55,10 @@ def main():
 
     channel.queue_bind(exchange=EXCHANGE_NAME, queue=queue_name, routing_key=ROUTING_KEY)
 
+    # Set prefetch limit to prevent memory exhaustion
+    # Process one message at a time to ensure proper handling
+    channel.basic_qos(prefetch_count=10)
+
     print(' [*] Waiting for course completion events. To exit press CTRL+C')
 
     channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=False)

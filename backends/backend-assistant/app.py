@@ -32,7 +32,14 @@ app = Flask(__name__)
 CORS(app)
 
 # JWT Configuration
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970')
+jwt_secret = os.getenv('JWT_SECRET_KEY')
+if not jwt_secret:
+    if os.getenv('FLASK_ENV') == 'production':
+        raise RuntimeError("CRITICAL: JWT_SECRET_KEY must be set in production environment.")
+    import secrets
+    jwt_secret = secrets.token_urlsafe(32)
+    print(f"⚠️  WARNING: Generated temporary JWT_SECRET_KEY for development: {jwt_secret[:8]}...")
+app.config['JWT_SECRET_KEY'] = jwt_secret
 jwt = JWTManager(app)
 
 # OpenAI Configuration

@@ -9,9 +9,13 @@ const { createLogger } = require("../../shared/enhanced-logger");
 const { AuthenticationError, AuthorizationError } = require("./error-handler");
 
 class AuthMiddleware {
-    constructor(securityManager) {
+    constructor(securityManager, options = {}) {
         this.securityManager = securityManager;
         this.logger = createLogger("AuthMiddleware");
+
+        // JWT token cache for performance
+        this.tokenCache = new Map();
+        this.tokenCacheTTL = options.tokenCacheTTL || 300000; // 5 minutes default
 
         // Role hierarchy (higher number = more permissions)
         this.roleHierarchy = {
@@ -53,6 +57,47 @@ class AuthMiddleware {
     }
 
     /**
+     * Get cached token or verify and cache it
+     */
+    async getCachedToken(token, options = {}) {
+        // Create a hash of the token for cache key
+        const crypto = require("crypto");
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+        // Check cache first
+        const cached = this.tokenCache.get(tokenHash);
+        if (cached && cached.exp * 1000 > Date.now()) {
+            this.logger.debug("Token served from cache");
+            return cached;
+        }
+
+        // Verify token
+        const decoded = this.securityManager.verifyToken(token, options);
+
+        // Cache the result
+        this.tokenCache.set(tokenHash, decoded);
+
+        // Clean up old entries periodically
+        if (this.tokenCache.size > 1000) {
+            this.cleanTokenCache();
+        }
+
+        return decoded;
+    }
+
+    /**
+     * Clean expired entries from token cache
+     */
+    cleanTokenCache() {
+        const now = Date.now();
+        for (const [key, value] of this.tokenCache.entries()) {
+            if (value.exp * 1000 < now) {
+                this.tokenCache.delete(key);
+            }
+        }
+    }
+
+    /**
      * Main authentication middleware
      */
     authenticate(options = {}) {
@@ -70,8 +115,8 @@ class AuthMiddleware {
                     throw new AuthenticationError("No authentication token provided");
                 }
 
-                // Verify token
-                const decoded = this.securityManager.verifyToken(token, {
+                // Verify token (with caching)
+                const decoded = await this.getCachedToken(token, {
                     correlationId: req.correlationId,
                 });
 

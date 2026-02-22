@@ -109,6 +109,7 @@ module.exports = {
         "coverage/",
         "*.min.js",
         "logs/",
+        "_archive/",
         "backends/**",
         "frontend/**",
         "frontends/**",

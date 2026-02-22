@@ -51,6 +51,13 @@ class ServiceDiscovery {
         this.metrics = new Map();
         this.loadBalancers = new Map();
 
+        // Background task interval references for cleanup
+        this.intervals = {
+            healthCheck: null,
+            metrics: null,
+            cacheCleanup: null,
+        };
+
         this.initialize();
     }
 
@@ -128,13 +135,19 @@ class ServiceDiscovery {
      */
     startBackgroundTasks() {
         // Health monitoring
-        setInterval(() => this.monitorServiceHealth(), this.config.monitoring.healthCheckInterval);
+        this.intervals.healthCheck = setInterval(
+            () => this.monitorServiceHealth(),
+            this.config.monitoring.healthCheckInterval
+        );
 
         // Metrics collection
-        setInterval(() => this.collectMetrics(), this.config.monitoring.metricsInterval);
+        this.intervals.metrics = setInterval(
+            () => this.collectMetrics(),
+            this.config.monitoring.metricsInterval
+        );
 
         // Cache cleanup
-        setInterval(() => this.cleanupCache(), this.config.cache.ttl);
+        this.intervals.cacheCleanup = setInterval(() => this.cleanupCache(), this.config.cache.ttl);
     }
 
     /**
@@ -654,6 +667,20 @@ class ServiceDiscovery {
      */
     async shutdown() {
         this.logger.info("Shutting down service discovery...");
+
+        // Clear all background intervals
+        if (this.intervals.healthCheck) {
+            clearInterval(this.intervals.healthCheck);
+            this.intervals.healthCheck = null;
+        }
+        if (this.intervals.metrics) {
+            clearInterval(this.intervals.metrics);
+            this.intervals.metrics = null;
+        }
+        if (this.intervals.cacheCleanup) {
+            clearInterval(this.intervals.cacheCleanup);
+            this.intervals.cacheCleanup = null;
+        }
 
         if (this.redis) {
             await this.redis.quit();
