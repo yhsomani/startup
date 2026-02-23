@@ -6332,8 +6332,188 @@ const session = {
 | Token | Expiry | Use |
 |-------|--------|-----|
 | Access | 15 min | API calls |
-| Refresh | 7 days | New access token |
-| API Key | Long-lived | Service auth |
+
+---
+
+## 201. Two-Factor Authentication
+
+### 2FA Methods
+
+| Method | Implementation |
+|--------|---------------|
+| TOTP | Authenticator apps |
+| SMS | Phone verification |
+| Email | Code verification |
+| Hardware | Security keys |
+
+### Implementation
+
+```javascript
+const generateTOTP = (secret) => {
+  return speakeasy.totp({
+    secret: secret,
+    encoding: 'base32'
+  });
+};
+```
+
+---
+
+## 202. Password Security
+
+### Requirements
+
+| Rule | Value |
+|------|-------|
+| Minimum length | 8 characters |
+| Uppercase | At least 1 |
+| Lowercase | At least 1 |
+| Number | At least 1 |
+| Special char | At least 1 |
+
+### Hashing
+
+- Algorithm: bcrypt
+- Salt rounds: 12
+- Max attempts: 5
+
+---
+
+## 203. SQL Injection Prevention
+
+### Prevention Methods
+
+| Method | Implementation |
+|--------|---------------|
+| Parameterized | Prepared statements |
+| ORM | Query builder |
+| Validation | Input sanitization |
+| Escaping | Escape functions |
+
+---
+
+## 204. XSS Prevention
+
+### Prevention
+
+| Type | Protection |
+|------|------------|
+| Reflected | Output encoding |
+| Stored | Input validation |
+| DOM | Context-aware encoding |
+
+### Headers
+
+```
+Content-Security-Policy: default-src 'self'
+X-XSS-Protection: 1; mode=block
+```
+
+---
+
+## 205. CSRF Protection
+
+### Implementation
+
+- CSRF tokens
+- SameSite cookies
+- Origin validation
+
+### Token Flow
+
+```
+Server → Form → Token → Submit → Verify
+```
+
+---
+
+## 206. CORS Configuration
+
+### Default Policy
+
+```javascript
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['X-Total-Count'],
+  credentials: true
+};
+```
+
+---
+
+## 207. Security Headers
+
+### Headers List
+
+| Header | Value |
+|--------|-------|
+| Strict-Transport-Security | max-age=31536000 |
+| X-Content-Type-Options | nosniff |
+| X-Frame-Options | DENY |
+| X-XSS-Protection | 1; mode=block |
+| Referrer-Policy | strict-origin-when-cross-origin |
+
+---
+
+## 208. File Upload Security
+
+### Restrictions
+
+| Rule | Value |
+|------|-------|
+| Max size | 25MB |
+| Allowed types | jpg, png, pdf, docx |
+| Scanning | Virus scan |
+| Storage | S3 with ACL |
+
+---
+
+## 209. API Rate Limiting
+
+### Rate Limits
+
+| Tier | Limit | Window |
+|------|-------|--------|
+| Anonymous | 60 | 1 hour |
+| Authenticated | 1000 | 1 hour |
+| Premium | 10000 | 1 hour |
+
+### Headers
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1234567890
+```
+
+---
+
+## 210. IP Allowlist
+
+### Configuration
+
+```javascript
+const ipWhitelist = [
+  '10.0.0.0/8',
+  '172.16.0.0/12',
+  '192.168.0.0/16'
+];
+```
+
+### Middleware
+
+```javascript
+const whitelistMiddleware = (req, res, next) => {
+  const clientIP = req.ip;
+  if (isWhitelisted(clientIP)) {
+    next();
+  } else {
+    res.status(403).json({ error: 'IP not allowed' });
+  }
+};
+```
 
 ---
 
