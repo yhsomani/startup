@@ -10,8 +10,8 @@ const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { getServicePort, getServiceUrl } = require('../../../../shared/ports');
-const { getServiceConfig } = require('../../../../shared/environment');
+const { getServicePort, getServiceUrl } = require('../../../shared/ports');
+const { getServiceConfig } = require('../../../shared/environment');
 const { EnhancedServiceWithTracing } = require('../../shared/enhanced-service-with-tracing');
 const { validateRequest, validateResponse } = require('../../shared/validation');
 const { ServiceContract } = require('../../shared/contracts');
@@ -45,18 +45,18 @@ class CompanyService extends EnhancedServiceWithTracing {
 
     // Initialize database connection
     this.database = getDatabaseManager();
-    
+
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-    
+
     // Initialize service contracts
     this.initializeContracts();
-    
+
     // Create Express app with tracing middleware
     this.app = express();
     this.server = null;
     this.initializeMiddleware();
     this.initializeRoutes();
-    
+
     // Seed demo data
     this.seedDemoData();
   }
@@ -64,7 +64,7 @@ class CompanyService extends EnhancedServiceWithTracing {
   initializeContracts() {
     // Define service contracts for validation
     this.serviceContract = new ServiceContract('company-service');
-    
+
     // Company registration schema
     this.serviceContract.defineOperation('registerCompany', {
       inputSchema: {
@@ -74,8 +74,8 @@ class CompanyService extends EnhancedServiceWithTracing {
           name: { type: 'string', minLength: 2, maxLength: 100 },
           email: { type: 'string', format: 'email' },
           password: { type: 'string', minLength: 8 },
-          industry: { 
-            type: 'string', 
+          industry: {
+            type: 'string',
             enum: ['technology', 'healthcare', 'finance', 'education', 'retail', 'manufacturing', 'consulting', 'other']
           },
           size: {
@@ -188,7 +188,7 @@ class CompanyService extends EnhancedServiceWithTracing {
     // Security middleware
     this.app.use(helmet());
     this.app.use(cors());
-    
+
     // Rate limiting
     this.app.use(rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -206,11 +206,11 @@ class CompanyService extends EnhancedServiceWithTracing {
     this.app.use((req, res, next) => {
       req.requestId = req.headers['x-request-id'] || uuidv4();
       req.correlationId = req.headers['x-correlation-id'] || req.traceId || uuidv4();
-      
+
       res.setHeader('x-request-id', req.requestId);
       res.setHeader('x-correlation-id', req.correlationId);
       res.setHeader('x-service', this.config.serviceName);
-      
+
       next();
     });
   }
@@ -219,7 +219,7 @@ class CompanyService extends EnhancedServiceWithTracing {
     // Health check
     this.app.get('/health', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('company.health', req.traceContext) : null;
-      
+
       if (span) {
         span.setTag('component', 'company-service');
         span.setTag('health.check.type', 'service');
@@ -227,7 +227,7 @@ class CompanyService extends EnhancedServiceWithTracing {
 
       try {
         const health = await this.getServiceHealth();
-        
+
         if (span) {
           span.setTag('health.status', 'healthy');
           span.finish();
@@ -239,7 +239,7 @@ class CompanyService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(503).json({
           status: 'unhealthy',
           error: error.message
@@ -250,10 +250,10 @@ class CompanyService extends EnhancedServiceWithTracing {
     // Metrics endpoint
     this.app.get('/metrics', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('company.metrics', req.traceContext) : null;
-      
+
       try {
         const metrics = this.getTracingMetrics();
-        
+
         if (span) {
           span.finish();
         }
@@ -264,7 +264,7 @@ class CompanyService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(500).json({ error: error.message });
       }
     });
@@ -368,7 +368,7 @@ class CompanyService extends EnhancedServiceWithTracing {
     // Error handling middleware
     this.app.use((error, req, res, next) => {
       const span = this.tracer ? this.tracer.getActiveSpans().find(s => s.getContext().spanId === req.traceContext?.spanId) : null;
-      
+
       if (span) {
         span.logError(error);
         span.finish();
@@ -401,7 +401,7 @@ class CompanyService extends EnhancedServiceWithTracing {
   // Operation implementations
   async executeOperation(request, options) {
     const operationName = options.operationName || 'unknown';
-    
+
     switch (operationName) {
       case 'company.registerCompany':
         return this.registerCompany(request.body);
@@ -539,11 +539,11 @@ class CompanyService extends EnhancedServiceWithTracing {
 
       // Get employer
       const employer = Array.from(this.employers.values()).find(e => e.email === company.email);
-      
+
       // Generate JWT token
       const token = jwt.sign(
-        { 
-          companyId: company.id, 
+        {
+          companyId: company.id,
           employerId: employer?.id,
           email: company.email,
           role: employer?.role || 'admin'
@@ -581,16 +581,16 @@ class CompanyService extends EnhancedServiceWithTracing {
 
       // Get company culture
       const culture = this.companyCulture.get(companyId) || {};
-      
+
       // Get employer count
       const employers = Array.from(this.employers.values()).filter(e => e.companyId === companyId);
-      
+
       // Get job count
       const jobs = this.companyJobs.get(companyId) || [];
-      
+
       // Get reviews
       const reviews = Array.from(this.companyReviews.values()).filter(r => r.companyId === companyId);
-      const averageRating = reviews.length > 0 ? 
+      const averageRating = reviews.length > 0 ?
         reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
       return {
@@ -660,16 +660,16 @@ class CompanyService extends EnhancedServiceWithTracing {
 
   async searchCompanies(query) {
     return this.executeWithTracing('company.searchCompanies.process', async () => {
-      const { 
-        q: searchTerm, 
-        industry, 
-        size, 
-        location, 
+      const {
+        q: searchTerm,
+        industry,
+        size,
+        location,
         verified = false,
-        limit = 20, 
-        offset = 0 
+        limit = 20,
+        offset = 0
       } = query;
-      
+
       let companies = Array.from(this.companies.values());
 
       // Filter verified companies
@@ -690,7 +690,7 @@ class CompanyService extends EnhancedServiceWithTracing {
       // Filter by location
       if (location) {
         const locationTerm = location.toLowerCase();
-        companies = companies.filter(c => 
+        companies = companies.filter(c =>
           (c.headquarters?.city && c.headquarters.city.toLowerCase().includes(locationTerm)) ||
           (c.headquarters?.state && c.headquarters.state.toLowerCase().includes(locationTerm)) ||
           (c.headquarters?.country && c.headquarters.country.toLowerCase().includes(locationTerm))
@@ -700,7 +700,7 @@ class CompanyService extends EnhancedServiceWithTracing {
       // Filter by search term
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        companies = companies.filter(c => 
+        companies = companies.filter(c =>
           c.name.toLowerCase().includes(term) ||
           c.description?.toLowerCase().includes(term) ||
           c.industry.toLowerCase().includes(term)
@@ -713,7 +713,7 @@ class CompanyService extends EnhancedServiceWithTracing {
         const employers = Array.from(this.employers.values()).filter(e => e.companyId === company.id);
         const jobs = this.companyJobs.get(company.id) || [];
         const reviews = Array.from(this.companyReviews.values()).filter(r => r.companyId === company.id);
-        const averageRating = reviews.length > 0 ? 
+        const averageRating = reviews.length > 0 ?
           reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
         return {
@@ -756,7 +756,7 @@ class CompanyService extends EnhancedServiceWithTracing {
       // Check if user has already reviewed
       const existingReview = Array.from(this.companyReviews.values())
         .find(r => r.companyId === companyId && r.userId === reviewData.userId);
-      
+
       if (existingReview) {
         throw new Error('You have already reviewed this company');
       }
@@ -817,7 +817,7 @@ class CompanyService extends EnhancedServiceWithTracing {
       // Check if email already exists
       const existingEmployer = Array.from(this.employers.values())
         .find(e => e.email === employerData.email);
-      
+
       if (existingEmployer) {
         throw new Error('Employer with this email already exists');
       }
@@ -880,7 +880,7 @@ class CompanyService extends EnhancedServiceWithTracing {
   async getCompanyCulture(companyId) {
     return this.executeWithTracing('company.getCulture.process', async () => {
       const culture = this.companyCulture.get(companyId);
-      
+
       if (!culture) {
         throw new Error('Company culture information not found');
       }
@@ -938,14 +938,14 @@ class CompanyService extends EnhancedServiceWithTracing {
       const employers = Array.from(this.employers.values()).filter(e => e.companyId === companyId);
       const jobs = this.companyJobs.get(companyId) || [];
       const reviews = Array.from(this.companyReviews.values()).filter(r => r.companyId === companyId);
-      
+
       // Calculate analytics
       const analytics = {
         overview: {
           totalEmployers: employers.length,
           totalJobs: jobs.length,
           totalReviews: reviews.length,
-          averageRating: reviews.length > 0 ? 
+          averageRating: reviews.length > 0 ?
             Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10 : 0,
           accountAge: Math.floor((Date.now() - new Date(company.createdAt).getTime()) / (1000 * 60 * 60 * 24))
         },
@@ -1033,7 +1033,7 @@ class CompanyService extends EnhancedServiceWithTracing {
 
   async start() {
     const startupSpan = this.tracer ? this.tracer.startSpan('company-service.startup') : null;
-    
+
     try {
       this.server = this.app.listen(this.config.port, () => {
         logger.info(`🏢 Company Service running on port ${this.config.port}`);
@@ -1058,7 +1058,7 @@ class CompanyService extends EnhancedServiceWithTracing {
 
   async stop() {
     const shutdownSpan = this.tracer ? this.tracer.startSpan('company-service.shutdown') : null;
-    
+
     try {
       if (this.server) {
         await new Promise((resolve) => {

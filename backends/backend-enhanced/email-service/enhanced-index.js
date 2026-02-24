@@ -9,19 +9,19 @@
  * - Multiple delivery providers and fallback
  */
 
-const { getServicePort, getServiceUrl } = require('../../../../shared/ports');
-const { getServiceConfig } = require('../../../../shared/environment');
+const { getServicePort, getServiceUrl } = require('../../../shared/ports');
+const { getServiceConfig } = require('../../../shared/environment');
 const { EmailService } = require('./index-database');
-const DatabaseConnectionPool = require('../../../../shared/database-connection-pool');
-const { createLogger } = require('../../../../shared/logger');
+const DatabaseConnectionPool = require('../../../services/shared/database-connection-pool');
+const { createLogger } = require('../../../shared/logger');
 
 class EnhancedEmailService extends EmailService {
   constructor() {
     super();
-    
+
     this.dbPool = new DatabaseConnectionPool('email-service');
     this.logger = createLogger('EnhancedEmailService');
-    
+
     // Override with database operations
     this.initializeDatabaseOperations();
   }
@@ -34,21 +34,21 @@ class EnhancedEmailService extends EmailService {
     this.sendEmail = async (emailData) => {
       return this.executeWithTracing('email.sendEmail.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
           await client.query('BEGIN');
-          
+
           // Process template if provided
           let subject = emailData.subject;
           let html = emailData.html;
           let text = emailData.message;
           let templateInfo = null;
-          
+
           if (emailData.template) {
             const templateResult = await client.query(`
               SELECT * FROM email_templates WHERE id = $1 AND is_active = TRUE
             `, [emailData.template.id]);
-            
+
             if (templateResult.rows.length > 0) {
               const template = templateResult.rows[0];
               templateInfo = {
@@ -56,7 +56,7 @@ class EnhancedEmailService extends EmailService {
                 name: template.name,
                 version: template.version
               };
-              
+
               subject = this.processTemplate(template.subject_template, emailData.template.data);
               html = this.processTemplate(template.html_template, emailData.template.data);
               text = this.processTemplate(template.text_template || '', emailData.template.data);
@@ -93,9 +93,9 @@ class EnhancedEmailService extends EmailService {
             emailData.metadata?.userId,
             JSON.stringify(emailData.metadata || {})
           ]);
-          
+
           const email = emailResult.rows[0];
-          
+
           // Create tracking event for email creation
           await client.query(`
             INSERT INTO email_tracking_events (
@@ -111,15 +111,15 @@ class EnhancedEmailService extends EmailService {
               hasAttachments: (emailData.attachments?.length || 0) > 0
             })
           ]);
-          
+
           // Update performance metrics
           await this.updateDailyMetrics(client, new Date().toISOString(), 'created', 1);
-          
+
           await client.query('COMMIT');
-          
+
           // Queue for sending
           await this.queueEmailForSending(email);
-          
+
           return {
             success: true,
             emailId: email.id,
@@ -127,7 +127,7 @@ class EnhancedEmailService extends EmailService {
             scheduledFor: email.scheduled_for,
             status: email.status
           };
-          
+
         } catch (error) {
           await client.query('ROLLBACK');
           throw error;
@@ -141,19 +141,19 @@ class EnhancedEmailService extends EmailService {
     this.createTemplate = async (templateData) => {
       return this.executeWithTracing('email.createTemplate.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
           await client.query('BEGIN');
-          
+
           // Check if template name already exists
           const existingTemplateResult = await client.query(`
             SELECT id FROM email_templates WHERE name = $1
           `, [templateData.name]);
-          
+
           if (existingTemplateResult.rows.length > 0) {
             throw new Error('Template with this name already exists');
           }
-          
+
           // Create template
           const templateResult = await client.query(`
             INSERT INTO email_templates (
@@ -174,9 +174,9 @@ class EnhancedEmailService extends EmailService {
             1,
             templateData.createdBy
           ]);
-          
+
           const template = templateResult.rows[0];
-          
+
           // Create initial version record
           await client.query(`
             INSERT INTO email_template_versions (
@@ -192,17 +192,17 @@ class EnhancedEmailService extends EmailService {
             JSON.stringify(template.variables || []),
             templateData.createdBy
           ]);
-          
+
           await client.query('COMMIT');
-          
+
           // Update cache
           this.templateCache.set(template.id, template);
-          
+
           return {
             success: true,
             template
           };
-          
+
         } catch (error) {
           await client.query('ROLLBACK');
           throw error;
@@ -216,10 +216,10 @@ class EnhancedEmailService extends EmailService {
     this.createCampaign = async (campaignData) => {
       return this.executeWithTracing('email.createCampaign.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
           await client.query('BEGIN');
-          
+
           // Resolve recipient segment if provided
           let resolvedRecipients = campaignData.recipients;
           if (campaignData.segmentId) {
@@ -229,14 +229,14 @@ class EnhancedEmailService extends EmailService {
               JOIN users u ON usm.user_id = u.id
               WHERE usm.segment_id = $1 AND u.is_active = TRUE
             `, [campaignData.segmentId]);
-            
+
             resolvedRecipients = segmentResult.rows.map(row => ({
               email: row.email,
               userId: row.user_id,
               variables: {}
             }));
           }
-          
+
           // Create campaign
           const campaignResult = await client.query(`
             INSERT INTO email_campaigns (
@@ -258,19 +258,19 @@ class EnhancedEmailService extends EmailService {
             resolvedRecipients.length,
             campaignData.createdBy
           ]);
-          
+
           const campaign = campaignResult.rows[0];
-          
+
           await client.query('COMMIT');
-          
+
           // Update cache
           this.campaignCache.set(campaign.id, campaign);
-          
+
           return {
             success: true,
             campaign
           };
-          
+
         } catch (error) {
           await client.query('ROLLBACK');
           throw error;
@@ -284,10 +284,10 @@ class EnhancedEmailService extends EmailService {
     this.sendCampaign = async (campaignId) => {
       return this.executeWithTracing('email.sendCampaign.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
           await client.query('BEGIN');
-          
+
           // Get campaign details
           const campaignResult = await client.query(`
             SELECT ec.*, et.subject_template, et.html_template, et.text_template
@@ -295,31 +295,31 @@ class EnhancedEmailService extends EmailService {
             JOIN email_templates et ON ec.template_id = et.id
             WHERE ec.id = $1
           `, [campaignId]);
-          
+
           if (campaignResult.rows.length === 0) {
             throw new Error('Campaign not found');
           }
-          
+
           const campaign = campaignResult.rows[0];
           const settings = JSON.parse(campaign.settings);
           const recipients = JSON.parse(campaign.recipients);
-          
+
           // Update campaign status
           await client.query(`
             UPDATE email_campaigns 
             SET status = 'sending', started_at = CURRENT_TIMESTAMP
             WHERE id = $1
           `, [campaignId]);
-          
+
           await client.query('COMMIT');
-          
+
           // Process recipients with rate limiting
           const sendRate = settings.sendRate || 100; // emails per minute
           const delayMs = Math.floor(60000 / sendRate); // delay between emails
-          
+
           for (let i = 0; i < recipients.length; i++) {
             const recipient = recipients[i];
-            
+
             const emailData = {
               to: [recipient.email],
               template: {
@@ -336,22 +336,22 @@ class EnhancedEmailService extends EmailService {
                 userId: recipient.userId
               }
             };
-            
+
             await this.sendEmail(emailData);
-            
+
             // Add delay between emails (except for the last one)
             if (i < recipients.length - 1 && sendRate > 0) {
               await new Promise(resolve => setTimeout(resolve, delayMs));
             }
           }
-          
+
           // Update campaign completion
           await client.query(`
             UPDATE email_campaigns 
             SET status = 'sent', completed_at = CURRENT_TIMESTAMP
             WHERE id = $1
           `, [campaignId]);
-          
+
           return {
             success: true,
             campaign: {
@@ -360,7 +360,7 @@ class EnhancedEmailService extends EmailService {
               completed_at: new Date().toISOString()
             }
           };
-          
+
         } catch (error) {
           await client.query('ROLLBACK');
           throw error;
@@ -374,7 +374,7 @@ class EnhancedEmailService extends EmailService {
     this.trackEmailEvent = async (eventData) => {
       return this.executeWithTracing('email.trackEmailEvent.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
           // Get email details for context
           const emailResult = await client.query(`
@@ -383,13 +383,13 @@ class EnhancedEmailService extends EmailService {
             LEFT JOIN email_campaigns ec ON e.campaign_id = ec.id
             WHERE e.id = $1
           `, [eventData.emailId]);
-          
+
           if (emailResult.rows.length === 0) {
             throw new Error('Email not found');
           }
-          
+
           const email = emailResult.rows[0];
-          
+
           // Create tracking event
           await client.query(`
             INSERT INTO email_tracking_events (
@@ -407,34 +407,34 @@ class EnhancedEmailService extends EmailService {
             JSON.stringify(eventData.device || {}),
             JSON.stringify(eventData.metadata || {})
           ]);
-          
+
           // Update email status based on event
           let updateFields = {};
           switch (eventData.event) {
             case 'delivered':
-              updateFields = { 
-                status: 'delivered', 
-                delivered_at: eventData.timestamp || new Date().toISOString() 
+              updateFields = {
+                status: 'delivered',
+                delivered_at: eventData.timestamp || new Date().toISOString()
               };
               break;
             case 'bounced':
-              updateFields = { 
-                status: 'bounced', 
-                failed_at: eventData.timestamp || new Date().toISOString() 
+              updateFields = {
+                status: 'bounced',
+                failed_at: eventData.timestamp || new Date().toISOString()
               };
               // Add to suppression list
               await this.addToSuppressionList(email.to_emails[0], 'bounce', eventData);
               break;
             case 'complained':
-              updateFields = { 
-                status: 'complained', 
-                failed_at: eventData.timestamp || new Date().toISOString() 
+              updateFields = {
+                status: 'complained',
+                failed_at: eventData.timestamp || new Date().toISOString()
               };
               // Add to suppression list
               await this.addToSuppressionList(email.to_emails[0], 'complaint', eventData);
               break;
           }
-          
+
           if (Object.keys(updateFields).length > 0) {
             await client.query(`
               UPDATE emails 
@@ -442,24 +442,24 @@ class EnhancedEmailService extends EmailService {
               WHERE id = $1
             `, [eventData.emailId, ...Object.values(updateFields)]);
           }
-          
+
           // Update campaign statistics if applicable
           if (email.campaign_id) {
             await this.updateCampaignStats(client, email.campaign_id, eventData.event);
           }
-          
+
           // Update daily metrics
           await this.updateDailyMetrics(client, eventData.timestamp, eventData.event, 1);
-          
+
           // Update subscription status for unsubscribes
           if (eventData.event === 'unsubscribed') {
             await this.updateSubscriptionStatus(client, email.to_emails[0], 'unsubscribed', eventData);
           }
-          
+
           return {
             success: true
           };
-          
+
         } finally {
           client.release();
         }
@@ -470,13 +470,13 @@ class EnhancedEmailService extends EmailService {
     this.getAnalyticsOverview = async (query = {}) => {
       return this.executeWithTracing('email.getAnalyticsOverview.process', async () => {
         const client = await this.dbPool.getClient();
-        
+
         try {
-          const { 
+          const {
             startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
             endDate = new Date().toISOString()
           } = query;
-          
+
           // Get overall statistics
           const statsResult = await client.query(`
             SELECT 
@@ -495,7 +495,7 @@ class EnhancedEmailService extends EmailService {
             FROM emails e
             WHERE e.created_at BETWEEN $1 AND $2
           `, [startDate, endDate]);
-          
+
           // Get daily metrics for trend analysis
           const dailyMetricsResult = await client.query(`
             SELECT 
@@ -510,7 +510,7 @@ class EnhancedEmailService extends EmailService {
             GROUP BY DATE_TRUNC('day', metric_date)
             ORDER BY date DESC
           `, [startDate, endDate]);
-          
+
           // Get template performance
           const templatePerformanceResult = await client.query(`
             SELECT 
@@ -529,9 +529,9 @@ class EnhancedEmailService extends EmailService {
             ORDER BY sent DESC
             LIMIT 10
           `, [startDate, endDate]);
-          
+
           const stats = statsResult.rows[0];
-          
+
           return {
             success: true,
             overview: {
@@ -543,20 +543,20 @@ class EnhancedEmailService extends EmailService {
                 clicked: parseInt(stats.clicked),
                 bounced: parseInt(stats.bounced),
                 complained: parseInt(stats.complained),
-                deliveryRate: stats.total_sent > 0 ? 
+                deliveryRate: stats.total_sent > 0 ?
                   parseFloat((stats.delivered / stats.total_sent * 100).toFixed(2)) : 0,
-                openRate: stats.delivered > 0 ? 
+                openRate: stats.delivered > 0 ?
                   parseFloat((stats.opened / stats.delivered * 100).toFixed(2)) : 0,
-                clickRate: stats.opened > 0 ? 
+                clickRate: stats.opened > 0 ?
                   parseFloat((stats.clicked / stats.opened * 100).toFixed(2)) : 0,
-                bounceRate: stats.total_sent > 0 ? 
+                bounceRate: stats.total_sent > 0 ?
                   parseFloat((stats.bounced / stats.total_sent * 100).toFixed(2)) : 0
               }
             },
             dailyMetrics: dailyMetricsResult.rows,
             templatePerformance: templatePerformanceResult.rows
           };
-          
+
         } finally {
           client.release();
         }
@@ -599,7 +599,7 @@ class EnhancedEmailService extends EmailService {
     this.updateDailyMetrics = async (client, timestamp, eventType, count = 1) => {
       const date = new Date(timestamp).toISOString().split('T')[0];
       const metricField = `${eventType}_count`;
-      
+
       await client.query(`
         INSERT INTO email_performance_metrics (metric_date, metric_type, ${metricField})
         VALUES ($1, 'daily', $2)
@@ -621,7 +621,7 @@ class EnhancedEmailService extends EmailService {
     // Enhanced service health check with database
     this.getServiceHealth = async () => {
       const dbHealth = await this.dbPool.checkHealth();
-      
+
       const client = await this.dbPool.getClient();
       try {
         const metricsResult = await client.query(`
@@ -637,9 +637,9 @@ class EnhancedEmailService extends EmailService {
           FROM emails, email_templates, email_campaigns
           WHERE 1=1
         `);
-        
+
         const dbMetrics = metricsResult.rows[0];
-        
+
         return {
           service: 'email-service',
           status: 'healthy',
@@ -657,7 +657,7 @@ class EnhancedEmailService extends EmailService {
           },
           timestamp: new Date().toISOString()
         };
-        
+
       } catch (error) {
         return {
           service: 'email-service',
@@ -685,13 +685,13 @@ class EnhancedEmailService extends EmailService {
             applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
           )
         `);
-        
+
         // Check if migration has been applied
         const migrationResult = await client.query(`
           SELECT version FROM service_migrations 
           WHERE service_name = 'email-service'
         `);
-        
+
         if (migrationResult.rows.length === 0) {
           this.logger.info('Running database migration for email service');
           // Migration would be run here in production
@@ -700,9 +700,9 @@ class EnhancedEmailService extends EmailService {
             VALUES ('email-service', '1.0.0')
           `);
         }
-        
+
         this.logger.info('Database initialized successfully');
-        
+
       } finally {
         client.release();
       }
@@ -715,19 +715,19 @@ class EnhancedEmailService extends EmailService {
   async getCampaignAnalytics(campaignId, query = {}) {
     return this.executeWithTracing('email.getCampaignAnalytics.process', async () => {
       const client = await this.dbPool.getClient();
-      
+
       try {
         // Get campaign details
         const campaignResult = await client.query(`
           SELECT * FROM email_campaigns WHERE id = $1
         `, [campaignId]);
-        
+
         if (campaignResult.rows.length === 0) {
           throw new Error('Campaign not found');
         }
-        
+
         const campaign = campaignResult.rows[0];
-        
+
         // Get detailed statistics
         const statsResult = await client.query(`
           SELECT 
@@ -737,7 +737,7 @@ class EnhancedEmailService extends EmailService {
           WHERE e.campaign_id = $1
           GROUP BY e.status
         `, [campaignId]);
-        
+
         // Get tracking events breakdown
         const trackingResult = await client.query(`
           SELECT 
@@ -750,7 +750,7 @@ class EnhancedEmailService extends EmailService {
           )
           GROUP BY event_type
         `, [campaignId]);
-        
+
         // Get hourly performance
         const hourlyResult = await client.query(`
           SELECT 
@@ -765,7 +765,7 @@ class EnhancedEmailService extends EmailService {
           GROUP BY DATE_TRUNC('hour', timestamp), event_type
           ORDER BY hour DESC
         `, [campaignId]);
-        
+
         return {
           success: true,
           campaign: {
@@ -786,7 +786,7 @@ class EnhancedEmailService extends EmailService {
             }
           }
         };
-        
+
       } finally {
         client.release();
       }
@@ -799,19 +799,19 @@ class EnhancedEmailService extends EmailService {
   async getSubscriptions(email) {
     return this.executeWithTracing('email.getSubscriptions.process', async () => {
       const client = await this.dbPool.getClient();
-      
+
       try {
         const result = await client.query(`
           SELECT * FROM email_subscriptions 
           WHERE email = $1
           ORDER BY category
         `, [email]);
-        
+
         return {
           success: true,
           subscriptions: result.rows
         };
-        
+
       } finally {
         client.release();
       }
@@ -824,19 +824,19 @@ class EnhancedEmailService extends EmailService {
   async subscribe(subscriptionData) {
     return this.executeWithTracing('email.subscribe.process', async () => {
       const client = await this.dbPool.getClient();
-      
+
       try {
         await client.query('BEGIN');
-        
+
         // Check if on suppression list
         const suppressionResult = await client.query(`
           SELECT * FROM email_suppression_list WHERE email = $1
         `, [subscriptionData.email]);
-        
+
         if (suppressionResult.rows.length > 0 && suppressionResult.rows[0].is_permanent) {
           throw new Error('Email is permanently suppressed');
         }
-        
+
         // Create or update subscription
         await client.query(`
           INSERT INTO email_subscriptions (email, user_id, category, status, subscription_source)
@@ -853,21 +853,21 @@ class EnhancedEmailService extends EmailService {
           'subscribed',
           subscriptionData.source || 'user_request'
         ]);
-        
+
         // Remove from suppression list if exists and not permanent
         if (suppressionResult.rows.length > 0 && !suppressionResult.rows[0].is_permanent) {
           await client.query(`
             DELETE FROM email_suppression_list WHERE email = $1 AND is_permanent = FALSE
           `, [subscriptionData.email]);
         }
-        
+
         await client.query('COMMIT');
-        
+
         return {
           success: true,
           message: 'Successfully subscribed'
         };
-        
+
       } catch (error) {
         await client.query('ROLLBACK');
         throw error;
@@ -883,10 +883,10 @@ class EnhancedEmailService extends EmailService {
   async unsubscribe(subscriptionData) {
     return this.executeWithTracing('email.unsubscribe.process', async () => {
       const client = await this.dbPool.getClient();
-      
+
       try {
         await client.query('BEGIN');
-        
+
         // Update subscription
         await client.query(`
           UPDATE email_subscriptions 
@@ -899,7 +899,7 @@ class EnhancedEmailService extends EmailService {
           subscriptionData.email,
           subscriptionData.category || 'all'
         ]);
-        
+
         // Add to suppression list
         await client.query(`
           INSERT INTO email_suppression_list (email, reason, description, source)
@@ -914,14 +914,14 @@ class EnhancedEmailService extends EmailService {
           `Unsubscribed from ${subscriptionData.category || 'all'}`,
           'unsubscribe_request'
         ]);
-        
+
         await client.query('COMMIT');
-        
+
         return {
           success: true,
           message: 'Successfully unsubscribed'
         };
-        
+
       } catch (error) {
         await client.query('ROLLBACK');
         throw error;
@@ -939,7 +939,7 @@ module.exports = {
 // Auto-start if this is main module
 if (require.main === module) {
   const enhancedService = new EnhancedEmailService();
-  
+
   enhancedService.start().then(async () => {
     await enhancedService.initializeDatabase();
     logger.info('🚀 Enhanced Email Service with PostgreSQL started successfully');

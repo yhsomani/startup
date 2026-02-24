@@ -10,7 +10,7 @@
  */
 
 const { Pool } = require('pg');
-const { createLogger } = require('../../../../shared/logger');
+const { createLogger } = require('../../../shared/logger');
 
 class DatabaseConnectionPool {
   constructor(serviceName = 'notification-service') {
@@ -19,7 +19,7 @@ class DatabaseConnectionPool {
     this.pool = null;
     this.isInitialized = false;
     this.healthCheckInterval = null;
-    
+
     // Pool configuration
     this.poolConfig = {
       host: process.env.DB_HOST || 'localhost',
@@ -158,13 +158,13 @@ class DatabaseConnectionPool {
   async attemptReconnection() {
     try {
       this.logger.info('Attempting database reconnection');
-      
+
       if (this.pool) {
         await this.pool.end();
       }
-      
+
       await this.initialize();
-      
+
       this.logger.info('Database reconnection successful');
       return true;
     } catch (error) {
@@ -194,13 +194,13 @@ class DatabaseConnectionPool {
       try {
         const result = await originalQuery.apply(client, args);
         const queryTime = Date.now() - queryStartTime;
-        
+
         this.logger.debug('Query executed', {
           query: typeof args[0] === 'string' ? args[0].substring(0, 100) : 'prepared',
           queryTime,
           acquireTime
         });
-        
+
         return result;
       } catch (error) {
         const queryTime = Date.now() - queryStartTime;
@@ -221,16 +221,16 @@ class DatabaseConnectionPool {
    */
   async executeTransaction(operations) {
     const client = await this.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       const results = [];
       for (const operation of operations) {
         const result = await operation(client);
         results.push(result);
       }
-      
+
       await client.query('COMMIT');
       return results;
     } catch (error) {
@@ -313,11 +313,11 @@ class DatabaseConnectionPool {
    */
   async executePreparedQuery(name, text, params = []) {
     const client = await this.getClient();
-    
+
     try {
       // Prepare the statement if not already prepared
       await client.query({ name, text, values: [] });
-      
+
       // Execute the prepared statement
       const result = await client.query(name, params);
       return result;
@@ -332,7 +332,7 @@ class DatabaseConnectionPool {
   async executeBatch(queries) {
     const client = await this.getClient();
     const results = [];
-    
+
     try {
       for (const query of queries) {
         const result = await client.query(query.text, query.params);

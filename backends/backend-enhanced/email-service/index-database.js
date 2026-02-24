@@ -15,15 +15,15 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
-const { getServicePort, getServiceUrl } = require('../../../../shared/ports');
-const { getServiceConfig } = require('../../../../shared/environment');
-const { EnhancedServiceWithTracing } = require('../../../../shared/enhanced-service-with-tracing');
-const { validateRequest, validateResponse } = require('../../../../shared/validation');
-const { ServiceContract } = require('../../../../shared/contracts');
-const { getServiceClient } = require('../../../../shared/production-service-client');
-const BaseRepository = require('../../../../shared/base-repository');
-const DatabaseConnectionPool = require('../../../../shared/database-connection-pool');
-const { createLogger } = require('../../../../shared/logger');
+const { getServicePort, getServiceUrl } = require('../../../shared/ports');
+const { getServiceConfig } = require('../../../shared/environment');
+const { EnhancedServiceWithTracing } = require('../shared/enhanced-service-with-tracing');
+const { validateRequest, validateResponse } = require('../../../shared/validation');
+const { ServiceContract } = require('../../../shared/contracts');
+const { getServiceClient } = require('../../../services/shared/production-service-client');
+const BaseRepository = require('../../../shared/base-repository');
+const DatabaseConnectionPool = require('../../../services/shared/database-connection-pool');
+const { createLogger } = require('../../../shared/logger');
 
 class EmailService extends EnhancedServiceWithTracing {
   constructor() {
@@ -57,28 +57,28 @@ class EmailService extends EnhancedServiceWithTracing {
     this.templateRepository = new BaseRepository('email_templates', 'email-service');
     this.campaignRepository = new BaseRepository('email_campaigns', 'email-service');
     this.subscriptionRepository = new BaseRepository('email_subscriptions', 'email-service');
-    
+
     // Initialize service clients
     this.initializeServiceClients();
-    
+
     // Email transporter configuration
     this.initializeEmailTransporters();
-    
+
     // In-memory cache for frequently accessed data
     this.templateCache = new Map();
     this.campaignCache = new Map();
-    
+
     this.logger = createLogger('EmailService');
-    
+
     // Initialize service contracts
     this.initializeContracts();
-    
+
     // Create Express app
     this.app = express();
     this.server = null;
     this.initializeMiddleware();
     this.initializeRoutes();
-    
+
     // Start background worker for processing emails
     this.startEmailWorker();
   }
@@ -156,7 +156,7 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   initializeContracts() {
     this.serviceContract = new ServiceContract('email-service');
-    
+
     // Send email schema
     this.serviceContract.defineOperation('sendEmail', {
       inputSchema: {
@@ -402,11 +402,11 @@ class EmailService extends EnhancedServiceWithTracing {
     this.app.use((req, res, next) => {
       req.requestId = req.headers['x-request-id'] || uuidv4();
       req.correlationId = req.headers['x-correlation-id'] || uuidv4();
-      
+
       res.setHeader('x-request-id', req.requestId);
       res.setHeader('x-correlation-id', req.correlationId);
       res.setHeader('x-service', this.config.serviceName);
-      
+
       next();
     });
   }
@@ -593,7 +593,7 @@ class EmailService extends EnhancedServiceWithTracing {
     // Error handling middleware
     this.app.use((error, req, res, next) => {
       const span = this.tracer ? this.tracer.getActiveSpans().find(s => s.getContext().spanId === req.traceContext?.spanId) : null;
-      
+
       if (span) {
         span.logError(error);
         span.finish();
@@ -626,71 +626,71 @@ class EmailService extends EnhancedServiceWithTracing {
   // Operation implementations
   async executeOperation(request, options) {
     const operationName = options.operationName || 'unknown';
-    
+
     switch (operationName) {
       case 'email.sendEmail':
         return this.sendEmail(request.body);
-        
+
       case 'email.sendBulkEmails':
         return this.sendBulkEmails(request.body);
-        
+
       case 'email.getTemplates':
         return this.getTemplates(request.query);
-        
+
       case 'email.getTemplate':
         return this.getTemplate(request.params.id);
-        
+
       case 'email.createTemplate':
         return this.createTemplate(request.body);
-        
+
       case 'email.updateTemplate':
         return this.updateTemplate(request.params.id, request.body);
-        
+
       case 'email.deleteTemplate':
         return this.deleteTemplate(request.params.id);
-        
+
       case 'email.getCampaigns':
         return this.getCampaigns(request.query);
-        
+
       case 'email.getCampaign':
         return this.getCampaign(request.params.id);
-        
+
       case 'email.createCampaign':
         return this.createCampaign(request.body);
-        
+
       case 'email.updateCampaign':
         return this.updateCampaign(request.params.id, request.body);
-        
+
       case 'email.deleteCampaign':
         return this.deleteCampaign(request.params.id);
-        
+
       case 'email.sendCampaign':
         return this.sendCampaign(request.params.id);
-        
+
       case 'email.trackEmailEvent':
         return this.trackEmailEvent(request.body);
-        
+
       case 'email.trackOpen':
         return this.trackOpen(request.params.emailId, req.query);
-        
+
       case 'email.trackClick':
         return this.trackClick(request.params.emailId, req.query);
-        
+
       case 'email.getSubscriptions':
         return this.getSubscriptions(req.params.email);
-        
+
       case 'email.subscribe':
         return this.subscribe(request.body);
-        
+
       case 'email.unsubscribe':
         return this.unsubscribe(request.body);
-        
+
       case 'email.getAnalyticsOverview':
         return this.getAnalyticsOverview(request.query);
-        
+
       case 'email.getCampaignAnalytics':
         return this.getCampaignAnalytics(request.params.id, request.query);
-        
+
       default:
         throw new Error(`Unknown operation: ${operationName}`);
     }
@@ -705,7 +705,7 @@ class EmailService extends EnhancedServiceWithTracing {
       let subject = emailData.subject;
       let html = emailData.html;
       let text = emailData.message;
-      
+
       if (emailData.template) {
         const template = await this.getTemplate(emailData.template.id);
         if (template.success) {
@@ -774,7 +774,7 @@ class EmailService extends EnhancedServiceWithTracing {
   async getTemplates(query = {}) {
     return this.executeWithTracing('email.getTemplates.process', async () => {
       const { category, isActive = true, limit = 50, offset = 0 } = query;
-      
+
       const where = {};
       if (category) where.category = category;
       if (isActive !== undefined) where.isActive = isActive;
@@ -799,13 +799,13 @@ class EmailService extends EnhancedServiceWithTracing {
     return this.executeWithTracing('email.getTemplate.process', async () => {
       // Check cache first
       let template = this.templateCache.get(templateId);
-      
+
       if (!template) {
         template = await this.templateRepository.findById(templateId);
         if (!template) {
           throw new Error('Template not found');
         }
-        
+
         // Cache for 10 minutes
         this.templateCache.set(templateId, template);
         setTimeout(() => this.templateCache.delete(templateId), 10 * 60 * 1000);
@@ -889,7 +889,7 @@ class EmailService extends EnhancedServiceWithTracing {
       }
 
       await this.templateRepository.delete(templateId);
-      
+
       // Remove from cache
       this.templateCache.delete(templateId);
 
@@ -905,7 +905,7 @@ class EmailService extends EnhancedServiceWithTracing {
   async getCampaigns(query = {}) {
     return this.executeWithTracing('email.getCampaigns.process', async () => {
       const { status, limit = 50, offset = 0 } = query;
-      
+
       const where = {};
       if (status) where.status = status;
 
@@ -991,7 +991,7 @@ class EmailService extends EnhancedServiceWithTracing {
 
       // Queue individual emails for sending
       const template = await this.getTemplate(campaign.templateId);
-      
+
       for (const recipient of campaign.recipients) {
         const emailData = {
           to: [recipient.email],
@@ -1049,13 +1049,13 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   processTemplate(template, data) {
     let processed = template;
-    
+
     // Simple variable substitution
     for (const [key, value] of Object.entries(data || {})) {
       const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
       processed = processed.replace(regex, value);
     }
-    
+
     return processed;
   }
 
@@ -1099,7 +1099,7 @@ class EmailService extends EnhancedServiceWithTracing {
       let transporter = this.primaryTransporter;
       try {
         const result = await transporter.sendMail(mailOptions);
-        
+
         // Update email status
         await this.emailRepository.update(email.id, {
           status: 'sent',
@@ -1122,7 +1122,7 @@ class EmailService extends EnhancedServiceWithTracing {
 
         // Try backup transporter
         const result = await this.backupTransporter.sendMail(mailOptions);
-        
+
         await this.emailRepository.update(email.id, {
           status: 'sent',
           messageId: result.messageId,
@@ -1159,7 +1159,7 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   startEmailWorker() {
     this.logger.info('Email worker started');
-    
+
     // Process scheduled emails
     setInterval(async () => {
       try {
@@ -1182,7 +1182,7 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   async getServiceHealth() {
     const dbHealth = await this.dbPool.checkHealth();
-    
+
     return {
       service: 'email-service',
       status: 'healthy',
@@ -1232,7 +1232,7 @@ class EmailService extends EnhancedServiceWithTracing {
     }
 
     await this.dbPool.shutdown();
-    
+
     this.logger.info('Email service shutdown complete');
   }
 
@@ -1241,7 +1241,7 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   async start() {
     await this.dbPool.initialize();
-    
+
     this.server = this.app.listen(this.config.port, () => {
       logger.info(`📧 Email Service running on port ${this.config.port}`);
       logger.info(`📍 Database: PostgreSQL connected`);
@@ -1253,7 +1253,7 @@ class EmailService extends EnhancedServiceWithTracing {
     });
 
     const startupSpan = this.tracer ? this.tracer.startSpan('email-service.startup') : null;
-    
+
     try {
       if (startupSpan) {
         startupSpan.setTag('port', this.config.port);
@@ -1289,7 +1289,7 @@ module.exports = {
 // Auto-start if this is main module
 if (require.main === module) {
   const emailService = new EmailService();
-  
+
   emailService.start().catch(console.error);
 
   // Graceful shutdown handlers

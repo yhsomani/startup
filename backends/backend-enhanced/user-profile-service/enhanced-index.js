@@ -11,8 +11,8 @@ const { v4: uuidv4 } = require('uuid');
 const { EnhancedServiceWithTracing } = require('../shared/enhanced-service-with-tracing');
 const { validateRequest, validateResponse } = require('../../../shared/validation');
 const { contracts } = require('../../../shared/contracts');
-const { applySecurityMiddleware } = require('../../../../shared/security-middleware');
-const { getDatabaseManager } = require('../../../../shared/database-connection');
+const { applySecurityMiddleware } = require('../../../shared/security-middleware');
+const { getDatabaseManager } = require('../../../shared/database-connection');
 const auth = require('../../../shared/middleware/auth');
 // const redisClient = require('../shared/redis-client'); // Removed in favor of in-memory cache
 

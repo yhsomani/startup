@@ -104,7 +104,7 @@ const RegistrationForm: React.FC = () => {
                                 data-testid="first-name-input"
                                 required
                             />
-                            {errors.firstName && <p className="error-text">{errors.firstName}</p>}
+                            {errors.firstName && <p className="error-text" data-testid="first-name-error">{errors.firstName}</p>}
                         </div>
                         <div style={{ flex: 1 }}>
                             <label className="form-label" htmlFor="last-name-input">Last Name</label>
@@ -118,7 +118,7 @@ const RegistrationForm: React.FC = () => {
                                 data-testid="last-name-input"
                                 required
                             />
-                            {errors.lastName && <p className="error-text">{errors.lastName}</p>}
+                            {errors.lastName && <p className="error-text" data-testid="last-name-error">{errors.lastName}</p>}
                         </div>
                     </div>
 
@@ -134,7 +134,7 @@ const RegistrationForm: React.FC = () => {
                             data-testid="email-input"
                             required
                         />
-                        {errors.email && <p className="error-text">{errors.email}</p>}
+                        {errors.email && <p className="error-text" data-testid="email-error">{errors.email}</p>}
                     </div>
 
                     <div className="form-group">
@@ -149,7 +149,7 @@ const RegistrationForm: React.FC = () => {
                             data-testid="password-input"
                             required
                         />
-                        {errors.password && <p className="error-text">{errors.password}</p>}
+                        {errors.password && <p className="error-text" data-testid="password-error">{errors.password}</p>}
                     </div>
 
                     <div className="form-group">
@@ -164,7 +164,7 @@ const RegistrationForm: React.FC = () => {
                             data-testid="confirm-password-input"
                             required
                         />
-                        {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
+                        {errors.confirmPassword && <p className="error-text" data-testid="confirm-password-error">{errors.confirmPassword}</p>}
                     </div>
 
                     <div className="form-group">

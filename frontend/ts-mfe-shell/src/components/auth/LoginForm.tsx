@@ -53,7 +53,7 @@ const LoginForm: React.FC = () => {
                 {error && (
                     <div
                         style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}
-                        data-testid="error-message"
+                        data-testid="login-error"
                         role="alert"
                     >
                         {error}

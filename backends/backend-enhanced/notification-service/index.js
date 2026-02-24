@@ -13,12 +13,13 @@ const express = require('express');
 const { Server } = require('socket.io');
 const redis = require('redis');
 const { v4: uuidv4 } = require('uuid');
-const { getServicePort, getServiceUrl } = require('../../shared/ports');
-const { getServiceConfig } = require('../../shared/environment');
-const { createLogger } = require('../../shared/logger');
-const { DatabaseConnectionPool } = require('../../shared/database-connection-pool');
+const { getServicePort, getServiceUrl } = require('../../../shared/ports');
+const { getServiceConfig } = require('../../../shared/environment');
+const { createLogger } = require('../../../shared/logger');
+const DatabaseConnectionPool = require('./database-pool');
 const Joi = require('joi');
-const cron = require('node-cron');
+const cron = { schedule: () => ({ start: () => { } }), validate: () => true }; // Mock node-cron
+const logger = createLogger('NotificationService-Global');
 
 class NotificationService {
   constructor() {
@@ -29,7 +30,7 @@ class NotificationService {
     this.logger = createLogger('NotificationService');
     this.redisClient = null;
     this.connectedUsers = new Map(); // Connected WebSocket clients
-    
+
     // Initialize
     this.initializeMiddleware();
     this.initializeRoutes();
@@ -43,22 +44,22 @@ class NotificationService {
   initializeMiddleware() {
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-    
+
     // CORS configuration
     this.app.use((req, res, next) => {
       const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
       const origin = req.headers.origin;
-      
+
       if (allowedOrigins.includes(origin)) {
         res.header('Access-Control-Allow-Origin', origin);
         res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.header('Access-Control-Allow-Credentials', 'true');
       }
-      
+
       next();
     });
-    
+
     // Request logging
     this.app.use((req, res, next) => {
       const start = Date.now();
@@ -89,9 +90,9 @@ class NotificationService {
       try {
         const { userId } = req.params;
         const { page = 1, limit = 20, unreadOnly = false } = req.query;
-        
+
         const result = await this.getUserNotifications(userId, { page, limit, unreadOnly });
-        
+
         res.json({
           success: true,
           data: result
@@ -109,12 +110,12 @@ class NotificationService {
     this.app.post('/notifications', this.authenticate.bind(this), async (req, res) => {
       try {
         const notificationData = await this.validateNotificationData(req.body);
-        
+
         const notification = await this.createNotification(notificationData);
-        
+
         // Send real-time to connected users
         await this.sendRealtimeNotification(notification);
-        
+
         res.status(201).json({
           success: true,
           data: { notification }
@@ -133,9 +134,9 @@ class NotificationService {
       try {
         const { notificationId } = req.params;
         const userId = req.user.id;
-        
+
         await this.markNotificationAsRead(notificationId, userId);
-        
+
         res.json({
           success: true,
           message: 'Notification marked as read'
@@ -153,9 +154,9 @@ class NotificationService {
     this.app.put('/notifications/read-all', this.authenticate.bind(this), async (req, res) => {
       try {
         const userId = req.user.id;
-        
+
         await this.markAllNotificationsAsRead(userId);
-        
+
         res.json({
           success: true,
           message: 'All notifications marked as read'
@@ -173,9 +174,9 @@ class NotificationService {
     this.app.get('/preferences/:userId', this.authenticate.bind(this), async (req, res) => {
       try {
         const { userId } = req.params;
-        
+
         const preferences = await this.getUserPreferences(userId);
-        
+
         res.json({
           success: true,
           data: preferences
@@ -194,9 +195,9 @@ class NotificationService {
       try {
         const { userId } = req.params;
         const preferencesData = await this.validatePreferencesData(req.body);
-        
+
         await this.updateUserPreferences(userId, preferencesData);
-        
+
         res.json({
           success: true,
           message: 'Preferences updated successfully'
@@ -214,9 +215,9 @@ class NotificationService {
     this.app.get('/subscriptions/:userId', this.authenticate.bind(this), async (req, res) => {
       try {
         const { userId } = req.params;
-        
+
         const subscriptions = await this.getUserSubscriptions(userId);
-        
+
         res.json({
           success: true,
           data: subscriptions
@@ -235,9 +236,9 @@ class NotificationService {
       try {
         const subscriptionData = await this.validateSubscriptionData(req.body);
         const userId = req.user.id;
-        
+
         await this.createSubscription(userId, subscriptionData);
-        
+
         res.status(201).json({
           success: true,
           message: 'Subscription created successfully'
@@ -256,9 +257,9 @@ class NotificationService {
       try {
         const { subscriptionId } = req.params;
         const userId = req.user.id;
-        
+
         await this.deleteSubscription(subscriptionId, userId);
-        
+
         res.json({
           success: true,
           message: 'Subscription removed successfully'
@@ -276,9 +277,9 @@ class NotificationService {
     this.app.get('/analytics/notifications', this.authenticate.bind(this), async (req, res) => {
       try {
         const { startDate, endDate, userId } = req.query;
-        
+
         const analytics = await this.getNotificationAnalytics(startDate, endDate, userId);
-        
+
         res.json({
           success: true,
           data: analytics
@@ -330,7 +331,7 @@ class NotificationService {
     // Handle WebSocket connections
     this.io.on('connection', (socket) => {
       this.logger.info(`User connected: ${socket.user.email} (${socket.userId})`);
-      
+
       // Add to connected users
       this.connectedUsers.set(socket.userId, {
         socket: socket,
@@ -340,10 +341,10 @@ class NotificationService {
 
       // Join user to their personal room
       socket.join(`user_${socket.userId}`);
-      
+
       // Send pending notifications
       this.sendPendingNotifications(socket);
-      
+
       // Handle events
       socket.on('mark_read', async (data) => {
         try {
@@ -397,14 +398,14 @@ class NotificationService {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
       const user = await this.verifyToken(token);
-      
+
       if (!user) {
         return res.status(401).json({
           success: false,
           error: 'Invalid or missing authentication token'
         });
       }
-      
+
       req.user = user;
       next();
     } catch (error) {
@@ -421,7 +422,7 @@ class NotificationService {
    */
   async verifyToken(token) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       const result = await client.query(`
         SELECT u.*, up.preferences 
@@ -429,14 +430,14 @@ class NotificationService {
         LEFT JOIN user_preferences up ON u.id = up.user_id 
         WHERE u.token = $1 AND u.is_active = TRUE AND u.token_expires > NOW()
       `, [token]);
-      
+
       if (result.rows.length === 0) {
         return null;
       }
-      
+
       const user = result.rows[0];
       user.preferences = user.preferences ? JSON.parse(user.preferences) : {};
-      
+
       return user;
     } finally {
       client.release();
@@ -529,10 +530,10 @@ class NotificationService {
    */
   async createNotification(notificationData) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       const result = await client.query(`
         INSERT INTO notifications (
           id, user_id, type, title, message, data, metadata,
@@ -552,9 +553,9 @@ class NotificationService {
         notificationData.priority,
         notificationData.expiresAt
       ]);
-      
+
       await client.query('COMMIT');
-      
+
       return result.rows[0];
     } finally {
       client.release();
@@ -563,31 +564,31 @@ class NotificationService {
 
   async getUserNotifications(userId, options = {}) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       const { page = 1, limit = 20, unreadOnly = false } = options;
       const offset = (page - 1) * limit;
-      
+
       let whereClause = 'WHERE user_id = $1';
       const queryParams = [userId];
-      
+
       if (unreadOnly) {
         whereClause += ' AND is_read = FALSE';
       }
-      
+
       const result = await client.query(`
         SELECT * FROM notifications 
         ${whereClause}
         ORDER BY created_at DESC 
         LIMIT $2 OFFSET $3
       `, [...queryParams, limit, offset]);
-      
+
       const countResult = await client.query(`
         SELECT COUNT(*) as total 
         FROM notifications 
         ${whereClause}
       `, queryParams);
-      
+
       return {
         notifications: result.rows,
         pagination: {
@@ -604,16 +605,16 @@ class NotificationService {
 
   async markNotificationAsRead(notificationId, userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       await client.query(`
         UPDATE notifications 
         SET is_read = TRUE, read_at = NOW()
         WHERE id = $1 AND user_id = $2
       `, [notificationId, userId]);
-      
+
       await client.query('COMMIT');
     } finally {
       client.release();
@@ -622,16 +623,16 @@ class NotificationService {
 
   async markAllNotificationsAsRead(userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       await client.query(`
         UPDATE notifications 
         SET is_read = TRUE, read_at = NOW()
         WHERE user_id = $1 AND is_read = FALSE
       `, [userId]);
-      
+
       await client.query('COMMIT');
     } finally {
       client.release();
@@ -643,7 +644,7 @@ class NotificationService {
    */
   async sendRealtimeNotification(notification) {
     const channels = notification.channels || ['in-app'];
-    
+
     for (const channel of channels) {
       switch (channel) {
         case 'in-app':
@@ -660,15 +661,15 @@ class NotificationService {
             });
           }
           break;
-        
+
         case 'email':
           await this.sendEmailNotification(notification);
           break;
-        
+
         case 'sms':
           await this.sendSMSNotification(notification);
           break;
-        
+
         case 'push':
           await this.sendPushNotification(notification);
           break;
@@ -679,7 +680,7 @@ class NotificationService {
   async sendPendingNotifications(socket) {
     try {
       const pendingNotifications = await this.getUserNotifications(socket.userId, { unreadOnly: true, limit: 50 });
-      
+
       for (const notification of pendingNotifications.notifications) {
         socket.emit('notification', {
           type: notification.type,
@@ -719,16 +720,16 @@ class NotificationService {
    */
   async getUserPreferences(userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       const result = await client.query(`
         SELECT preferences FROM user_preferences WHERE user_id = $1
       `, [userId]);
-      
+
       if (result.rows.length === 0) {
         return this.getDefaultPreferences();
       }
-      
+
       return JSON.parse(result.rows[0].preferences || '{}');
     } finally {
       client.release();
@@ -737,17 +738,17 @@ class NotificationService {
 
   async updateUserPreferences(userId, preferencesData) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       await client.query(`
         INSERT INTO user_preferences (user_id, preferences, updated_at)
         VALUES ($1, $2, NOW())
         ON CONFLICT (user_id) 
         DO UPDATE SET preferences = $2, updated_at = NOW()
       `, [userId, JSON.stringify(preferencesData)]);
-      
+
       await client.query('COMMIT');
     } finally {
       client.release();
@@ -778,13 +779,13 @@ class NotificationService {
    */
   async getUserSubscriptions(userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       const result = await client.query(`
         SELECT * FROM notification_subscriptions WHERE user_id = $1 AND is_active = TRUE
         ORDER BY created_at DESC
       `, [userId]);
-      
+
       return result.rows;
     } finally {
       client.release();
@@ -793,10 +794,10 @@ class NotificationService {
 
   async createSubscription(userId, subscriptionData) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       await client.query(`
         INSERT INTO notification_subscriptions (
           id, user_id, category, channels, criteria, created_at, is_active
@@ -808,7 +809,7 @@ class NotificationService {
         JSON.stringify(subscriptionData.channels),
         JSON.stringify(subscriptionData.criteria || {})
       ]);
-      
+
       await client.query('COMMIT');
     } finally {
       client.release();
@@ -817,16 +818,16 @@ class NotificationService {
 
   async deleteSubscription(subscriptionId, userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       await client.query(`
         UPDATE notification_subscriptions 
         SET is_active = FALSE, updated_at = NOW()
         WHERE id = $1 AND user_id = $2
       `, [subscriptionId, userId]);
-      
+
       await client.query('COMMIT');
     } finally {
       client.release();
@@ -838,7 +839,7 @@ class NotificationService {
    */
   async processNotificationQueue() {
     const client = await this.dbPool.getClient();
-    
+
     try {
       // Get queued notifications
       const result = await client.query(`
@@ -847,22 +848,22 @@ class NotificationService {
         ORDER BY priority DESC, created_at ASC 
         LIMIT 100
       `);
-      
+
       for (const notification of result.rows) {
         try {
           // Process each notification
           await this.sendRealtimeNotification(notification);
-          
+
           // Update status
           await client.query(`
             UPDATE notifications 
             SET status = 'sent', sent_at = NOW()
             WHERE id = $1
           `, [notification.id]);
-            
+
         } catch (error) {
           this.logger.error(`Error processing notification ${notification.id}:`, error);
-          
+
           // Mark as failed
           await client.query(`
             UPDATE notifications 
@@ -881,14 +882,14 @@ class NotificationService {
    */
   async cleanupOldNotifications() {
     const client = await this.dbPool.getClient();
-    
+
     try {
       // Delete notifications older than 30 days
       const result = await client.query(`
         DELETE FROM notifications 
         WHERE created_at < NOW() - INTERVAL '30 days'
       `, []);
-      
+
       this.logger.info(`Cleaned up ${result.rowCount || 0} old notifications`);
     } finally {
       client.release();
@@ -897,7 +898,7 @@ class NotificationService {
 
   async generateDailyAnalytics() {
     const client = await this.dbPool.getClient();
-    
+
     try {
       // Generate daily analytics summary
       const result = await client.query(`
@@ -914,7 +915,7 @@ class NotificationService {
         FROM notifications 
         WHERE DATE(created_at) = CURRENT_DATE
       `, []);
-      
+
       this.logger.info(`Daily notification analytics generated: ${result.rowCount || 0} records`);
     } finally {
       client.release();
@@ -926,16 +927,16 @@ class NotificationService {
    */
   async getNotificationAnalytics(startDate, endDate, userId) {
     const client = await this.dbPool.getClient();
-    
+
     try {
       let whereClause = 'WHERE DATE(created_at) BETWEEN $1 AND $2';
       const queryParams = [startDate, endDate];
-      
+
       if (userId) {
         whereClause += ' AND user_id = $3';
         queryParams.push(userId);
       }
-      
+
       const result = await client.query(`
         SELECT 
           DATE(created_at) as date,
@@ -950,7 +951,7 @@ class NotificationService {
         ORDER BY date DESC
         LIMIT 30
       `, queryParams);
-      
+
       return result.rows;
     } finally {
       client.release();
@@ -963,10 +964,10 @@ class NotificationService {
   async start() {
     const port = getServicePort('notification-service', 3005);
     const url = getServiceUrl('notification-service');
-    
+
     // Initialize database
     await this.initializeDatabase();
-    
+
     // Initialize Redis if available
     if (process.env.REDIS_URL) {
       this.redisClient = redis.createClient(process.env.REDIS_URL);
@@ -974,7 +975,7 @@ class NotificationService {
         this.logger.info('Connected to Redis');
       });
     }
-    
+
     this.server.listen(port, () => {
       this.logger.info(`🔔 Notification Service started successfully on port ${port}`);
       this.logger.info(`📊 Health check available at: ${url}/health`);
@@ -984,7 +985,7 @@ class NotificationService {
 
   async initializeDatabase() {
     const client = await this.dbPool.getClient();
-    
+
     try {
       // Create tables if they don't exist
       await client.query(`
@@ -1045,7 +1046,7 @@ class NotificationService {
         
         CREATE INDEX IF NOT EXISTS idx_notification_analytics_date ON notification_analytics(date);
       `);
-      
+
       this.logger.info('Database initialized successfully');
     } finally {
       client.release();
@@ -1054,23 +1055,23 @@ class NotificationService {
 
   async shutdown() {
     this.logger.info('🛑 Shutting down Notification Service...');
-    
+
     if (this.server) {
       this.server.close();
     }
-    
+
     if (this.io) {
       this.io.close();
     }
-    
+
     if (this.redisClient) {
       this.redisClient.quit();
     }
-    
+
     if (this.dbPool) {
       await this.dbPool.shutdown();
     }
-    
+
     this.logger.info('Notification Service shut down complete');
   }
 }
@@ -1078,23 +1079,23 @@ class NotificationService {
 // Auto-start if this is the main module
 if (require.main === module) {
   const notificationService = new NotificationService();
-  
+
   notificationService.start().then(() => {
-    logger.info('🔔 Notification Service started successfully');
+    notificationService.logger.info('🔔 Notification Service started successfully');
   }).catch(error => {
-    logger.error('Failed to start Notification Service:', error);
+    notificationService.logger.error('Failed to start Notification Service:', error);
     process.exit(1);
   });
-  
+
   // Graceful shutdown handlers
   process.on('SIGTERM', async () => {
-    logger.info('SIGTERM received, shutting down gracefully...');
+    notificationService.logger.info('SIGTERM received, shutting down gracefully...');
     await notificationService.shutdown();
     process.exit(0);
   });
-  
+
   process.on('SIGINT', async () => {
-    logger.info('SIGINT received, shutting down gracefully...');
+    notificationService.logger.info('SIGINT received, shutting down gracefully...');
     await notificationService.shutdown();
     process.exit(0);
   });

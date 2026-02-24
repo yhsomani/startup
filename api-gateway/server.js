@@ -84,6 +84,9 @@ try {
         // Recruitment Service routes
         "/api/v1/recruitment": getServiceUrl("recruitment-service"),
         "/recruitment": getServiceUrl("recruitment-service"), // Legacy support
+        "/api/jobs": getServiceUrl("job-listing-service"), // E2E support
+        "/api/applications": getServiceUrl("job-listing-service"), // E2E support
+        "/api/interviews": getServiceUrl("job-listing-service"), // E2E support
     };
     console.log("DEBUG: Service routes defined successfully");
 } catch (error) {

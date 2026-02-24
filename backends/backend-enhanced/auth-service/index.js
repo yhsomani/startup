@@ -228,8 +228,8 @@ class AuthService extends EnhancedServiceWithTracing {
         this.app.use((error, req, res, next) => {
             const span = this.tracer
                 ? this.tracer
-                      .getActiveSpans()
-                      .find(s => s.getContext().spanId === req.traceContext?.spanId)
+                    .getActiveSpans()
+                    .find(s => s.getContext().spanId === req.traceContext?.spanId)
                 : null;
 
             if (span) {
@@ -303,8 +303,9 @@ class AuthService extends EnhancedServiceWithTracing {
             const user = await this.database.insert("users", {
                 email: userData.email,
                 password_hash: hashedPassword,
-                name: userData.name,
-                role: "user",
+                first_name: userData.firstName || userData.name?.split(' ')[0] || '',
+                last_name: userData.lastName || userData.name?.split(' ').slice(1).join(' ') || '',
+                role: userData.role || "user",
             });
 
             return {
@@ -312,7 +313,9 @@ class AuthService extends EnhancedServiceWithTracing {
                 user: {
                     id: user.id,
                     email: user.email,
-                    name: user.name,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    role: user.role,
                     createdAt: user.created_at,
                 },
             };
@@ -326,7 +329,7 @@ class AuthService extends EnhancedServiceWithTracing {
 
             // Find user in database
             const result = await this.database.query(
-                "SELECT id, email, password_hash, name FROM users WHERE email = $1 AND is_active = TRUE",
+                "SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = $1 AND is_active = TRUE",
                 [credentials.email]
             );
             if (result.rows.length === 0) {
@@ -373,7 +376,9 @@ class AuthService extends EnhancedServiceWithTracing {
                 user: {
                     id: user.id,
                     email: user.email,
-                    name: user.name,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    role: user.role,
                 },
             };
         });
@@ -400,8 +405,13 @@ class AuthService extends EnhancedServiceWithTracing {
                 inputSchema: Joi.object({
                     email: Joi.string().email().required(),
                     password: Joi.string().min(8).required(),
-                    name: Joi.string().min(2).max(100).required(),
-                }),
+                    name: Joi.string().min(2).max(100),
+                    firstName: Joi.string().min(1).max(100),
+                    lastName: Joi.string().min(1).max(100),
+                    role: Joi.string().valid('STUDENT', 'RECRUITER', 'ADMIN', 'user', 'employee', 'employer'),
+                    company: Joi.string().allow('', null),
+                    title: Joi.string().allow('', null)
+                }).or('name', 'firstName'),
                 outputSchema: Joi.object({
                     success: Joi.boolean().required(),
                     user: Joi.object().required(),
