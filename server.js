@@ -7,40 +7,63 @@ const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-// Check if API Gateway exists and start it
-const apiGatewayPath = path.join(__dirname, "api-gateway", "server.js");
+// Configuration for all services to start
+const services = [
+    { name: "API Gateway", path: "api-gateway/server.js" },
+    { name: "Auth Service", path: "backends/backend-enhanced/auth-service/index.js" },
+    { name: "User Profile Service", path: "backends/backend-enhanced/user-profile-service/index.js" },
+    { name: "Job Listing Service", path: "backends/backend-enhanced/job-listing-service/index.js" },
+    { name: "Company Service", path: "backends/backend-enhanced/company-service/index.js" },
+    { name: "Notification Service", path: "backends/backend-enhanced/notification-service/index.js" },
+    { name: "Email Service", path: "backends/backend-enhanced/email-service/index.js" },
+    { name: "Analytics Service", path: "backends/backend-enhanced/analytics-service/index.js" }
+];
 
-if (fs.existsSync(apiGatewayPath)) {
-    console.log("🚀 Starting TalentSphere API Gateway...");
+const runningProcesses = [];
 
-    // Start API Gateway
-    const gatewayProcess = spawn("node", [apiGatewayPath], {
-        stdio: "inherit",
-        env: process.env,
+console.log("🚀 Starting TalentSphere Backend Services...");
+
+services.forEach(service => {
+    const fullPath = path.join(__dirname, service.path);
+
+    if (fs.existsSync(fullPath)) {
+        console.log(`📡 Starting ${service.name}...`);
+
+        const proc = spawn("node", [fullPath], {
+            stdio: "inherit",
+            env: { ...process.env, NODE_ENV: process.env.NODE_ENV || "development" }
+        });
+
+        proc.on("error", error => {
+            console.error(`Failed to start ${service.name}:`, error);
+        });
+
+        proc.on("exit", code => {
+            if (code !== 0 && code !== null) {
+                console.log(`${service.name} exited with code ${code}`);
+            }
+        });
+
+        runningProcesses.push({ name: service.name, proc });
+    } else {
+        console.warn(`⚠️  Service script not found: ${fullPath}`);
+    }
+});
+
+// Handle graceful shutdown
+const shutdown = () => {
+    console.log("\n🛑 Shutting down TalentSphere services...");
+    runningProcesses.forEach(item => {
+        console.log(`停止 ${item.name}...`);
+        item.proc.kill("SIGINT");
     });
 
-    gatewayProcess.on("error", error => {
-        console.error("Failed to start API Gateway:", error);
-        process.exit(1);
-    });
+    // Give services a moment to shut down gracefully
+    setTimeout(() => {
+        console.log("👋 All services stopped.");
+        process.exit(0);
+    }, 2000);
+};
 
-    gatewayProcess.on("exit", code => {
-        console.log(`API Gateway exited with code ${code}`);
-        process.exit(code);
-    });
-
-    // Handle graceful shutdown
-    process.on("SIGINT", () => {
-        console.log("🛑 Shutting down TalentSphere...");
-        gatewayProcess.kill("SIGINT");
-    });
-
-    process.on("SIGTERM", () => {
-        console.log("🛑 Shutting down TalentSphere...");
-        gatewayProcess.kill("SIGTERM");
-    });
-} else {
-    console.error("❌ API Gateway server.js not found at:", apiGatewayPath);
-    console.error("Please ensure the API Gateway is properly built and deployed.");
-    process.exit(1);
-}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

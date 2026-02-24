@@ -42,7 +42,10 @@ const LoginForm: React.FC = () => {
                 <p className="auth-subtitle">Sign in to your account</p>
 
                 {message && (
-                    <div style={{ backgroundColor: '#def7ec', color: '#03543f', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', textAlign: 'center' }} data-testid="auth-message">
+                    <div
+                        style={{ backgroundColor: '#def7ec', color: '#03543f', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}
+                        data-testid="success-message"
+                    >
                         {message}
                     </div>
                 )}
@@ -88,7 +91,7 @@ const LoginForm: React.FC = () => {
                         />
                     </div>
 
-                    <button type="submit" className="btn-primary" disabled={isLoading}>
+                    <button type="submit" className="btn-primary" disabled={isLoading} data-testid="login-submit">
                         {isLoading ? 'Logging In...' : 'Login'}
                     </button>
                 </form>
@@ -96,6 +99,7 @@ const LoginForm: React.FC = () => {
                 <div style={{ textAlign: 'center', marginTop: '1rem' }}>
                     <Link
                         to="/forgot-password"
+                        data-testid="forgot-password-link"
                         style={{
                             color: 'var(--primary)',
                             textDecoration: 'none',

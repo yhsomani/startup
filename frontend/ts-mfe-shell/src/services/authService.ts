@@ -9,9 +9,11 @@ export interface LoginCredentials {
 export interface RegisterData {
     email: string;
     password: string;
-    role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
+    role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN' | 'RECRUITER';
     firstName?: string;
     lastName?: string;
+    company?: string;
+    title?: string;
 }
 
 export interface User {
@@ -51,6 +53,13 @@ export const logout = (): void => {
 
 export const register = async (userData: RegisterData): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/register', userData);
+    const token = response.data.token || (response.data as any).accessToken;
+    if (token) {
+        localStorage.setItem('accessToken', token);
+        localStorage.setItem('refreshToken', response.data.refreshToken || '');
+        localStorage.setItem('userId', response.data.user?.id || '');
+        localStorage.setItem('role', response.data.user?.role || '');
+    }
     return response.data;
 };
 

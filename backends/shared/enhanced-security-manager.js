@@ -239,9 +239,10 @@ class SecurityManager {
             });
 
             // Override res.end to log response
+            const logger = this.logger;
             const originalEnd = res.end;
             res.end = function (chunk, encoding) {
-                this.logger.debug("Request completed", {
+                logger.debug("Request completed", {
                     correlationId: req.correlationId,
                     statusCode: res.statusCode,
                     responseTime: Date.now() - req.startTime,

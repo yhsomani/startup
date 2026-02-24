@@ -1,0 +1,14 @@
+{
+  "testRunId": "1771904440747",
+  "startTime": "2026-02-24T03:28:48.366Z",
+  "endTime": "2026-02-24T03:40:40.747Z",
+  "totalDuration": 712381,
+  "environment": "test",
+  "baseUrl": "http://localhost:3000",
+  "apiBaseUrl": "http://localhost:8000",
+  "testResults": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0
+  }
+}

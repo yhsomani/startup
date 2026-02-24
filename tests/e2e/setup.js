@@ -45,21 +45,21 @@ const testJobs = {
 class TestHelpers {
   static async setupTestData() {
     console.log('🔧 Setting up test data...');
-    
+
     // Create test users via API
     await this.createTestUser(testUsers.jobSeeker, 'jobseeker');
     await this.createTestUser(testUsers.employer, 'employer');
-    
+
     console.log('✅ Test data setup complete');
   }
 
   static async cleanupTestData() {
     console.log('🧹 Cleaning up test data...');
-    
+
     // Cleanup test data via API
     await this.cleanupTestUsers();
     await this.cleanupTestJobs();
-    
+
     console.log('✅ Test data cleanup complete');
   }
 
@@ -86,7 +86,7 @@ class TestHelpers {
   }
 
   static async waitForAPIResponse(page, urlPattern) {
-    return page.waitForResponse(response => 
+    return page.waitForResponse(response =>
       response.url().includes(urlPattern) && response.status() === 200
     );
   }
@@ -95,20 +95,20 @@ class TestHelpers {
 // Test fixtures
 beforeAll(async () => {
   console.log('🚀 Starting E2E Test Suite');
-  
+
   // Ensure screenshots directory exists
   const screenshotsDir = path.join(__dirname, '../screenshots');
   if (!fs.existsSync(screenshotsDir)) {
     fs.mkdirSync(screenshotsDir, { recursive: true });
   }
-  
+
   // Setup test data
   await TestHelpers.setupTestData();
 });
 
 afterAll(async () => {
   console.log('🏁 Ending E2E Test Suite');
-  
+
   // Cleanup test data
   await TestHelpers.cleanupTestData();
 });
@@ -116,13 +116,22 @@ afterAll(async () => {
 beforeEach(async ({ page }) => {
   // Set default viewport
   await page.setViewportSize({ width: 1280, height: 720 });
-  
-  // Clear cookies and localStorage
-  await page.context().clearCookies();
-  await page.evaluate(() => localStorage.clear());
-  
-  // Navigate to base URL
+
+  // Navigate to base URL first to establish origin
   await page.goto(BASE_URL);
+
+  // Clear localStorage and sessionStorage safely
+  try {
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+  } catch (e) {
+    console.warn('Warning: Storage clearing failed:', e.message);
+  }
+
+  // Clear cookies
+  await page.context().clearCookies();
 });
 
 afterEach(async ({ page }, testInfo) => {

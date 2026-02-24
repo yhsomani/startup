@@ -232,17 +232,19 @@ class SecurityConfig {
    * Get rate limiting configuration
    */
   getRateLimitConfig() {
+    const isTest = process.env.NODE_ENV === 'test' || process.env.E2E_TESTING === 'true';
+
     return {
       windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+      max: isTest ? 10000 : (parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100),
       message: {
         error: 'Too many requests from this IP, please try again later.',
         retryAfter: '15 minutes'
       },
       standardHeaders: true,
       legacyHeaders: false,
-      // Stricter limits for sensitive endpoints
-      sensitiveEndpoints: {
+      // Stricter limits for sensitive endpoints - disabled during testing to prevent parallel worker blocks
+      sensitiveEndpoints: isTest ? {} : {
         '/api/v1/auth/login': { max: 5, windowMs: 15 * 60 * 1000 },
         '/api/v1/auth/register': { max: 3, windowMs: 60 * 60 * 1000 },
         '/api/v1/auth/forgot-password': { max: 3, windowMs: 60 * 60 * 1000 }

@@ -145,6 +145,7 @@ const Navigation: React.FC = () => {
                     <>
                         <Link
                             to="/profile"
+                            data-testid="user-menu"
                             style={{
                                 ...navLinkStyle,
                                 display: "flex",
@@ -163,12 +164,15 @@ const Navigation: React.FC = () => {
                                     fontSize: "0.875rem",
                                     fontWeight: 600,
                                 }}>
-                                {user?.email?.charAt(0).toUpperCase()}
+                                {user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                             </span>
-                            <span style={{ fontSize: "0.875rem" }}>{user?.role}</span>
+                            <span data-testid="user-profile" style={{ fontSize: "0.875rem" }}>
+                                {user?.firstName || user?.email}
+                            </span>
                         </Link>
                         <button
                             onClick={handleLogout}
+                            data-testid="logout-button"
                             style={{
                                 background: "transparent",
                                 border: "1px solid #6b7280",
@@ -183,11 +187,12 @@ const Navigation: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        <Link to="/login" style={{ color: "#ccc", textDecoration: "none" }}>
+                        <Link to="/login" style={{ color: "#ccc", textDecoration: "none" }} data-testid="login-button">
                             Log In
                         </Link>
                         <Link
                             to="/register"
+                            data-testid="register-button"
                             style={{
                                 background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
                                 color: "white",

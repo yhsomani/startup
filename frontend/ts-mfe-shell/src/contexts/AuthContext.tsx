@@ -7,6 +7,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    register: (data: any) => Promise<void>;
     logout: () => void;
     hasRole: (allowedRoles: UserRole[]) => boolean;
     hasAnyRole: (allowedRoles: UserRole[]) => boolean;
@@ -50,6 +51,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser({ id: userId, email, role });
     };
 
+    const register = async (data: any): Promise<void> => {
+        const response = await api.post('/auth/register', data);
+        const token = response.data.token || response.data.accessToken;
+        const userId = response.data.user?.id;
+        const role = response.data.user?.role;
+        const firstName = response.data.user?.firstName || data.firstName;
+        const lastName = response.data.user?.lastName || data.lastName;
+
+        if (token) {
+            localStorage.setItem('accessToken', token);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('email', data.email);
+            localStorage.setItem('role', role);
+
+            setUser({ id: userId, email: data.email, role, firstName, lastName });
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userId');
@@ -74,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated: !!user,
         isLoading,
         login,
+        register,
         logout,
         hasRole,
         hasAnyRole

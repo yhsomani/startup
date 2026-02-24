@@ -5,7 +5,7 @@
 
 const { test, expect, TestHelpers, testUsers, BASE_URL } = require('./setup');
 
-describe('Performance and Load Testing', () => {
+test.describe('Performance and Load Testing', () => {
 
   test('Page Load Performance - Dashboard', async ({ page }) => {
     console.log('🧪 Testing Dashboard Page Load Performance');
@@ -195,7 +195,7 @@ describe('Performance and Load Testing', () => {
     console.log('✅ Memory Usage During Navigation acceptable');
   });
 
-  test('Concurrent User Simulation', async ({ context }) => {
+  test('Concurrent User Simulation', async ({ browser }) => {
     console.log('🧪 Testing Concurrent User Simulation');
 
     // Create multiple browser contexts to simulate concurrent users

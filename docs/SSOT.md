@@ -5,6 +5,82 @@
 
 ---
 
+## Table of Contents
+
+### Part 1: Foundation
+
+1. Project Overview
+2. Architecture Overview
+3. Folder Structure
+4. Shared Libraries
+5. Feature-to-Code Mapping
+
+### Part 2: API & Services
+
+6. API & Service Catalog
+7. Circuit Breaker Pattern
+8. Configuration & Environment Setup
+9. Database & External Services
+10. Development Workflow
+11. Deployment Instructions
+
+### Part 3: Infrastructure
+
+12. CDN Architecture
+13. Caching Architecture
+14. Message Queue Architecture
+15. Database Sharding (Citus)
+
+### Part 4: Observability & Security
+
+16. Observability
+17. Security
+18. Service Discovery
+
+### Part 5: Advanced Patterns
+
+19. API Versioning
+20. Multi-Region Deployment
+21. Chaos Engineering
+22. Feature Flags
+23. Contract Testing
+24. Consistent Hashing
+25. GraphQL API
+26. API Caching
+27. Health Checks
+28. Graceful Shutdown
+
+### Part 6: Scaling & Resilience
+
+29. Auto Scaling
+30. Distributed Locking
+31. Service Mesh (Istio)
+32. Audit Logging
+
+### Part 7: Operations
+
+33. API Response Format
+34. Configuration Hot Reloading
+35. Webhooks
+36. Idempotency
+37. Batch Processing
+38. Retry Mechanism
+39. Multi-Tenancy
+40. Request Throttling
+
+### Part 8: Implementation
+
+41. Implementation Status
+42. Project Health Metrics
+43. Code Quality Gates
+44. Service Health Status
+
+### Part 9: Extended Topics
+
+45-220: Additional patterns, scripts, and references
+
+---
+
 ## 1. Project Overview
 
 TalentSphere is a high-growth edtech platform designed to seamlessly integrate learning management, coding challenges,
@@ -115,51 +191,74 @@ The platform operates on an event-driven, microservices architecture:
 
 ---
 
-## 6. API / Route Documentation
+## 6. API & Service Catalog
 
-| Path                   | Service            | Port |
-| ---------------------- | ------------------ | ---- |
-| `/api/v1/auth/*`       | auth-service       | 3001 |
-| `/api/v1/jobs/*`       | job-service        | 3002 |
-| `/api/v1/courses/*`    | backend-springboot | 3003 |
-| `/api/v1/challenges/*` | backend-dotnet     | 3006 |
+The TalentSphere API follows a RESTful design (plus GraphQL alternative) using a central API Gateway for routing,
+security, and monitoring.
+
+### 6.1 Core API Gateway (`/api/v1`)
+
+| Path Prefix      | Target Service     | Purpose                 | Primary Port |
+| :--------------- | :----------------- | :---------------------- | :----------- |
+| `/auth`          | `auth-service`     | Identity & Session Mgmt | 3001         |
+| `/profiles`      | `user-profile`     | Professional Profiles   | 3012         |
+| `/jobs`          | `job-listing`      | Postings & Discovery    | 3002         |
+| `/courses`       | `lms-service`      | Enrollment & Learning   | 8080         |
+| `/challenges`    | `challenge-svc`    | Coding Assessments      | 5000         |
+| `/payments`      | `payment-svc`      | Subscriptions & Billing | 5000         |
+| `/search`        | `search-service`   | Global Content Search   | 3007         |
+| `/notifications` | `notification-svc` | Real-time Alerts        | 3010         |
+| `/recruitment`   | `recruitment-svc`  | Candidate Sourcing      | 3011         |
+| `/gamification`  | `gamification-svc` | Streaks & Badges        | 3004         |
 
 ---
 
-## 6.1 API Gateway Architecture
+### 6.2 Auth Service API (`:3001`)
 
-The API Gateway (`api-gateway/index.js`) is the single entry point for all frontend requests.
+| Endpoint          | Method | Description                       | Auth Required |
+| :---------------- | :----- | :-------------------------------- | :------------ |
+| `/register`       | POST   | Create new User/Company account   | No            |
+| `/login`          | POST   | Authenticate user & return JWT    | No            |
+| `/validate-token` | POST   | Verify if a JWT is still valid    | Yes           |
+| `/refresh-token`  | POST   | Issue new JWT using refresh token | No            |
+| `/logout`         | POST   | Revoke current session            | Yes           |
 
-### Features
+### 6.3 Learning Management (LMS) API (`:8080`)
 
-| Feature             | Implementation                                        |
-| ------------------- | ----------------------------------------------------- |
-| **Routing**         | http-proxy-middleware to backend services             |
-| **Authentication**  | JWT validation, strips token, adds `x-user-id` header |
-| **Rate Limiting**   | Redis-backed (distributed)                            |
-| **CORS**            | Centralized CORS middleware                           |
-| **Correlation IDs** | `x-correlation-id` header for distributed tracing     |
-| **Circuit Breaker** | Implemented in `api-gateway/circuit-breaker.js`       |
-| **Security**        | Helmet.js, compression                                |
+| Endpoint                                        | Method | Description                       |
+| :---------------------------------------------- | :----- | :-------------------------------- |
+| `/courses`                                      | GET    | List available courses (paged)    |
+| `/courses/{id}`                                 | GET    | Get full course syllabus/metadata |
+| `/enrollments`                                  | POST   | Enroll current user in a course   |
+| `/enrollments/{id}/progress`                    | GET    | Get lesson completion status      |
+| `/enrollments/{id}/lessons/{lessonId}/complete` | PUT    | Mark a lesson as finished         |
 
-### Routing by Domain
+### 6.4 Coding Challenges API (`:5000`)
 
-| Path Pattern           | Target Service          | Domain     |
-| ---------------------- | ----------------------- | ---------- |
-| `/api/v1/auth/*`       | auth-service:3001       | Identity   |
-| `/api/v1/jobs/*`       | job-service:3002        | Jobs       |
-| `/api/v1/courses/*`    | backend-springboot:8080 | LMS        |
-| `/api/v1/challenges/*` | backend-dotnet:5000     | Challenges |
-| `/api/v1/ai/*`         | backend-flask:5000      | AI         |
+| Endpoint                       | Method | Description                   |
+| :----------------------------- | :----- | :---------------------------- |
+| `/challenges/{id}/submit`      | POST   | Submit source code for eval   |
+| `/challenges/{id}/leaderboard` | GET    | Current ranking for challenge |
+| `/challenges/evaluate`         | POST   | High-perf code eval stub      |
 
-### Request Flow
+### 6.5 Payments API (`:5000`)
 
-```
+| Endpoint                          | Method | Description                    |
+| :-------------------------------- | :----- | :----------------------------- |
+| `/Payments/create-payment-intent` | POST   | Start Stripe payment flow      |
+| `/Payments/refund`                | POST   | Process refund for transaction |
+| `/Payments/user/subscriptions`    | GET    | Active user subscription plans |
+| `/Payments/webhook`               | POST   | Stripe webhook listener        |
 
-Frontend → API Gateway → [Auth] → [Rate Limit] → [Circuit Breaker] → [Proxy] → Backend Service ↓ Correlation ID
-Injection
+### 6.6 Search Service API (`:3007`)
 
-```
+| Endpoint                    | Method | Description                   |
+| :-------------------------- | :----- | :---------------------------- |
+| `/search`                   | POST   | Complex multi-filter search   |
+| `/index`                    | POST   | Manual trigger for reindexing |
+| `/recommendations/{userId}` | GET    | Personal AI recommendations   |
+
+---
 
 ---
 
@@ -1512,30 +1611,27 @@ const currentValue = configReloader.get("database.pool.max");
 
 ---
 
-## 28. Service Catalog
+## 11. Final Service Port Map
 
-Kubernetes Service definitions for all microservices.
+| Service | Port | Language | Registry Key |
+| :--- | :--- | :--- | :--- |
+| API Gateway | 3000 | Node.js | `gateway` |
+| Auth Service | 3001 | Node.js | `auth` |
+| Job Listing | 3002 | Node.js | `jobs` |
+| Gamification| 3004 | Python | `gamification`|
+| AI Assistant| 3005 | Python | `assistant` |
+| Challenges | 3006 | .NET | `challenges` |
+| Search | 3007 | Node.js | `search` |
+| File Svc | 3008 | Node.js | `file` |
+| Video Svc | 3009 | Node.js | `video` |
+| Notification| 3010 | Node.js | `notification`|
+| Recruitment | 3011 | Python | `recruitment` |
+| Analytics | 3013 | Node.js | `analytics` |
+| LMS (Spring) | 8080 | Java | `lms` |
+| Payments | 5000 | .NET | `payments` |
 
-### Services
+---
 
-| Service              | Port | Tier          | Language |
-| -------------------- | ---- | ------------- | -------- |
-| api-gateway          | 3000 | gateway       | Node.js  |
-| auth-service         | 3001 | backend       | Node.js  |
-| job-service          | 3002 | backend       | Node.js  |
-| lms-service          | 3003 | backend       | Java     |
-| challenge-service    | 3006 | backend       | .NET     |
-| notification-service | 3010 | worker        | Node.js  |
-| gamification-service | 3004 | worker        | Python   |
-| citus-coordinator    | 5432 | database      | -        |
-| redis                | 6379 | cache         | -        |
-| rabbitmq-service     | 5672 | message-queue | -        |
-
-### Deploy
-
-```bash
-kubectl apply -f k8s/service-catalog.yaml
-```
 
 ---
 
@@ -6650,6 +6746,277 @@ const verifyContract = async (provider, consumer) => {
 | Stress | k6 | Breaking point |
 | Endurance | k6 | Long-running |
 | Spike | k6 | Sudden load |
+
+---
+
+## 221. AI/ML Integration
+
+### AI Assistant Service
+- OpenAI GPT-4 integration for code assistance
+- Fallback to mock mode when API key not configured
+- Code analysis, explanation, debugging support
+
+### ML Pipeline
+- Feature extraction for job recommendations
+- User behavior clustering
+- Resume matching algorithms
+
+### Implementation
+```javascript
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+async function analyzeCode(code) {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [{ role: "user", content: `Analyze this code: ${code}` }]
+  });
+  return response.choices[0].message;
+}
+```
+
+---
+
+## 222. Cost Optimization
+
+### Compute Optimization
+- Right-sizing: Match instance sizes to actual usage
+- Spot instances for non-critical workloads
+- Auto-scaling to zero for development environments
+
+### Database Optimization
+- Connection pooling optimization
+- Query caching strategies
+- Read replicas for read-heavy workloads
+
+### Cost Monitoring
+- AWS Cost Explorer / GCP Billing
+- Daily/weekly cost alerts
+- Resource tagging for accountability
+
+### Best Practices
+| Area | Action |
+|------|--------|
+| Compute | Use spot + savings plans |
+| Storage | Lifecycle policies for S3 |
+| Network | CloudFront caching |
+| Database | Reserved instances |
+
+---
+
+## 223. Edge Computing
+
+### Edge Use Cases
+- CDN for static assets
+- Edge functions for A/B testing
+- Regional data processing
+
+### Implementation
+```javascript
+// Edge function example
+export default function handler(request) {
+  const country = request.geo.country;
+  const content = getLocalizedContent(country);
+  return new Response(content, {
+    headers: { 'Cache-Control': 'public, max-age=3600' }
+  });
+}
+```
+
+### Edge Providers
+| Provider | Use Case |
+|----------|----------|
+| CloudFlare Workers | A/B testing, redirects |
+| AWS Lambda@Edge | Request/response modification |
+| Vercel Edge | SSR, personalization |
+
+---
+
+## 224. Serverless Patterns
+
+### When to Use Serverless
+- Event-driven workloads
+- Infrequent/periodic tasks
+- Burst capacity needs
+- Cost optimization for variable load
+
+### Implemented Serverless
+- Lambda for image processing
+- Step Functions for workflows
+- Event-driven triggers
+
+### Architecture
+```
+Event (S3, SQS, DynamoDB)
+    ↓
+Lambda Function
+    ↓
+Data Processing
+    ↓
+Result Storage
+```
+
+---
+
+## 225. WebAssembly (WASM)
+
+### Use Cases
+- Performance-critical computations
+- Browser-based video editing
+- Image processing in edge
+
+### Implementation
+```rust
+#[no_mangle]
+pub fn fibonacci(n: u32) -> u32 {
+    match n {
+        0 => 0,
+        1 => 1,
+        _ => fibonacci(n - 1) + fibonacci(n - 2)
+    }
+}
+```
+
+### Integration
+- Compile to WASM with wasm-pack
+- Load in Node.js or browser
+- Performance: ~10-20x faster than JS
+
+---
+
+## 226. Real-time Collaboration (CRDT)
+
+### Yjs Integration
+- Conflict-free replicated data types
+- Real-time document editing
+- Cursor awareness
+
+### Architecture
+```
+Client A ←── Yjs Sync ──→ Client B
+    ↓                           ↓
+Document State ←──→ Document State
+```
+
+### Implementation
+```javascript
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+
+const doc = new Y.Doc();
+const provider = new WebsocketProvider('wss://collab.example.com', 'room-id', doc);
+const yText = doc.getText('content');
+
+yText.observe(event => {
+  console.log('Document changed:', yText.toString());
+});
+```
+
+---
+
+## 227. Data Privacy (GDPR)
+
+### Compliance Measures
+- Data encryption at rest and in transit
+- Right to deletion (GDPR Art. 17)
+- Data portability (GDPR Art. 20)
+- Consent management
+
+### Implementation
+```javascript
+// Delete user data
+async function deleteUserData(userId) {
+  await db.users.where('id').equals(userId).delete();
+  await db.profiles.where('userId').equals(userId).delete();
+  await auditLog.info('USER_DATA_DELETED', { userId, timestamp: new Date() });
+}
+```
+
+### Data Subject Rights
+| Right | Implementation |
+|-------|----------------|
+| Access | Export all user data as JSON |
+| Rectification | Update profile API |
+| Erasure | Deletion with cascade |
+| Portability | JSON export endpoint |
+
+---
+
+## 228. Incident Response
+
+### Severity Levels
+| Level | Response Time | Examples |
+|-------|---------------|----------|
+| P1 | 15 min | Complete outage |
+| P2 | 1 hour | Major feature down |
+| P3 | 4 hours | Minor issue |
+| P4 | 24 hours | Cosmetic |
+
+### Runbook Structure
+1. **Detection**: Monitoring alerts
+2. **Triage**: Assess impact
+3. **Mitigation**: Stop bleeding
+4. **Resolution**: Fix root cause
+5. **Post-mortem**: Document learnings
+
+### On-Call
+- PagerDuty rotation
+- Escalation policy
+- Status page updates
+
+---
+
+## 229. API Monetization
+
+### Pricing Tiers
+| Tier | Price | Features |
+|------|-------|----------|
+| Free | $0 | 100 API calls/day |
+| Pro | $29/mo | 10K calls/day |
+| Enterprise | Custom | Unlimited + SLA |
+
+### Implementation
+```javascript
+async function checkRateLimit(userId, plan) {
+  const limits = {
+    free: 100,
+    pro: 10000,
+    enterprise: Infinity
+  };
+
+  const usage = await getDailyUsage(userId);
+  if (usage >= limits[plan]) {
+    throw new Error('Rate limit exceeded');
+  }
+}
+```
+
+---
+
+## 230. Documentation Standards
+
+### Code Documentation
+- JSDoc for public APIs
+- README.md for each service
+- OpenAPI specs for APIs
+
+### Architecture Decisions
+- ADRs (Architecture Decision Records)
+- Location: `docs/adr/`
+- Template: Context, Decision, Consequences
+
+### Runbooks
+- Service-specific runbooks
+- On-call guides
+- Post-mortem templates
+
+---
+
+## Maintenance Guidelines
+
+1. **SSOT Enforcement**: `docs/SSOT.md` is the only location for system-wide architectural documentation.
+2. **PR Review Check**: Add checklist item: _"Does this PR require an update to `docs/SSOT.md`?"_
+3. **API Documentation**: Use OpenAPI/Swagger (`/api/openapi.yaml`). Do not manually document API routes.
+4. **Bi-weekly Audits**: Review technical debt, specifically duplicate Course/Challenge services.
 
 ---
 
