@@ -4897,7 +4897,7 @@ if (!data) {
 
 ---
 
-## 138. Capacity Planning
+## 190. Capacity Planning
 
 ### Resource Planning
 
@@ -4919,7 +4919,7 @@ if (!data) {
 
 ---
 
-## 139. Compliance & Audit
+## 191. Compliance & Audit
 
 ### Compliance Standards
 
@@ -6241,7 +6241,7 @@ const transaction = async (client) => {
 
 ---
 
-## 190. Error Monitoring
+## 192. Error Monitoring
 
 ### Monitoring Tools
 
@@ -6261,7 +6261,7 @@ const transaction = async (client) => {
 
 ---
 
-## 191. API Versioning
+## 193. API Versioning
 
 ### Version Strategies
 
@@ -6282,7 +6282,7 @@ const transaction = async (client) => {
 
 ---
 
-## 192. Response Compression
+## 194. Response Compression
 
 ### Compression Methods
 
@@ -6307,7 +6307,7 @@ app.use(compression({
 
 ---
 
-## 193. Connection Pooling
+## 195. Connection Pooling
 
 ### Pool Configuration
 
@@ -6330,7 +6330,7 @@ const pool = {
 
 ---
 
-## 194. Database Connections
+## 196. Database Connections
 
 ### Connection Types
 
@@ -6348,7 +6348,7 @@ const pool = {
 
 ---
 
-## 195. API Throttling
+## 197. API Throttling
 
 ### Throttling Levels
 
