@@ -14,6 +14,76 @@
 3. Folder Structure
 4. Shared Libraries
 5. Feature-to-Code Mapping
+6. API & Service Catalog
+
+### Part 2: Core Patterns
+
+7. Circuit Breaker Pattern
+8. Configuration & Environment Setup
+9. Database & External Services
+10. CDN Architecture
+11. Caching Architecture
+12. Message Queue Architecture
+13. Database Sharding (Citus)
+
+### Part 3: Operations
+
+14. Observability
+15. Development Workflow
+16. Deployment Instructions
+17. Security
+18. Known Issues / Technical Debt
+19. Service Discovery
+
+### Part 4: Advanced Patterns
+
+20. Code Optimization Status
+21. Quick Reference
+22. API Versioning
+23. Multi-Region Deployment
+24. Chaos Engineering
+25. Feature Flags
+26. Contract Testing
+27. Consistent Hashing
+28. GraphQL API
+29. API Caching
+30. Health Checks
+
+### Part 5: Scaling & Resilience
+
+31. Graceful Shutdown
+32. Auto Scaling
+33. Distributed Locking
+34. Service Mesh (Istio)
+35. Audit Logging
+36. API Response Format
+37. Configuration Hot Reloading
+38. Final Service Port Map
+39. Webhooks
+40. Idempotency
+41. Batch Processing
+42. Retry Mechanism
+43. Multi-Tenancy
+44. Request Throttling
+45. Service Dependency Graph
+46. Usage Analytics
+47. API Deprecation Manager
+48. Circuit Breaker (Advanced)
+49. ETag Caching
+
+### Parts 6-9: Extended Topics
+
+50-70: Implementation, Documentation, and References
+
+---
+
+### Part 1: Foundation
+
+1. Project Overview
+2. Architecture Overview
+3. Folder Structure
+4. Shared Libraries
+5. Feature-to-Code Mapping
 
 ### Part 2: API & Services
 
