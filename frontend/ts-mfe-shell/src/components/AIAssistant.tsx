@@ -194,7 +194,7 @@ export const AIAssistant: React.FC = () => {
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyPress={e => e.key === "Enter" && sendMessage()}
+                    onKeyDown={e => e.key === "Enter" && sendMessage()}
                     placeholder="Ask me anything..."
                     aria-label="Chat message input"
                     style={{
