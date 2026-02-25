@@ -18,6 +18,8 @@ export const RecruiterDashboard: React.FC = () => {
     const [bulkMode, setBulkMode] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+
     const searchCandidates = async () => {
         setLoading(true);
         setError(null);
@@ -27,9 +29,7 @@ export const RecruiterDashboard: React.FC = () => {
                 min_percentile: minPercentile.toString(),
             });
 
-            const response = await fetch(
-                `http://localhost:8000/api/v1/candidates/search?${params}`
-            );
+            const response = await fetch(`${API_BASE}/candidates/search?${params}`);
             if (!response.ok) {
                 throw new Error(`Search failed: ${response.statusText}`);
             }
@@ -46,9 +46,7 @@ export const RecruiterDashboard: React.FC = () => {
 
     const viewResume = async (candidateId: string) => {
         try {
-            const response = await fetch(
-                `http://localhost:8000/api/v1/candidates/${candidateId}/verified-resume`
-            );
+            const response = await fetch(`${API_BASE}/candidates/${candidateId}/verified-resume`);
             if (!response.ok) {
                 throw new Error(`Failed to load resume: ${response.statusText}`);
             }

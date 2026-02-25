@@ -22,7 +22,8 @@ export const AIAssistant: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8000/api/v1/assistant/chat", {
+            const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+            const response = await fetch(`${API_BASE}/assistant/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: input }),
