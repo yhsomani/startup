@@ -101,6 +101,17 @@ htmlcov/
 .nox/
 
 # ==============================================
+# E2E Test Artifacts
+# ==============================================
+tests/e2e/artifacts/
+tests/e2e/reports/
+tests/e2e/archives/
+tests/screenshots/
+test-results.json/
+*.webm
+*.png
+
+# ==============================================
 # Logs
 # ==============================================
 logs/
