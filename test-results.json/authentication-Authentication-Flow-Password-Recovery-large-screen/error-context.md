@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - link "🎓 TalentSphere" [ref=e5] [cursor=pointer]:
+      - /url: /
+    - link "Courses" [ref=e6] [cursor=pointer]:
+      - /url: /courses
+    - link "Challenges" [ref=e7] [cursor=pointer]:
+      - /url: /challenges
+    - link "Jobs & Courses" [ref=e8] [cursor=pointer]:
+      - /url: /courses
+    - generic [ref=e9]:
+      - link "Log In" [ref=e10] [cursor=pointer]:
+        - /url: /login
+      - link "Sign Up" [ref=e11] [cursor=pointer]:
+        - /url: /register
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]: 🔐
+      - heading "Forgot Password?" [level=2] [ref=e17]
+      - paragraph [ref=e18]: Enter your email address and we'll send you a link to reset your password.
+    - generic [ref=e19]: Failed to send reset email
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]: Email Address
+        - textbox "Enter your email" [ref=e23]: jobseeker@talentsphere.test
+      - button "Send Reset Link" [ref=e24] [cursor=pointer]
+    - paragraph [ref=e26]:
+      - text: Remember your password?
+      - link "Sign In" [ref=e27] [cursor=pointer]:
+        - /url: /login
+    - generic [ref=e28]:
+      - heading "🔒 Security Notice" [level=4] [ref=e29]
+      - list [ref=e30]:
+        - listitem [ref=e31]: Reset links expire after 1 hour
+        - listitem [ref=e32]: Only the requested email can receive the link
+        - listitem [ref=e33]: If you didn't request this, please ignore the email
+        - listitem [ref=e34]: Never share your reset link with others
+```
