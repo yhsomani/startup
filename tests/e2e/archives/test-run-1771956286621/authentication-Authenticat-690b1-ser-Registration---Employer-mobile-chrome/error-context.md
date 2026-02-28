@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e6]:
+  - heading "Create Account" [level=2] [ref=e7]
+  - paragraph [ref=e8]: Join TalentSphere today
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: First Name
+        - textbox "First Name" [ref=e13]:
+          - /placeholder: John
+          - text: Jane
+      - generic [ref=e14]:
+        - generic [ref=e15]: Last Name
+        - textbox "Last Name" [ref=e16]:
+          - /placeholder: Doe
+          - text: Smith
+    - generic [ref=e17]:
+      - generic [ref=e18]: Email Address
+      - textbox "Email Address" [ref=e19]:
+        - /placeholder: you@example.com
+        - text: employer@talentsphere.test
+    - generic [ref=e20]:
+      - generic [ref=e21]: Password
+      - textbox "Password" [ref=e22]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e23]:
+      - generic [ref=e24]: Confirm Password
+      - textbox "Confirm Password" [ref=e25]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e26]:
+      - generic [ref=e27]: I want to be a
+      - generic [ref=e28]:
+        - generic [ref=e29] [cursor=pointer]: Job Seeker
+        - generic [ref=e30] [cursor=pointer]: Employer
+    - generic [ref=e31]:
+      - generic [ref=e32]: Company Name
+      - textbox "Company Name" [ref=e33]:
+        - /placeholder: TechCorp Inc.
+        - text: TechCorp Inc.
+    - generic [ref=e34]:
+      - generic [ref=e35]: Title / Position
+      - textbox "Title / Position" [ref=e36]:
+        - /placeholder: HR Manager
+        - text: HR Manager
+    - button "Creating Account..." [disabled] [ref=e37]
+  - paragraph [ref=e38]:
+    - text: Already have an account?
+    - link "Log in" [ref=e39] [cursor=pointer]:
+      - /url: /login
+```

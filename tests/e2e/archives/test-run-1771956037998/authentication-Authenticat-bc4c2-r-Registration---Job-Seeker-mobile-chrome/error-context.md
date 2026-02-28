@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e6]:
+  - heading "Create Account" [level=2] [ref=e7]
+  - paragraph [ref=e8]: Join TalentSphere today
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: First Name
+        - textbox "First Name" [ref=e13]:
+          - /placeholder: John
+      - generic [ref=e14]:
+        - generic [ref=e15]: Last Name
+        - textbox "Last Name" [ref=e16]:
+          - /placeholder: Doe
+    - generic [ref=e17]:
+      - generic [ref=e18]: Email Address
+      - textbox "Email Address" [ref=e19]:
+        - /placeholder: you@example.com
+        - text: jobseeker@talentsphere.test
+    - generic [ref=e20]:
+      - generic [ref=e21]: Password
+      - textbox "Password" [ref=e22]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e23]:
+      - generic [ref=e24]: Confirm Password
+      - textbox "Confirm Password" [active] [ref=e25]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e26]:
+      - generic [ref=e27]: I want to be a
+      - generic [ref=e28]:
+        - generic [ref=e29] [cursor=pointer]: Job Seeker
+        - generic [ref=e30] [cursor=pointer]: Employer
+    - button "Sign Up" [ref=e31] [cursor=pointer]
+  - paragraph [ref=e32]:
+    - text: Already have an account?
+    - link "Log in" [ref=e33] [cursor=pointer]:
+      - /url: /login
+```
