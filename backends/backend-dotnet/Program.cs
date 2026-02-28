@@ -29,9 +29,17 @@ builder.Services.AddSingleton<VideoService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 
-// Database
+// Database - Support DATABASE_URL env var (Render/Cloud deployment)
+var defaultConnection = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrEmpty(defaultConnection))
+{
+    throw new InvalidOperationException("DATABASE_URL environment variable or DefaultConnection is not configured");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(defaultConnection));
 
 // CORS Configuration - DISABLED: Nginx API Gateway handles CORS
 // Enabling CORS here would cause duplicate headers
@@ -46,9 +54,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // });
 
 // JWT Config - Use environment variable with fallback to config
-var jwtSecret = Environment.GetEnvironmentVariable("Jwt__Secret") 
-    ?? builder.Configuration["Jwt:Secret"] 
-    ?? "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
+    ?? builder.Configuration["Jwt:Secret"];
+
+if (string.IsNullOrEmpty(jwtSecret))
+{
+    throw new InvalidOperationException("JWT_SECRET environment variable is not configured");
+}
 
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 

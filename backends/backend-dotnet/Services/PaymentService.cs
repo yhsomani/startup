@@ -140,7 +140,7 @@ namespace TalentSphere.API.Services
                     if (stripePaymentIntent.Status == "succeeded")
                     {
                         payment.Status = PaymentStatus.Succeeded;
-                        payment.TransactionId = stripePaymentIntent.Charges.Data.FirstOrDefault()?.Id;
+                        payment.TransactionId = stripePaymentIntent.Id;
                         payment.UpdatedAt = DateTime.UtcNow;
                         
                         await _context.SaveChangesAsync();
@@ -249,7 +249,7 @@ namespace TalentSphere.API.Services
 
                 // In a real implementation, you would create a Stripe subscription with a Price ID
                 // For demo purposes, we'll create a local subscription record
-                var subscription = new Subscription
+                var subscription = new Models.Subscription
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
@@ -525,7 +525,7 @@ namespace TalentSphere.API.Services
             if (payment != null)
             {
                 payment.Status = PaymentStatus.Succeeded;
-                payment.TransactionId = paymentIntent.Charges.Data.FirstOrDefault()?.Id;
+                payment.TransactionId = paymentIntent.Id;
                 payment.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
@@ -556,8 +556,9 @@ namespace TalentSphere.API.Services
             // Update subscription status if needed
             if (invoice.Subscription != null)
             {
+                var stripeSubId = invoice.Subscription.Id;
                 var subscription = await _context.Subscriptions
-                    .FirstOrDefaultAsync(s => s.StripeSubscriptionId == invoice.Subscription);
+                    .FirstOrDefaultAsync(s => s.StripeSubscriptionId == stripeSubId);
 
                 if (subscription != null)
                 {
@@ -590,7 +591,7 @@ namespace TalentSphere.API.Services
                 // Use current_period_end to allow access until end of billing period
                 // Don't revoke immediately - user has paid for the current period
                 localSubscription.Status = subscription.CancelAtPeriodEnd 
-                    ? SubscriptionStatus.PendingCancellation 
+                    ? SubscriptionStatus.Active 
                     : SubscriptionStatus.Cancelled;
                 localSubscription.EndDate = subscription.CurrentPeriodEnd;
                 localSubscription.UpdatedAt = DateTime.UtcNow;

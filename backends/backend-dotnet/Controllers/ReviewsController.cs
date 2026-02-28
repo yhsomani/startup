@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TalentSphere.API.Data;
 using TalentSphere.API.DTOs;
 using TalentSphere.API.Models;
@@ -71,7 +72,7 @@ namespace TalentSphere.API.Controllers
                 return Ok(new PagedResult<ReviewDTO>
                 {
                     Data = reviews,
-                    Pagination = new PaginationMetadata
+                    Pagination = new ReviewPaginationMetadata
                     {
                         Page = page,
                         PageSize = pageSize,
@@ -80,7 +81,7 @@ namespace TalentSphere.API.Controllers
                         HasNext = page * pageSize < totalReviews,
                         HasPrevious = page > 1
                     },
-                    AverageRating = averageRating.HasValue ? Math.Round(averageRating.Value, 2) : 0,
+                    AverageRating = Math.Round(averageRating, 2),
                     TotalReviews = totalReviews
                 });
             }
@@ -94,13 +95,14 @@ namespace TalentSphere.API.Controllers
         [HttpPost("courses/{courseId}/reviews")]
         public async Task<ActionResult<ReviewDTO>> CreateReview(Guid courseId, [FromBody] CreateReviewRequest request)
         {
+            var userIdClaim = User.FindFirst("user_id")?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
+
             try
             {
-                var userIdClaim = User.FindFirst("user_id")?.Value;
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized(new { Message = "User not authenticated" });
-                }
 
                 // Check if user is enrolled in the course
                 var isEnrolled = await _context.Enrollments
@@ -153,7 +155,7 @@ namespace TalentSphere.API.Controllers
                     IsVerified = createdReview.IsVerified
                 };
 
-                return CreatedAtRoute(reviewDto, nameof(GetCourseReviews), new { courseId });
+                return CreatedAtAction(nameof(GetCourseReviews), new { courseId }, reviewDto);
             }
             catch (Exception ex)
             {
@@ -184,7 +186,7 @@ namespace TalentSphere.API.Controllers
 
                 if (review.UserId != userId)
                 {
-                    return Forbid(new { Message = "You can only update your own reviews" });
+                    return StatusCode(403, new { Message = "You can only update your own reviews" });
                 }
 
                 review.Rating = request.Rating;
@@ -223,7 +225,7 @@ namespace TalentSphere.API.Controllers
 
                 if (review.UserId != userId)
                 {
-                    return Forbid(new { Message = "You can only delete your own reviews" });
+                    return StatusCode(403, new { Message = "You can only delete your own reviews" });
                 }
 
                 _context.Reviews.Remove(review);

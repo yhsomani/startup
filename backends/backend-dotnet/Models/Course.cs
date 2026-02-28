@@ -37,5 +37,4 @@ public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         // Navigation properties for reviews
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
-    }
 }

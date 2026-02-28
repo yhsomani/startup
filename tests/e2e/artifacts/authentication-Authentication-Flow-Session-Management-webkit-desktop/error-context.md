@@ -9,18 +9,20 @@
       - /url: /courses
     - link "Challenges" [ref=e7]:
       - /url: /challenges
-    - generic [ref=e8]:
-      - link "Log In" [ref=e9]:
+    - link "Jobs & Courses" [ref=e8]:
+      - /url: /courses
+    - generic [ref=e9]:
+      - link "Log In" [ref=e10]:
         - /url: /login
-      - link "Sign Up" [ref=e10]:
+      - link "Sign Up" [ref=e11]:
         - /url: /register
-  - generic [ref=e12]:
-    - heading "Welcome to TalentSphere" [level=1] [ref=e13]
-    - paragraph [ref=e14]: The next-generation learning platform.
-    - generic [ref=e15]:
-      - link "Browse Courses" [ref=e16] [cursor=pointer]:
+  - generic [ref=e13]:
+    - heading "Welcome to TalentSphere" [level=1] [ref=e14]
+    - paragraph [ref=e15]: The next-generation learning platform.
+    - generic [ref=e16]:
+      - link "Browse Courses" [ref=e17] [cursor=pointer]:
         - /url: /courses
-      - link "Get Started" [ref=e17]:
+      - link "Get Started" [ref=e18]:
         - /url: /register
-  - button "Open AI Tutor" [ref=e18] [cursor=pointer]: 🤖
+  - button "Open AI Tutor" [ref=e19] [cursor=pointer]: 🤖
 ```

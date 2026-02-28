@@ -7,13 +7,14 @@
   - generic [ref=e9]:
     - generic [ref=e10]:
       - generic [ref=e11]: Email Address
-      - textbox "Email address" [active] [ref=e12]:
+      - textbox "Email address" [ref=e12]:
         - /placeholder: you@example.com
         - text: jobseeker@talentsphere.test
     - generic [ref=e13]:
       - generic [ref=e14]: Password
-      - textbox "Password" [ref=e15]:
+      - textbox "Password" [active] [ref=e15]:
         - /placeholder: ••••••••
+        - text: TestPassword123!
     - button "Login" [ref=e16] [cursor=pointer]
   - link "Forgot your password?" [ref=e18]:
     - /url: /forgot-password

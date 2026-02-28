@@ -160,7 +160,7 @@ namespace TalentSphere.API.Services
             await _context.SaveChangesAsync();
 
             // Publish course.created event
-            _eventPublisher.PublishEvent("course.created", new
+            _eventPublisher.Publish("talentsphere.events", "course.created", new
             {
                 eventId = Guid.NewGuid(),
                 eventType = "course.created",

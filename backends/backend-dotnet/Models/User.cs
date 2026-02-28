@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TalentSphere.API.Models
 {
+    public enum UserRole
+    {
+        STUDENT,
+        INSTRUCTOR,
+        ADMIN
+    }
+
     [Table("users")]
     public class User
     {
@@ -23,6 +30,15 @@ namespace TalentSphere.API.Models
         [Required]
         [Column("role")]
         public string Role { get; set; } = "STUDENT"; // STUDENT, INSTRUCTOR, ADMIN
+
+        [Column("first_name")]
+        public string? FirstName { get; set; }
+
+        [Column("last_name")]
+        public string? LastName { get; set; }
+
+        [Column("profile_picture_url")]
+        public string? ProfilePictureUrl { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

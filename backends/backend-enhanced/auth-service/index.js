@@ -47,6 +47,7 @@ class AuthService extends EnhancedServiceWithTracing {
                 autoValidate: true,
             },
             circuitBreaker: {
+                enabled: true,
                 timeout: 5000,
                 maxFailures: 3,
                 resetTimeout: 30000,
@@ -228,8 +229,8 @@ class AuthService extends EnhancedServiceWithTracing {
         this.app.use((error, req, res, next) => {
             const span = this.tracer
                 ? this.tracer
-                    .getActiveSpans()
-                    .find(s => s.getContext().spanId === req.traceContext?.spanId)
+                      .getActiveSpans()
+                      .find(s => s.getContext().spanId === req.traceContext?.spanId)
                 : null;
 
             if (span) {
@@ -303,8 +304,8 @@ class AuthService extends EnhancedServiceWithTracing {
             const user = await this.database.insert("users", {
                 email: userData.email,
                 password_hash: hashedPassword,
-                first_name: userData.firstName || userData.name?.split(' ')[0] || '',
-                last_name: userData.lastName || userData.name?.split(' ').slice(1).join(' ') || '',
+                first_name: userData.firstName || userData.name?.split(" ")[0] || "",
+                last_name: userData.lastName || userData.name?.split(" ").slice(1).join(" ") || "",
                 role: userData.role || "user",
             });
 
@@ -408,10 +409,17 @@ class AuthService extends EnhancedServiceWithTracing {
                     name: Joi.string().min(2).max(100),
                     firstName: Joi.string().min(1).max(100),
                     lastName: Joi.string().min(1).max(100),
-                    role: Joi.string().valid('STUDENT', 'RECRUITER', 'ADMIN', 'user', 'employee', 'employer'),
-                    company: Joi.string().allow('', null),
-                    title: Joi.string().allow('', null)
-                }).or('name', 'firstName'),
+                    role: Joi.string().valid(
+                        "STUDENT",
+                        "RECRUITER",
+                        "ADMIN",
+                        "user",
+                        "employee",
+                        "employer"
+                    ),
+                    company: Joi.string().allow("", null),
+                    title: Joi.string().allow("", null),
+                }).or("name", "firstName"),
                 outputSchema: Joi.object({
                     success: Joi.boolean().required(),
                     user: Joi.object().required(),

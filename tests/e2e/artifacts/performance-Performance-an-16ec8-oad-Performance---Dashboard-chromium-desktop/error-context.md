@@ -12,10 +12,10 @@
         - text: jobseeker@talentsphere.test
     - generic [ref=e13]:
       - generic [ref=e14]: Password
-      - textbox "Password" [active] [ref=e15]:
+      - textbox "Password" [ref=e15]:
         - /placeholder: ••••••••
         - text: TestPassword123!
-    - button "Login" [ref=e16] [cursor=pointer]
+    - button "Logging In..." [disabled] [ref=e16]
   - link "Forgot your password?" [ref=e18] [cursor=pointer]:
     - /url: /forgot-password
   - paragraph [ref=e19]:

@@ -247,8 +247,12 @@ app.use(
 app.use(
     cors({
         origin: (origin, callback) => {
-            const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
-            if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+            const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:8000",
+            ];
+            if (!origin || allowedOrigins.includes(origin)) {
                 return callback(null, true);
             }
             return callback(new Error("CORS policy violation"));

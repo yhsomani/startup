@@ -102,9 +102,11 @@ class SecurityHeaders {
         return {
             origin: (origin, callback) => {
                 // Allow requests with no origin (mobile apps, curl, etc.)
-                if (!origin) {return callback(null, true);}
+                if (!origin) {
+                    return callback(null, true);
+                }
 
-                if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+                if (allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
                     callback(new Error("Origin not allowed by CORS"));

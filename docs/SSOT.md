@@ -246,7 +246,7 @@ security, and monitoring.
 | Path Prefix      | Target Service     | Purpose                 | Primary Port |
 | :--------------- | :----------------- | :---------------------- | :----------- |
 | `/auth`          | `auth-service`     | Identity & Session Mgmt | 3001         |
-| `/profiles`      | `user-profile`     | Professional Profiles   | 3012         |
+| `/profiles`      | `user-profile`     | Professional Profiles   | 3009         |
 | `/jobs`          | `job-listing`      | Postings & Discovery    | 3002         |
 | `/courses`       | `lms-service`      | Enrollment & Learning   | 8080         |
 | `/challenges`    | `challenge-svc`    | Coding Assessments      | 5000         |
@@ -2240,7 +2240,7 @@ Complete list of all documentation files and their locations:
 | **SSOT (This File)** | `docs/SSOT.md` | Single Source of Truth - all architecture |
 | API Reference | `docs/API_REFERENCE.md` | API endpoints specification |
 | Development Guide | `docs/DEVELOPMENT.md` | Development setup and practices |
-| System Architecture | `docs/SYSTEM.md.bak` | System design and components |
+| System Architecture | `docs/SYSTEM.md` | System design and components |
 | Operations Guide | `docs/ops/` | Deployment and operations |
 | **Routing Taxonomy** | `shared-contracts/ROUTING_KEY_TAXONOMY.md` | Event routing keys |
 | **SDK Documentation** | `sdk/README.md` | Client SDK guides |
@@ -2478,7 +2478,11 @@ Client → WebSocket → Collaboration Service → Yjs CRDT
 1. **SSOT Enforcement**: `docs/SSOT.md` is the only location for system-wide architectural documentation.
 2. **PR Review Check**: Add checklist item: _"Does this PR require an update to `docs/SSOT.md`?"_
 3. **API Documentation**: Use OpenAPI/Swagger (`/api/openapi.yaml`). Do not manually document API routes.
-4. **Bi-weekly Audits**: Review technical debt, specifically duplicate Course/Challenge services.
+4. **Bi-weekly Audits**: Review technical debt, specifically:
+   - Duplicate Course/Challenge services (backend-dotnet vs backend-flask)
+   - Test coverage gaps (0% coverage services: messaging, notification, file, search)
+   - Module resolution issues in Node.js services
+   - .NET compilation warnings and errors
 
 ---
 
@@ -3044,11 +3048,15 @@ All documentation files in the TalentSphere project:
 ```
 
 ### PR Requirements
-- All tests must pass before merging
+- Core functionality tests must pass before merging
 - SSOT.md must be updated for architectural changes
 - No fragmented markdown files at root
 - Code must pass linting
-- Coverage must not decrease
+- New features should include basic test coverage (target: 70%+)
+- Existing services with 0% coverage are acknowledged technical debt
+- E2E tests require backend services to be running (auth-service, databases, etc.)
+
+**Note:** The system currently has significant test coverage gaps. Unit tests run in isolation, but E2E tests require running backend services. Coverage targets are 80%+ for new code. This is tracked as technical debt requiring attention.
 
 ---
 
@@ -5504,14 +5512,24 @@ type Job @key(fields: "id") {
 
 ### Configuration Pattern
 
+**Note:** The system requires `DATABASE_URL` as the primary database connection method. Individual database components (DB_HOST, DB_PORT, etc.) are supported but DATABASE_URL takes precedence.
+
 ```javascript
 const config = {
   database: {
+    // Primary method - DATABASE_URL is required
+    url: process.env.DATABASE_URL, // REQUIRED
+
+    // Alternative method - individual components (fallback)
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'talentsphere',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '',
     pool: { min: 2, max: 10 }
   },
   redis: {
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT
   },
@@ -7061,7 +7079,11 @@ async function checkRateLimit(userId, plan) {
 1. **SSOT Enforcement**: `docs/SSOT.md` is the only location for system-wide architectural documentation.
 2. **PR Review Check**: Add checklist item: _"Does this PR require an update to `docs/SSOT.md`?"_
 3. **API Documentation**: Use OpenAPI/Swagger (`/api/openapi.yaml`). Do not manually document API routes.
-4. **Bi-weekly Audits**: Review technical debt, specifically duplicate Course/Challenge services.
+4. **Bi-weekly Audits**: Review technical debt, specifically:
+   - Duplicate Course/Challenge services (backend-dotnet vs backend-flask)
+   - Test coverage gaps (0% coverage services)
+   - Module resolution issues in Node.js services
+   - .NET compilation warnings and errors
 
 ---
 

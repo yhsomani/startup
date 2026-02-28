@@ -14,6 +14,7 @@
       - generic [ref=e14]: Password
       - textbox "Password" [active] [ref=e15]:
         - /placeholder: ••••••••
+        - text: TestPassword123!
     - button "Login" [ref=e16] [cursor=pointer]
   - link "Forgot your password?" [ref=e18]:
     - /url: /forgot-password

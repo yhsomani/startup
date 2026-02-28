@@ -70,6 +70,7 @@
     "swagger-jsdoc": "^1.2.1",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.9.3",
+    "vite-plugin-compression": "^0.5.1",
     "webpack-bundle-analyzer": "^5.2.0"
   },
   "workspaces": [

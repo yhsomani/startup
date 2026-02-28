@@ -6,6 +6,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import federation from "@originjs/vite-plugin-federation";
 import { VitePWA } from "vite-plugin-pwa";
+import viteCompression from "vite-plugin-compression";
 
 // Simple remote configurations (avoid complex types)
 const remotes = {
@@ -29,6 +30,7 @@ const shared = {
 export default defineConfig({
     base: process.env.CDN_URL || "/",
     plugins: [
+        viteCompression(),
         react(),
         VitePWA({
             registerType: "autoUpdate",
