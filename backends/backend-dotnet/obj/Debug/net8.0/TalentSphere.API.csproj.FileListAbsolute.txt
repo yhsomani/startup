@@ -1,0 +1,9 @@
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.csproj.AssemblyReference.cache
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.AssemblyInfoInputs.cache
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.AssemblyInfo.cs
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.csproj.CoreCompileInputs.cache
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\ysoma\OneDrive\Documents\Startup\TalentSphere\backends\backend-dotnet\obj\Debug\net8.0\TalentSphere.API.sourcelink.json
