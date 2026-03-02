@@ -418,29 +418,22 @@ class NotificationService {
   }
 
   /**
-   * Verify JWT token
+   * Verify JWT token (aligned with rest of the system)
    */
   async verifyToken(token) {
-    const client = await this.dbPool.getClient();
-
+    if (!token) return null;
     try {
-      const result = await client.query(`
-        SELECT u.*, up.preferences 
-        FROM users u 
-        LEFT JOIN user_preferences up ON u.id = up.user_id 
-        WHERE u.token = $1 AND u.is_active = TRUE AND u.token_expires > NOW()
-      `, [token]);
-
-      if (result.rows.length === 0) {
-        return null;
-      }
-
-      const user = result.rows[0];
-      user.preferences = user.preferences ? JSON.parse(user.preferences) : {};
-
-      return user;
-    } finally {
-      client.release();
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'talentsphere-secret-key');
+      return {
+        id: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
+      };
+    } catch (error) {
+      return null;
     }
   }
 

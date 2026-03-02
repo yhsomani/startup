@@ -7,6 +7,9 @@ import { http, HttpResponse } from 'msw';
 // Mock scrollTo
 window.scrollTo = vi.fn() as any;
 
+// API Configuration
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
+
 describe('Enrollment Flows', () => {
     beforeEach(() => {
         localStorage.clear();
@@ -71,7 +74,7 @@ describe('Enrollment Flows', () => {
 
     it('should handle enrollment errors gracefully', async () => {
         server.use(
-            http.post('http://localhost:8000/api/v1/enrollments', () => {
+            http.post(`${API_BASE_URL}/enrollments`, () => {
                 return HttpResponse.json(
                     { error: { code: 'ALREADY_ENROLLED', message: 'Already enrolled in this course' } },
                     { status: 409 }

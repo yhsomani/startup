@@ -4,7 +4,7 @@
  */
 
 const Redis = require("ioredis");
-const logger = require("../shared/enhanced-logger");
+const logger = require("../../shared/enhanced-logger");
 
 class RateLimiter {
     constructor(options = {}) {

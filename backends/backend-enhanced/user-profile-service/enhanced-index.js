@@ -319,7 +319,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
             }
 
             // Verify that the user creating the profile is the same user or an admin
-            if (userId !== authenticatedUserId && req.user.role !== 'admin') {
+            if (userId !== authenticatedUserId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only create your own profile'
@@ -425,7 +425,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
             }
 
             // Check authorization
-            if (profile.user_id !== req.user.id && req.user.role !== 'admin') {
+            if (profile.user_id !== req.user.id && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You do not have permission to view this profile'
@@ -478,7 +478,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only update your own profile'
@@ -555,7 +555,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only delete your own profile'
@@ -626,7 +626,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
             }
 
             // Verify that the user is accessing their own profile or is an admin
-            if (userId !== req.user.id && req.user.role !== 'admin') {
+            if (userId !== req.user.id && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You do not have permission to view this profile'
@@ -663,7 +663,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only add skills to your own profile'
@@ -746,7 +746,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (skillCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (skillCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only update your own skills'
@@ -802,7 +802,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (skillCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (skillCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only delete your own skills'
@@ -849,7 +849,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only add experiences to your own profile'
@@ -1042,7 +1042,7 @@ class UserProfileService extends EnhancedServiceWithTracing {
                 });
             }
 
-            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'admin') {
+            if (profileCheck.rows[0].user_id !== userId && req.user.role !== 'ADMIN') {
                 return res.status(403).json({
                     error: 'FORBIDDEN',
                     message: 'You can only add education to your own profile'

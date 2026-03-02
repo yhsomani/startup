@@ -39,6 +39,7 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
         localStorage.setItem('accessToken', token);
         localStorage.setItem('refreshToken', response.data.refreshToken || '');
         localStorage.setItem('userId', response.data.user?.id || '');
+        localStorage.setItem('email', credentials.email);
         localStorage.setItem('role', response.data.user?.role || '');
     }
     return response.data;

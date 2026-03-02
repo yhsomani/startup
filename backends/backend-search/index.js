@@ -629,15 +629,58 @@ class SearchService extends EnhancedServiceWithTracing {
 
   async searchContent(query, user) {
     return this.executeWithTracing('search.content.process', async () => {
-      // This would search through user-generated content like posts, articles, etc.
-      // For now, return a placeholder
-      
+      const { q: searchTerm, type = 'all', limit = 20, offset = 0 } = query;
+
+      if (!searchTerm || searchTerm.length < 2) {
+        return {
+          content: [],
+          query: { ...query },
+          total: 0,
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      let results = [];
+      let total = 0;
+
+      try {
+        await this.database.initialize();
+
+        const searchPattern = `%${searchTerm}%`;
+        
+        if (type === 'all' || type === 'posts') {
+          const postsResult = await this.database.query(`
+            SELECT id, 'post' as type, title, content, created_at as timestamp
+            FROM posts 
+            WHERE (title ILIKE $1 OR content ILIKE $1)
+            ORDER BY created_at DESC
+            LIMIT $2 OFFSET $3
+          `, [searchPattern, limit, offset]);
+          results.push(...postsResult.rows);
+        }
+
+        if (type === 'all' || type === 'articles') {
+          const articlesResult = await this.database.query(`
+            SELECT id, 'article' as type, title, content, created_at as timestamp
+            FROM articles 
+            WHERE (title ILIKE $1 OR content ILIKE $1)
+            ORDER BY created_at DESC
+            LIMIT $2 OFFSET $3
+          `, [searchPattern, limit, offset]);
+          results.push(...articlesResult.rows);
+        }
+
+        total = results.length;
+        results = results.slice(0, limit);
+      } catch (error) {
+        console.warn('Content search error:', error.message);
+      }
+
       return {
-        content: [],
+        content: results,
         query: { ...query },
-        total: 0,
-        timestamp: new Date().toISOString(),
-        message: 'Content search coming soon'
+        total,
+        timestamp: new Date().toISOString()
       };
     });
   }

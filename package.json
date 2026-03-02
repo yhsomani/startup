@@ -24,7 +24,14 @@
     "clean": "rm -rf coverage/ dist/ build/ logs/",
     "clean:all": "rm -rf node_modules/ coverage/ dist/ build/ logs/ && npm install",
     "security:audit": "npm audit --audit-level moderate",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "docs:validate": "node tools/validate-docs.js",
+    "docs:check-ports": "node tools/check-ports.js",
+    "docs:verify": "node tools/verify-references.js",
+    "docs:audit": "node scripts/alignment-tools/index.js validate-docs",
+    "docs:update": "node scripts/alignment-tools/index.js update-docs",
+    "docs:report": "node scripts/alignment-tools/index.js report:generate",
+    "quality:check": "node scripts/alignment-tools/index.js validate-all"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -70,6 +77,7 @@
     "swagger-jsdoc": "^1.2.1",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.9.3",
+    "vite-plugin-compression": "^0.5.1",
     "webpack-bundle-analyzer": "^5.2.0"
   },
   "workspaces": [

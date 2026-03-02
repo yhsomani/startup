@@ -44,16 +44,16 @@ class JobService extends EnhancedServiceWithTracing {
 
     // Initialize database connection
     this.database = getDatabaseManager();
-    
+
     // Initialize service contracts
     this.initializeContracts();
-    
+
     // Create Express app with tracing middleware
     this.app = express();
     this.server = null;
     this.initializeMiddleware();
     this.initializeRoutes();
-    
+
     // Seed demo data
     this.seedDemoData().catch(console.error);
   }
@@ -61,7 +61,7 @@ class JobService extends EnhancedServiceWithTracing {
   initializeContracts() {
     // Define service contracts for validation
     this.serviceContract = new ServiceContract('job-service');
-    
+
     // Job creation schema
     this.serviceContract.defineOperation('createJob', {
       inputSchema: {
@@ -72,12 +72,12 @@ class JobService extends EnhancedServiceWithTracing {
           description: { type: 'string', minLength: 20, maxLength: 5000 },
           companyId: { type: 'string' },
           postedBy: { type: 'string' },
-          employmentType: { 
-            type: 'string', 
-            enum: ['full-time', 'part-time', 'contract', 'temporary', 'internship', 'remote'] 
+          employmentType: {
+            type: 'string',
+            enum: ['full-time', 'part-time', 'contract', 'temporary', 'internship', 'remote']
           },
-          experienceLevel: { 
-            type: 'string', 
+          experienceLevel: {
+            type: 'string',
             enum: ['entry', 'mid', 'senior', 'executive'],
             default: 'mid'
           },
@@ -103,8 +103,8 @@ class JobService extends EnhancedServiceWithTracing {
               min: { type: 'number', minimum: 0 },
               max: { type: 'number', minimum: 0 },
               currency: { type: 'string', default: 'USD' },
-              period: { 
-                type: 'string', 
+              period: {
+                type: 'string',
                 enum: ['hourly', 'monthly', 'yearly'],
                 default: 'yearly'
               }
@@ -167,12 +167,12 @@ class JobService extends EnhancedServiceWithTracing {
         properties: {
           q: { type: 'string', minLength: 2 },
           location: { type: 'string' },
-          employmentType: { 
-            type: 'string', 
-            enum: ['full-time', 'part-time', 'contract', 'temporary', 'internship', 'remote'] 
+          employmentType: {
+            type: 'string',
+            enum: ['full-time', 'part-time', 'contract', 'temporary', 'internship', 'remote']
           },
-          experienceLevel: { 
-            type: 'string', 
+          experienceLevel: {
+            type: 'string',
             enum: ['entry', 'mid', 'senior', 'executive']
           },
           salaryMin: { type: 'number', minimum: 0 },
@@ -182,8 +182,8 @@ class JobService extends EnhancedServiceWithTracing {
           postedWithin: { type: 'string', enum: ['24h', '7d', '30d', '90d'] },
           limit: { type: 'number', minimum: 1, maximum: 100, default: 20 },
           offset: { type: 'number', minimum: 0, default: 0 },
-          sortBy: { 
-            type: 'string', 
+          sortBy: {
+            type: 'string',
             enum: ['relevance', 'posted', 'salary', 'company'],
             default: 'posted'
           }
@@ -213,7 +213,7 @@ class JobService extends EnhancedServiceWithTracing {
     // Security middleware
     this.app.use(helmet());
     this.app.use(cors());
-    
+
     // Rate limiting
     this.app.use(rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -231,11 +231,11 @@ class JobService extends EnhancedServiceWithTracing {
     this.app.use((req, res, next) => {
       req.requestId = req.headers['x-request-id'] || uuidv4();
       req.correlationId = req.headers['x-correlation-id'] || req.traceId || uuidv4();
-      
+
       res.setHeader('x-request-id', req.requestId);
       res.setHeader('x-correlation-id', req.correlationId);
       res.setHeader('x-service', this.config.serviceName);
-      
+
       next();
     });
   }
@@ -244,7 +244,7 @@ class JobService extends EnhancedServiceWithTracing {
     // Health check
     this.app.get('/health', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('job.health', req.traceContext) : null;
-      
+
       if (span) {
         span.setTag('component', 'job-service');
         span.setTag('health.check.type', 'service');
@@ -252,7 +252,7 @@ class JobService extends EnhancedServiceWithTracing {
 
       try {
         const health = await this.getServiceHealth();
-        
+
         if (span) {
           span.setTag('health.status', 'healthy');
           span.finish();
@@ -264,7 +264,7 @@ class JobService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(503).json({
           status: 'unhealthy',
           error: error.message
@@ -275,10 +275,10 @@ class JobService extends EnhancedServiceWithTracing {
     // Metrics endpoint
     this.app.get('/metrics', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('job.metrics', req.traceContext) : null;
-      
+
       try {
         const metrics = this.getTracingMetrics();
-        
+
         if (span) {
           span.finish();
         }
@@ -289,15 +289,15 @@ class JobService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(500).json({ error: error.message });
       }
     });
 
     // Job CRUD operations
-    this.app.post('/jobs', 
+    this.app.post('/jobs',
       auth.required,
-      auth.requireRole(['hr', 'admin', 'super_admin']),
+      auth.requireRole(['RECRUITER', 'ADMIN']),
       auth.requireCompanyAccess,
       jobValidationMiddleware.createJob,
       async (req, res, next) => {
@@ -308,7 +308,7 @@ class JobService extends EnhancedServiceWithTracing {
       }
     );
 
-    this.app.get('/jobs', 
+    this.app.get('/jobs',
       auth.optional, // Allow public job search
       jobValidationMiddleware.searchJobs,
       async (req, res, next) => {
@@ -326,14 +326,14 @@ class JobService extends EnhancedServiceWithTracing {
       });
     });
 
-    this.app.put('/jobs/:jobId', auth.required, auth.requireRole(['hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.put('/jobs/:jobId', auth.required, auth.requireRole(['RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.updateJob', {
         validateInput: false,
         validateOutput: false
       });
     });
 
-    this.app.delete('/jobs/:jobId', auth.required, auth.requireRole(['hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.delete('/jobs/:jobId', auth.required, auth.requireRole(['RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.deleteJob', {
         validateInput: false,
         validateOutput: false
@@ -341,7 +341,7 @@ class JobService extends EnhancedServiceWithTracing {
     });
 
     // Job matching
-    this.app.get('/jobs/:jobId/matches', auth.required, auth.requireRole(['hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.get('/jobs/:jobId/matches', auth.required, auth.requireRole(['RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.findMatches', {
         validateInput: false,
         validateOutput: false
@@ -349,7 +349,7 @@ class JobService extends EnhancedServiceWithTracing {
     });
 
     // Job analytics
-    this.app.get('/jobs/:jobId/analytics', auth.required, auth.requireRole(['hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.get('/jobs/:jobId/analytics', auth.required, auth.requireRole(['RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.getAnalytics', {
         validateInput: false,
         validateOutput: false
@@ -357,14 +357,14 @@ class JobService extends EnhancedServiceWithTracing {
     });
 
     // Application management
-    this.app.post('/jobs/:jobId/apply', auth.required, auth.requireRole(['employee', 'manager', 'hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.post('/jobs/:jobId/apply', auth.required, auth.requireRole(['STUDENT', 'INSTRUCTOR', 'RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.apply', {
         validateInput: false,
         validateOutput: false
       });
     });
 
-    this.app.get('/jobs/:jobId/applications', auth.required, auth.requireRole(['hr', 'admin', 'super_admin']), async (req, res) => {
+    this.app.get('/jobs/:jobId/applications', auth.required, auth.requireRole(['RECRUITER', 'ADMIN']), async (req, res) => {
       await this.handleRequestWithTracing(req, res, 'job.getApplications', {
         validateInput: false,
         validateOutput: false
@@ -390,7 +390,7 @@ class JobService extends EnhancedServiceWithTracing {
     // Error handling middleware
     this.app.use((error, req, res, next) => {
       const span = this.tracer ? this.tracer.getActiveSpans().find(s => s.getContext().spanId === req.traceContext?.spanId) : null;
-      
+
       if (span) {
         span.logError(error);
         span.finish();
@@ -423,7 +423,7 @@ class JobService extends EnhancedServiceWithTracing {
   // Operation implementations
   async executeOperation(request, options) {
     const operationName = options.operationName || 'unknown';
-    
+
     switch (operationName) {
       case 'job.createJob':
         return this.createJob(request.body);
@@ -488,6 +488,8 @@ class JobService extends EnhancedServiceWithTracing {
            new_applications = job_analytics.new_applications + 1`,
         []
       );
+      // Initialize per-job analytics tracking in memory (for real-time access)
+      this.jobAnalytics.set(job.id, {
         jobId: job.id,
         views: [],
         applications: [],
@@ -498,14 +500,16 @@ class JobService extends EnhancedServiceWithTracing {
       });
 
       // Index job skills for matching
-      if (job.skills.length > 0) {
-        job.skills.forEach(skill => {
-          if (!this.jobSkills.has(skill.name.toLowerCase())) {
-            this.jobSkills.set(skill.name.toLowerCase(), []);
+      if (job.skills_required && job.skills_required.length > 0) {
+        job.skills_required.forEach(skill => {
+          const skillName = typeof skill === 'string' ? skill : skill.name;
+          if (!skillName) return;
+          if (!this.jobSkills.has(skillName.toLowerCase())) {
+            this.jobSkills.set(skillName.toLowerCase(), []);
           }
-          this.jobSkills.get(skill.name.toLowerCase()).push({
+          this.jobSkills.get(skillName.toLowerCase()).push({
             jobId: job.id,
-            level: skill.level,
+            level: skill.level || 'required',
             years: skill.years || 0
           });
         });
@@ -640,7 +644,7 @@ class JobService extends EnhancedServiceWithTracing {
           orderBy = 'company_id ASC';
           break;
         case 'relevance':
-          orderBy = searchTerm 
+          orderBy = searchTerm
             ? `ts_rank(search_vector, plainto_tsquery('english', $1)) DESC`
             : 'posted_at DESC';
           break;
@@ -688,14 +692,14 @@ class JobService extends EnhancedServiceWithTracing {
 
       // Execute query
       const result = await this.database.query(searchQuery, queryParams);
-      
+
       // Get total count for pagination
       const countQuery = `
         SELECT COUNT(*) as total
         FROM jobs
         WHERE ${whereClause}
       `;
-      
+
       const countParams = queryParams.slice(0, -2); // Remove limit and offset
       const countResult = await this.database.query(countQuery, countParams);
       const total = parseInt(countResult.rows[0].total);
@@ -714,9 +718,8 @@ class JobService extends EnhancedServiceWithTracing {
     });
   }
 
-  // Helper method to get date condition
+  // Helper method to get date condition for SQL queries
   getDateCondition(postedWithin) {
-    const now = new Date();
     switch (postedWithin) {
       case '24h':
         return `NOW() - INTERVAL '24 hours'`;
@@ -729,88 +732,6 @@ class JobService extends EnhancedServiceWithTracing {
       default:
         return `NOW() - INTERVAL '30 days'`;
     }
-  }
-        jobs = jobs.filter(job => job.experienceLevel === experienceLevel);
-      }
-
-      // Salary range filter
-      if (salaryMin) {
-        jobs = jobs.filter(job => 
-          job.salary && job.salary.min && job.salary.min >= salaryMin
-        );
-      }
-      if (salaryMax) {
-        jobs = jobs.filter(job => 
-          job.salary && job.salary.max && job.salary.max <= salaryMax
-        );
-      }
-
-      // Skills filter
-      if (skills && skills.length > 0) {
-        const skillList = Array.isArray(skills) ? skills : [skills];
-        jobs = jobs.filter(job => {
-          const jobSkills = job.skills.map(s => s.name.toLowerCase());
-          return skillList.some(skill => 
-            jobSkills.some(jobSkill => jobSkill.includes(skill.toLowerCase()))
-          );
-        });
-      }
-
-      // Company filter
-      if (company) {
-        jobs = jobs.filter(job => 
-          job.companyId === company || // If company ID is provided
-          job.companyName && job.companyName.toLowerCase().includes(company.toLowerCase()) // If company name is searched
-        );
-      }
-
-      // Posted within filter
-      if (postedWithin) {
-        const now = new Date();
-        const cutoffDate = new Date();
-        
-        switch (postedWithin) {
-          case '24h':
-            cutoffDate.setDate(now.getDate() - 1);
-            break;
-          case '7d':
-            cutoffDate.setDate(now.getDate() - 7);
-            break;
-          case '30d':
-            cutoffDate.setDate(now.getDate() - 30);
-            break;
-          case '90d':
-            cutoffDate.setDate(now.getDate() - 90);
-            break;
-        }
-        
-        jobs = jobs.filter(job => new Date(job.createdAt) >= cutoffDate);
-      }
-
-      // Sort results
-      jobs = this.sortJobs(jobs, sortBy);
-
-      // Pagination
-      const total = jobs.length;
-      const paginatedJobs = jobs.slice(offset, offset + limit);
-
-      // Record search analytics
-      this.recordSearchAnalytics(query, total);
-
-      return {
-        jobs: paginatedJobs.map(job => ({
-          ...job,
-          salary: job.salary ? {
-            ...job.salary,
-            display: this.formatSalary(job.salary)
-          } : null
-        })),
-        total,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        hasMore: offset + limit < total
-      };
-    });
   }
 
   async getJob(jobId, userId = null, ipAddress = null, userAgent = null) {
@@ -844,7 +765,6 @@ class JobService extends EnhancedServiceWithTracing {
            viewed_applications = job_analytics.viewed_applications + 1`,
         []
       );
-      }
 
       return {
         job: {
@@ -926,7 +846,7 @@ class JobService extends EnhancedServiceWithTracing {
     // 1. Query User Service for candidates with matching skills
     // 2. Apply machine learning for better matching
     // 3. Consider location preferences, experience level, etc.
-    
+
     return [
       {
         userId: 'demo-user-1',
@@ -1006,7 +926,7 @@ class JobService extends EnhancedServiceWithTracing {
       // Check if user has already applied
       const existingApplication = Array.from(this.applications.values())
         .find(app => app.jobId === jobId && app.userId === applicationData.userId);
-      
+
       if (existingApplication) {
         throw new Error('You have already applied for this job');
       }
@@ -1091,7 +1011,7 @@ class JobService extends EnhancedServiceWithTracing {
     return this.executeWithTracing('job.getRecommendedJobs.process', async () => {
       // This would integrate with User Service to get user profile
       // and with ML algorithms for personalized recommendations
-      
+
       const activeJobs = Array.from(this.jobs.values())
         .filter(job => job.isActive && job.status === 'active')
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1143,7 +1063,7 @@ class JobService extends EnhancedServiceWithTracing {
 
   formatSalary(salary) {
     if (!salary) return 'Not specified';
-    
+
     const formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: salary.currency || 'USD',
@@ -1157,7 +1077,7 @@ class JobService extends EnhancedServiceWithTracing {
     } else if (salary.max) {
       return `Up to ${formatter.format(salary.max)}/${salary.period}`;
     }
-    
+
     return 'Not specified';
   }
 
@@ -1334,7 +1254,7 @@ class JobService extends EnhancedServiceWithTracing {
 
   async start() {
     const startupSpan = this.tracer ? this.tracer.startSpan('job-service.startup') : null;
-    
+
     try {
       this.server = this.app.listen(this.config.port, () => {
         logger.info(`💼 Job Service running on port ${this.config.port}`);
@@ -1359,7 +1279,7 @@ class JobService extends EnhancedServiceWithTracing {
 
   async stop() {
     const shutdownSpan = this.tracer ? this.tracer.startSpan('job-service.shutdown') : null;
-    
+
     try {
       if (this.server) {
         await new Promise((resolve) => {

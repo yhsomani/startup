@@ -4,77 +4,67 @@
  */
 
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const GitHubStrategy = require('passport-github2').Strategy;
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const { v4: uuidv4 } = require('uuid');
 
+let db = null;
+try {
+    const dbModule = require('./database-connection');
+    db = dbModule;
+} catch (e) {
+    console.warn('Database connection not available for OAuth service');
+}
+
 class OAuthService {
-    constructor() {
+    constructor(options = {}) {
         this.providers = new Map();
-        this.initializeStrategies();
+        this.userCache = new Map();
+        this.initializeStrategies(options);
     }
 
-    /**
-     * Initialize OAuth strategies
-     */
-    initializeStrategies() {
-        // Google OAuth Strategy
-        if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    initializeStrategies(options = {}) {
+        const { googleClientId, googleClientSecret, googleCallbackUrl } = options;
+        const { githubClientId, githubClientSecret, githubCallbackUrl } = options;
+        const { linkedinClientId, linkedinClientSecret, linkedinCallbackUrl } = options;
+
+        const GoogleStrategy = this.loadStrategy('passport-google-oauth20', 'Google');
+        const GitHubStrategy = this.loadStrategy('passport-github2', 'GitHub');
+        const LinkedInStrategy = this.loadStrategy('passport-linkedin-oauth2', 'LinkedIn');
+
+        if (googleClientId && googleClientSecret && GoogleStrategy) {
             passport.use(new GoogleStrategy({
-                clientID: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback',
+                clientID: googleClientId,
+                clientSecret: googleClientSecret,
+                callbackURL: googleCallbackUrl || '/auth/google/callback',
                 scope: ['profile', 'email']
             }, this.googleVerifyCallback.bind(this)));
 
-            this.providers.set('google', {
-                clientId: process.env.GOOGLE_CLIENT_ID,
-                callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback',
-                scope: ['profile', 'email']
-            });
+            this.providers.set('google', { clientId: googleClientId, callbackURL: googleCallbackUrl, scope: ['profile', 'email'] });
         }
 
-        // GitHub OAuth Strategy
-        if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+        if (githubClientId && githubClientSecret && GitHubStrategy) {
             passport.use(new GitHubStrategy({
-                clientID: process.env.GITHUB_CLIENT_ID,
-                clientSecret: process.env.GITHUB_CLIENT_SECRET,
-                callbackURL: process.env.GITHUB_CALLBACK_URL || '/auth/github/callback'
+                clientID: githubClientId,
+                clientSecret: githubClientSecret,
+                callbackURL: githubCallbackUrl || '/auth/github/callback'
             }, this.githubVerifyCallback.bind(this)));
 
-            this.providers.set('github', {
-                clientId: process.env.GITHUB_CLIENT_ID,
-                callbackURL: process.env.GITHUB_CALLBACK_URL || '/auth/github/callback',
-                scope: ['user:email']
-            });
+            this.providers.set('github', { clientId: githubClientId, callbackURL: githubCallbackUrl, scope: ['user:email'] });
         }
 
-        // LinkedIn OAuth Strategy
-        if (process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET) {
+        if (linkedinClientId && linkedinClientSecret && LinkedInStrategy) {
             passport.use(new LinkedInStrategy({
-                clientID: process.env.LINKEDIN_CLIENT_ID,
-                clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-                callbackURL: process.env.LINKEDIN_CALLBACK_URL || '/auth/linkedin/callback',
+                clientID: linkedinClientId,
+                clientSecret: linkedinClientSecret,
+                callbackURL: linkedinCallbackUrl || '/auth/linkedin/callback',
                 scope: ['r_emailaddress', 'r_liteprofile', 'r_basicprofile']
             }, this.linkedinVerifyCallback.bind(this)));
 
-            this.providers.set('linkedin', {
-                clientId: process.env.LINKEDIN_CLIENT_ID,
-                callbackURL: process.env.LINKEDIN_CALLBACK_URL || '/auth/linkedin/callback',
-                scope: ['r_emailaddress', 'r_liteprofile', 'r_basicprofile']
-            });
+            this.providers.set('linkedin', { clientId: linkedinClientId, callbackURL: linkedinCallbackUrl, scope: ['r_emailaddress', 'r_liteprofile', 'r_basicprofile'] });
         }
 
-        // Serialize user for session
-        passport.serializeUser((user, done) => {
-            done(null, user.id);
-        });
-
-        // Deserialize user from session
+        passport.serializeUser((user, done) => done(null, user.id));
         passport.deserializeUser(async (id, done) => {
             try {
-                // This would typically fetch user from database
                 const user = await this.findUserById(id);
                 done(null, user);
             } catch (error) {
@@ -83,94 +73,153 @@ class OAuthService {
         });
     }
 
-    /**
-     * Google OAuth verification callback
-     */
-    async googleVerifyCallback(accessToken, refreshToken, profile, done) {
+    loadStrategy(strategyName, providerName) {
         try {
-            // Create or update user based on Google profile
-            const user = await this.findOrCreateUser({
-                provider: 'google',
-                providerId: profile.id,
-                email: profile.emails[0].value,
-                name: profile.displayName,
-                firstName: profile.name?.givenName,
-                lastName: profile.name?.familyName,
-                avatar: profile.photos[0]?.value,
-                accessToken,
-                refreshToken
-            });
-
-            return done(null, user);
-        } catch (error) {
-            return done(error, null);
+            return require(strategyName);
+        } catch (e) {
+            console.warn(`${providerName} OAuth strategy not installed`);
+            return null;
         }
     }
 
-    /**
-     * GitHub OAuth verification callback
-     */
-    async githubVerifyCallback(accessToken, refreshToken, profile, done) {
-        try {
-            // Create or update user based on GitHub profile
-            const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
-            const user = await this.findOrCreateUser({
-                provider: 'github',
-                providerId: profile.id,
-                email: email,
-                username: profile.username,
-                name: profile.displayName || profile.username,
-                avatar: profile.photos[0]?.value,
-                accessToken,
-                refreshToken
-            });
+    getTableName() {
+        return 'oauth_users';
+    }
 
-            return done(null, user);
+    async ensureTableExists() {
+        if (!db?.pool) return false;
+        try {
+            await db.pool.query(`
+                CREATE TABLE IF NOT EXISTS ${this.getTableName()} (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    provider VARCHAR(50) NOT NULL,
+                    provider_id VARCHAR(255) NOT NULL,
+                    email VARCHAR(255),
+                    name VARCHAR(255),
+                    avatar VARCHAR(500),
+                    access_token TEXT,
+                    refresh_token TEXT,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(provider, provider_id)
+                )
+            `);
+            return true;
         } catch (error) {
-            return done(error, null);
+            console.error('Error creating OAuth users table:', error);
+            return false;
         }
     }
 
-    /**
-     * LinkedIn OAuth verification callback
-     */
-    async linkedinVerifyCallback(accessToken, refreshToken, profile, done) {
+    async findUserByProviderId(provider, providerId) {
+        if (!db?.pool) {
+            return this.userCache.get(`${provider}:${providerId}`) || null;
+        }
         try {
-            // Create or update user based on LinkedIn profile
-            const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
-            const user = await this.findOrCreateUser({
-                provider: 'linkedin',
-                providerId: profile.id,
-                email: email,
-                name: profile.displayName,
-                firstName: profile.name?.givenName,
-                lastName: profile.name?.familyName,
-                headline: profile._json.headline, // LinkedIn-specific
-                industry: profile._json.industry,
-                avatar: profile.photos[0]?.value,
-                accessToken,
-                refreshToken
-            });
-
-            return done(null, user);
+            const result = await db.pool.query(
+                `SELECT * FROM ${this.getTableName()} WHERE provider = $1 AND provider_id = $2`,
+                [provider, providerId]
+            );
+            return result.rows[0] || null;
         } catch (error) {
-            return done(error, null);
+            console.error(`Error finding user by provider: ${error.message}`);
+            return this.userCache.get(`${provider}:${providerId}`) || null;
         }
     }
 
-    /**
-     * Find or create user based on OAuth profile
-     */
+    async findUserById(id) {
+        if (!db?.pool) {
+            return this.userCache.get(id) || null;
+        }
+        try {
+            const result = await db.pool.query(
+                `SELECT * FROM ${this.getTableName()} WHERE id = $1`,
+                [id]
+            );
+            return result.rows[0] || null;
+        } catch (error) {
+            console.error(`Error finding user by ID: ${error.message}`);
+            return this.userCache.get(id) || null;
+        }
+    }
+
+    async createUser(userData) {
+        const user = {
+            id: userData.id || uuidv4(),
+            provider: userData.provider,
+            provider_id: userData.providerId,
+            email: userData.email,
+            name: userData.name,
+            avatar: userData.avatar,
+            access_token: userData.accessToken,
+            refresh_token: userData.refreshToken,
+            created_at: new Date(),
+            updated_at: new Date()
+        };
+
+        if (db?.pool) {
+            try {
+                await this.ensureTableExists();
+                await db.pool.query(
+                    `INSERT INTO ${this.getTableName()} 
+                    (id, provider, provider_id, email, name, avatar, access_token, refresh_token, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    ON CONFLICT (provider, provider_id) DO UPDATE SET
+                    email = EXCLUDED.email, name = EXCLUDED.name, avatar = EXCLUDED.avatar,
+                    access_token = EXCLUDED.access_token, refresh_token = EXCLUDED.refresh_token,
+                    updated_at = EXCLUDED.updated_at
+                    RETURNING *`,
+                    [user.id, user.provider, user.provider_id, user.email, user.name, 
+                     user.avatar, user.access_token, user.refresh_token, user.created_at, user.updated_at]
+                );
+            } catch (error) {
+                console.error(`Error creating user: ${error.message}`);
+            }
+        }
+
+        this.userCache.set(user.id, user);
+        this.userCache.set(`${user.provider}:${user.provider_id}`, user);
+        return user;
+    }
+
+    async updateUser(userId, userData) {
+        const updateData = {
+            email: userData.email,
+            name: userData.name,
+            avatar: userData.avatar,
+            access_token: userData.accessToken,
+            refresh_token: userData.refreshToken,
+            updated_at: new Date()
+        };
+
+        if (db?.pool) {
+            try {
+                await db.pool.query(
+                    `UPDATE ${this.getTableName()} SET email = $1, name = $2, avatar = $3, 
+                    access_token = $4, refresh_token = $5, updated_at = $6 WHERE id = $7`,
+                    [updateData.email, updateData.name, updateData.avatar, 
+                     updateData.access_token, updateData.refresh_token, updateData.updated_at, userId]
+                );
+            } catch (error) {
+                console.error(`Error updating user: ${error.message}`);
+            }
+        }
+
+        const existing = this.userCache.get(userId);
+        if (existing) {
+            const updated = { ...existing, ...updateData };
+            this.userCache.set(userId, updated);
+            return updated;
+        }
+        return { id: userId, ...updateData };
+    }
+
     async findOrCreateUser(profileData) {
-        // This would typically interact with your user database
-        // For now, returning a mock user object
         const existingUser = await this.findUserByProviderId(profileData.provider, profileData.providerId);
 
         if (existingUser) {
-            // Update existing user with fresh data
             return await this.updateUser(existingUser.id, profileData);
         } else {
-            // Create new user
             return await this.createUser({
                 id: uuidv4(),
                 ...profileData,
@@ -181,139 +230,161 @@ class OAuthService {
         }
     }
 
-    /**
-     * Find user by provider ID
-     */
-    async findUserByProviderId(provider, providerId) {
-        // Mock implementation - would connect to database in real implementation
-        console.log(`Finding user by provider: ${provider}, providerId: ${providerId}`);
-        return null; // Return null if not found
+    async googleVerifyCallback(accessToken, refreshToken, profile, done) {
+        try {
+            const user = await this.findOrCreateUser({
+                provider: 'google',
+                providerId: profile.id,
+                email: profile.emails?.[0]?.value,
+                name: profile.displayName,
+                firstName: profile.name?.givenName,
+                lastName: profile.name?.familyName,
+                avatar: profile.photos?.[0]?.value,
+                accessToken,
+                refreshToken
+            });
+            return done(null, user);
+        } catch (error) {
+            return done(error, null);
+        }
     }
 
-    /**
-     * Find user by ID
-     */
-    async findUserById(id) {
-        // Mock implementation - would connect to database in real implementation
-        console.log(`Finding user by ID: ${id}`);
-        return null; // Return null if not found
+    async githubVerifyCallback(accessToken, refreshToken, profile, done) {
+        try {
+            const email = profile.emails?.[0]?.value;
+            const user = await this.findOrCreateUser({
+                provider: 'github',
+                providerId: profile.id,
+                email,
+                username: profile.username,
+                name: profile.displayName || profile.username,
+                avatar: profile.photos?.[0]?.value,
+                accessToken,
+                refreshToken
+            });
+            return done(null, user);
+        } catch (error) {
+            return done(error, null);
+        }
     }
 
-    /**
-     * Create new user
-     */
-    async createUser(userData) {
-        // Mock implementation - would connect to database in real implementation
-        console.log(`Creating user: ${userData.email}`);
-        return userData;
+    async linkedinVerifyCallback(accessToken, refreshToken, profile, done) {
+        try {
+            const email = profile.emails?.[0]?.value;
+            const user = await this.findOrCreateUser({
+                provider: 'linkedin',
+                providerId: profile.id,
+                email,
+                name: profile.displayName,
+                firstName: profile.name?.givenName,
+                lastName: profile.name?.familyName,
+                headline: profile._json?.headline,
+                industry: profile._json?.industry,
+                avatar: profile.photos?.[0]?.value,
+                accessToken,
+                refreshToken
+            });
+            return done(null, user);
+        } catch (error) {
+            return done(error, null);
+        }
     }
 
-    /**
-     * Update existing user
-     */
-    async updateUser(userId, userData) {
-        // Mock implementation - would connect to database in real implementation
-        console.log(`Updating user: ${userId}`);
-        return { id: userId, ...userData, updatedAt: new Date().toISOString() };
-    }
-
-    /**
-     * Get available OAuth providers
-     */
     getAvailableProviders() {
         return Array.from(this.providers.keys());
     }
 
-    /**
-     * Get provider configuration
-     */
     getProviderConfig(provider) {
         return this.providers.get(provider);
     }
 
-    /**
-     * Generate OAuth authorization URL
-     */
     getAuthorizationURL(provider, options = {}) {
         const providerConfig = this.providers.get(provider);
         if (!providerConfig) {
             throw new Error(`Provider ${provider} not configured`);
         }
 
-        // This would be handled by passport in a real implementation
-        // Return the appropriate OAuth authorization URL
         let authUrl = '';
+        const redirectUri = encodeURIComponent(providerConfig.callbackURL);
+        const scope = encodeURIComponent(providerConfig.scope?.join(' ') || '');
 
         switch (provider) {
             case 'google':
-                authUrl = `https://accounts.google.com/oauth/authorize?` +
-                    `client_id=${providerConfig.clientId}&` +
-                    `redirect_uri=${providerConfig.callbackURL}&` +
-                    `scope=${encodeURIComponent(providerConfig.scope.join(' '))}&` +
-                    `response_type=code&` +
-                    `access_type=offline&` +
-                    `prompt=consent`;
+                authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${providerConfig.clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&state=${options.state || ''}`;
                 break;
             case 'github':
-                authUrl = `https://github.com/login/oauth/authorize?` +
-                    `client_id=${providerConfig.clientId}&` +
-                    `redirect_uri=${providerConfig.callbackURL}&` +
-                    `scope=${encodeURIComponent(providerConfig.scope.join(','))}`;
+                authUrl = `https://github.com/login/oauth/authorize?client_id=${providerConfig.clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${options.state || ''}`;
                 break;
             case 'linkedin':
-                authUrl = `https://www.linkedin.com/oauth/v2/authorization?` +
-                    `client_id=${providerConfig.clientId}&` +
-                    `redirect_uri=${providerConfig.callbackURL}&` +
-                    `scope=${encodeURIComponent(providerConfig.scope.join(' '))}&` +
-                    `response_type=code`;
+                authUrl = `https://www.linkedin.com/oauth/v2/authorization?client_id=${providerConfig.clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${options.state || ''}`;
                 break;
             default:
-                throw new Error(`Unsupported provider: ${provider}`);
+                throw new Error(`Unknown provider: ${provider}`);
         }
 
         return authUrl;
     }
 
-    /**
-     * Get Passport middleware
-     */
+    async revokeToken(provider, token) {
+        switch (provider) {
+            case 'google':
+                try {
+                    await fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, { method: 'POST' });
+                } catch (e) {
+                    console.warn('Failed to revoke Google token');
+                }
+                break;
+            case 'github':
+                try {
+                    await fetch('https://api.github.com/applications/' + this.providers.get('github')?.clientId + '/token', {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                } catch (e) {
+                    console.warn('Failed to revoke GitHub token');
+                }
+                break;
+        }
+        return true;
+    }
+
+    getPassport() {
+        return passport;
+    }
+
     getPassportMiddleware() {
         return passport.initialize();
     }
 
-    /**
-     * Get Passport session middleware
-     */
     getSessionMiddleware() {
         return passport.session();
     }
 
-    /**
-     * Authenticate with a specific provider
-     */
     authenticate(provider, options = {}) {
         return passport.authenticate(provider, options);
     }
 
-    /**
-     * Handle OAuth callback
-     */
     handleCallback(provider, options = {}) {
         return passport.authenticate(provider, { ...options, session: true });
     }
 }
 
-// Export singleton instance
-const oauthService = new OAuthService();
+const oauthServiceInstance = new OAuthService({
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
+    githubClientId: process.env.GITHUB_CLIENT_ID,
+    githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
+    githubCallbackUrl: process.env.GITHUB_CALLBACK_URL,
+    linkedinClientId: process.env.LINKEDIN_CLIENT_ID,
+    linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+    linkedinCallbackUrl: process.env.LINKEDIN_CALLBACK_URL
+});
 
 module.exports = {
     OAuthService,
-    oauthService,
-    getPassportMiddleware: oauthService.getPassportMiddleware.bind(oauthService),
-    getSessionMiddleware: oauthService.getSessionMiddleware.bind(oauthService),
-    authenticate: oauthService.authenticate.bind(oauthService),
-    handleCallback: oauthService.handleCallback.bind(oauthService),
-    getAvailableProviders: oauthService.getAvailableProviders.bind(oauthService),
-    getProviderConfig: oauthService.getProviderConfig.bind(oauthService),
-    getAuthorizationURL: oauthService.getAuthorizationURL.bind(oauthService)
+    oauthService: oauthServiceInstance,
+    getPassportMiddleware: () => passport.initialize(),
+    getSessionMiddleware: () => passport.session(),
+    authenticate: (provider, options) => passport.authenticate(provider, options)
 };

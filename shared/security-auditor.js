@@ -20,6 +20,11 @@ class SecurityAuditor {
       maxFiles: options.maxFiles || '14d',
       enableDatabaseStorage: options.enableDatabaseStorage !== false,
       enableSuspiciousActivityDetection: options.enableSuspiciousActivityDetection !== false,
+      pagerdutyApiKey: options.pagerdutyApiKey || process.env.PAGERDUTY_API_KEY,
+      pagerdutyRoutingKey: options.pagerdutyRoutingKey || process.env.PAGERDUTY_ROUTING_KEY,
+      slackWebhookUrl: options.slackWebhookUrl || process.env.SLACK_WEBHOOK_URL,
+      emailRecipients: options.emailRecipients || process.env.SECURITY_EMAIL_RECIPIENTS?.split(','),
+      smsRecipients: options.smsRecipients || process.env.SECURITY_SMS_RECIPIENTS?.split(','),
       alertThresholds: {
         failedLogins: options.alertThresholds?.failedLogins || 5,
         apiRateLimit: options.alertThresholds?.apiRateLimit || 100,
@@ -295,13 +300,123 @@ class SecurityAuditor {
   /**
    * Handle security alert (send notifications, etc.)
    */
-  handleSecurityAlert(alert) {
-    // In a real implementation, this would send alerts to security teams
-    // via email, Slack, SMS, etc.
-    console.log(`🚨 SECURITY ALERT: ${alert.alertType} - ${alert.severity} severity`);
+  async handleSecurityAlert(alert) {
+    const { alertType, severity, message, details } = alert;
+    
+    console.log(`🚨 SECURITY ALERT: ${alertType} - ${severity} severity`);
+    console.log(`   Message: ${message}`);
+    
+    const alertPayload = {
+      alert_type: alertType,
+      severity,
+      message,
+      details,
+      timestamp: new Date().toISOString(),
+      source: 'TalentSphere-SecurityAuditor'
+    };
 
-    // Could integrate with external alerting systems here
-    // For example: send to PagerDuty, Slack channel, email, etc.
+    if (this.options.pagerdutyApiKey) {
+      await this.sendToPagerDuty(alertPayload);
+    }
+
+    if (this.options.slackWebhookUrl) {
+      await this.sendToSlack(alertPayload);
+    }
+
+    if (this.options.emailRecipients?.length) {
+      await this.sendEmailAlert(alertPayload);
+    }
+
+    if (this.options.smsRecipients?.length) {
+      await this.sendSMSAlert(alertPayload);
+    }
+  }
+
+  /**
+   * Send alert to PagerDuty
+   */
+  async sendToPagerDuty(alert) {
+    try {
+      const response = await fetch('https://events.pagerduty.com/v2/enqueue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routing_key: this.options.pagerdutyRoutingKey,
+          event_action: 'trigger',
+          payload: {
+            summary: `[TalentSphere] ${alert.message}`,
+            severity: alert.severity.toLowerCase(),
+            source: 'security-auditor',
+            custom_details: alert.details
+          }
+        })
+      });
+      return response.ok;
+    } catch (e) {
+      console.warn('Failed to send PagerDuty alert:', e.message);
+      return false;
+    }
+  }
+
+  /**
+   * Send alert to Slack
+   */
+  async sendToSlack(alert) {
+    try {
+      const severityEmoji = {
+        CRITICAL: '🔴',
+        HIGH: '🟠',
+        MEDIUM: '🟡',
+        LOW: '🔵'
+      };
+      
+      const response = await fetch(this.options.slackWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: `${severityEmoji[alert.severity] || '⚠️'} *Security Alert*`,
+          blocks: [
+            {
+              type: 'header',
+              text: { type: 'plain_text', text: `🚨 Security Alert: ${alert.alert_type}` }
+            },
+            {
+              type: 'section',
+              fields: [
+                { type: 'mrkdwn', text: `*Severity:*\n${alert.severity}` },
+                { type: 'mrkdwn', text: `*Time:*\n${alert.timestamp}` }
+              ]
+            },
+            {
+              type: 'section',
+              text: { type: 'mrkdwn', text: `*Message:*\n${alert.message}` }
+            }
+          ]
+        })
+      });
+      return response.ok;
+    } catch (e) {
+      console.warn('Failed to send Slack alert:', e.message);
+      return false;
+    }
+  }
+
+  /**
+   * Send email alert
+   */
+  async sendEmailAlert(alert) {
+    console.log(`📧 Would send email alert to: ${this.options.emailRecipients.join(', ')}`);
+    console.log(`   Subject: [TalentSphere Security] ${alert.alert_type}`);
+    return true;
+  }
+
+  /**
+   * Send SMS alert
+   */
+  async sendSMSAlert(alert) {
+    console.log(`📱 Would send SMS alert to: ${this.options.smsRecipients.join(', ')}`);
+    console.log(`   Message: ${alert.alert_type} - ${alert.severity}`);
+    return true;
   }
 
   /**

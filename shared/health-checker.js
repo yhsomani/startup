@@ -13,16 +13,16 @@ class HealthChecker {
       retryAttempts: config.retryAttempts || 3,
       checkInterval: config.checkInterval || 30000, // 30 seconds
       thresholds: {
-        responseTime: 1000, // 1 second
-        uptime: 0.95, // 95%
-        memoryUsage: 0.85, // 85%
-        diskSpace: 0.90 // 90%
-        databaseConnections: 0.8 // 80%
+        responseTime: 1000,
+        uptime: 0.95,
+        memoryUsage: 0.85,
+        diskSpace: 0.90,
+        databaseConnections: 0.8
       }
       }
     };
     
-    this.logger = createLogger();
+    this.logger = logger;
   }
 
   /**
@@ -117,12 +117,10 @@ class HealthChecker {
             message: healthData.database?.message || 'Database connection: ' + 
                       (healthData.database?.connected ? 'Connected' : 'Disconnected') + 
                       (healthData.database?.maxConnections ? `${healthData.database.maxConnections}` : 'Unknown') + 
-                      'Active: ${healthData.database?.activeConnections || '0'}'
-          ],
+                      `Active: ${healthData.database?.activeConnections || '0'}`,
             responseTime: healthData.database?.responseTime || 0,
             timestamp: healthData.timestamp || new Date().toISOString()
           };
-          }
         }
         
         return {
@@ -167,6 +165,14 @@ class HealthChecker {
     return Math.max(0, score);
   }
 
+  calculateSystemHealthScore(results) {
+    const services = Object.values(results);
+    if (services.length === 0) return 0;
+    
+    const healthyCount = services.filter(s => s.status === 'healthy').length;
+    return Math.round((healthyCount / services.length) * 100);
+  }
+
   /**
    * Check all registered services
    * @returns {object} - Overall system health status
@@ -208,7 +214,7 @@ class HealthChecker {
       'email-service': process.env.EMAIL_SERVICE_URL || 'http://localhost:5005',
       'search-service': process.env.SEARCH_SERVICE_URL || 'http://localhost:5006',
       'analytics-service': process.env.ANALYTICS_SERVICE_URL || 'http://localhost:5007',
-      'api-gateway': process.env.API_GATEWAY_URL || 'http://localhost:8000'
+      'api-gateway': process.env.API_GATEWAY_URL || 'http://localhost:8000',
       'collaboration-service': process.env.COLLABORATION_SERVICE_URL || 'http://localhost:1234',
       'frontends': {
         'shell': process.env.FRONTEND_SHELL_PORT || 'http://localhost:3000',
@@ -234,7 +240,7 @@ class HealthChecker {
     let failedChecks = 0;
     
     for (const service of services) {
-      const result = results[service];
+      const result = service;
       
       totalChecks += result.checks ? Object.keys(result.checks).length : 0;
       successfulChecks += Object.values(result.checks).filter(status => status === 'healthy').length : 0;
@@ -246,7 +252,6 @@ class HealthChecker {
         degradedServices++;
       } else {
         unhealthyServices++;
-        }
       }
     }
 
@@ -260,7 +265,6 @@ class HealthChecker {
       overallStatus = 'degraded';
     } else {
       overallStatus = 'unhealthy';
-    }
     }
 
     return {
@@ -278,13 +282,12 @@ class HealthChecker {
         healthScore: this.calculateSystemHealthScore(results)
       },
       issues: unhealthyServices > 0 ? 
-        Array.from({length: unhealthyServices}).map(service => ({
-          service: service.name,
-          status: service.status,
-          message: service.message || 'Service is unhealthy',
-          severity: service.status === 'critical' ? 'critical' : service.status === 'warning' ? 'warning' : 'error'
+        Array.from({length: unhealthyServices}).map(() => ({
+          service: 'service',
+          status: 'unhealthy',
+          message: 'Service is unhealthy',
+          severity: 'error'
         })) : null
-    }
     };
   }
 }

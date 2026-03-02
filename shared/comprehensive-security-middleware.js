@@ -401,62 +401,7 @@ class SecurityMiddleware {
             middleware.push("Input Validation");
         }
 
-    // CORS with improved security
-    cors() {
-    return (req, res, next) => {
-      const origin = req.headers.origin;
-      const allowedOrigins = this.config.allowedOrigins;
-
-      // Strict CORS checking for security
-      if (!origin) {
-        return next();
-      }
-
-      // Check if origin is explicitly allowed
-      const isAllowed = allowedOrigins.includes(origin);
-      if (!isAllowed) {
-        this.logger.warn('CORS blocked - unauthorized origin', { origin, ip: req.ip, userAgent: req.get('User-Agent') });
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'CORS_NOT_ALLOWED',
-            message: 'Origin not in allowed list',
-            origin
-          }
-        });
-      }
-
-      // Set CORS headers for allowed origins
-      if (isAllowed) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Vary', 'Origin');
-      }      
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-        res.setHeader('Access-Control-Expose-Headers', 'Content-Length, ETag');
-        
-        // Add security headers
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('X-XSS-Protection', '1; mode=block');
-        res.setHeader('X-Frame-Options', 'DENY');
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        
-        // Content Security Policy for clickjacking protection
-        res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: 'https:;';");
-
-        // Handle preflight requests
-        if (req.method === 'OPTIONS') {
-          res.setHeader('Access-Control-Allow-Methods', 'GET, sto, POST, PUT, DELETE, OPTIONS');
-          return res.status(200).end();
-        }
-
-        next();
-      };
-    }
-
-        this.logger.info("Security middleware applied", { middleware });
+    this.logger.info("Security middleware applied", { middleware });
         return middleware;
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentSphere.API.Services;
 using TalentSphere.API.DTOs;
+using TalentSphere.API.Models;
 
 namespace TalentSphere.API.Controllers
 {
@@ -416,13 +417,14 @@ namespace TalentSphere.API.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
+            var userIdClaim = User.FindFirst("user_id")?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
+
             try
             {
-                var userIdClaim = User.FindFirst("user_id")?.Value;
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized(new { Message = "User not authenticated" });
-                }
 
                 var result = await _discussionService.GetUserActivityAsync(userId, page, pageSize);
 
@@ -438,13 +440,14 @@ namespace TalentSphere.API.Controllers
         [HttpGet("user/preferences")]
         public async Task<ActionResult<NotificationPreferencesDTO>> GetNotificationPreferences()
         {
+            var userIdClaim = User.FindFirst("user_id")?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
+
             try
             {
-                var userIdClaim = User.FindFirst("user_id")?.Value;
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized(new { Message = "User not authenticated" });
-                }
 
                 var result = await _discussionService.GetNotificationPreferencesAsync(userId);
 
@@ -461,13 +464,14 @@ namespace TalentSphere.API.Controllers
         public async Task<ActionResult> UpdateNotificationPreferences(
             [FromBody] NotificationPreferencesDTO preferences)
         {
+            var userIdClaim = User.FindFirst("user_id")?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
+
             try
             {
-                var userIdClaim = User.FindFirst("user_id")?.Value;
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized(new { Message = "User not authenticated" });
-                }
 
                 await _discussionService.UpdateNotificationPreferencesAsync(userId, preferences);
 

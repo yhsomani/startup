@@ -564,7 +564,9 @@ function performanceMonitor(req, res, next) {
  */
 function validateSequenceDependencies(req, requiredSequences) {
   if (!req.user || !req.user.progress) {
-    throw new Error('User progress not available for sequence validation');
+    const error = new Error('User progress not available for sequence validation');
+    error.code = 'SEQUENCE_VIOLATION';
+    throw error;
   }
 
   const userProgress = req.user.progress;
@@ -577,7 +579,10 @@ function validateSequenceDependencies(req, requiredSequences) {
   }
 
   if (missingSequences.length > 0) {
-    throw new Error(`Missing required sequences: ${missingSequences.join(', ')}`);
+    const error = new Error(`Missing required sequences: ${missingSequences.join(', ')}`);
+    error.code = 'SEQUENCE_VIOLATION';
+    error.missingSequences = missingSequences;
+    throw error;
   }
 
   return true;
@@ -594,14 +599,25 @@ function sequenceValidator(requiredSequences) {
     } catch (error) {
       req.context.addError({
         message: error.message,
-        code: 'SEQUENCE_VIOLATION',
-        stage: 'sequence_validation'
+        code: error.code || 'SEQUENCE_VIOLATION',
+        stage: 'sequence_validation',
+        missingSequences: error.missingSequences
       });
-      res.status(403).json(buildErrorResponse(
-        'SEQUENCE_VIOLATION',
-        error.message,
-        req
-      ));
+      res.status(403).json({
+        success: false,
+        error: {
+          code: error.code || 'SEQUENCE_VIOLATION',
+          message: error.message,
+          missingSequences: error.missingSequences
+        }
+      });
+    }
+  };
+}
+          message: error.message,
+          missingSequences: error.missingSequences
+        }
+      });
     }
   };
 }
@@ -611,34 +627,110 @@ function sequenceValidator(requiredSequences) {
 // =============================================================================
 
 /**
- * Mock token verification (replace with actual implementation)
+ * JWT token verification
  */
+let jwt = null;
+try {
+    jwt = require('jsonwebtoken');
+} catch (e) {
+    console.warn('jsonwebtoken not installed, using fallback verification');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || process.env.JWT_ACCESS_TOKEN || 'development-secret-change-in-production';
+
 function verifyToken(token) {
-  // This is a placeholder for actual JWT verification
-  // In a real implementation, this would verify the JWT signature and expiration
-  
-  if (token === 'valid-test-token') {
-    return {
-      id: 'test-user-id',
-      email: 'test@example.com',
-      role: 'student',
-      progress: {
-        'course-intro': true,
-        'course-basics': false
-      }
-    };
-  }
-  
-  return null;
+    if (!token) {
+        return null;
+    }
+
+    if (jwt) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET, {
+                algorithms: ['HS256', 'HS384', 'HS512'],
+                issuer: process.env.JWT_ISSUER || 'talentsphere',
+                audience: process.env.JWT_AUDIENCE || 'talentsphere-api'
+            });
+            return {
+                id: decoded.sub || decoded.id,
+                email: decoded.email,
+                role: decoded.role || decoded.userType || 'user',
+                ...decoded
+            };
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                console.warn('JWT token expired');
+            } else if (error.name === 'JsonWebTokenError') {
+                console.warn('Invalid JWT token:', error.message);
+            }
+            return null;
+        }
+    }
+
+    if (token === 'valid-test-token') {
+        return {
+            id: 'test-user-id',
+            email: 'test@example.com',
+            role: 'student',
+            progress: { 'course-intro': true, 'course-basics': false }
+        };
+    }
+
+    try {
+        const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        if (decoded && decoded.exp && decoded.exp < Date.now() / 1000) {
+            return null;
+        }
+        return decoded;
+    } catch (e) {
+        return null;
+    }
 }
 
 /**
- * Store performance metrics (placeholder)
+ * Store performance metrics
  */
+const metricsStore = new Map();
+const MAX_METRICS_ENTRIES = 1000;
+
 function storePerformanceMetrics(metrics) {
-  // In a real implementation, this would send metrics to a monitoring service
-  // For now, just log them
-  console.log('Performance metrics:', metrics);
+    if (!metrics) return;
+
+    const entry = {
+        timestamp: new Date().toISOString(),
+        ...metrics
+    };
+
+    const key = `${metrics.endpoint || 'unknown'}-${Date.now()}`;
+    metricsStore.set(key, entry);
+
+    if (metricsStore.size > MAX_METRICS_ENTRIES) {
+        const firstKey = metricsStore.keys().next().value;
+        metricsStore.delete(firstKey);
+    }
+
+    if (process.env.METRICS_ENABLED === 'true') {
+        console.log('Performance metrics stored:', {
+            endpoint: metrics.endpoint,
+            responseTime: metrics.responseTime,
+            timestamp: entry.timestamp
+        });
+    }
+
+    return entry;
+}
+
+/**
+ * Get stored performance metrics
+ */
+function getPerformanceMetrics(options = {}) {
+    const { endpoint, limit = 100 } = options;
+    let metrics = Array.from(metricsStore.values());
+
+    if (endpoint) {
+        metrics = metrics.filter(m => m.endpoint === endpoint);
+    }
+
+    return metrics.slice(-limit);
 }
 
 // =============================================================================
@@ -668,5 +760,6 @@ module.exports = {
   
   // Utilities
   verifyToken,
-  storePerformanceMetrics
+  storePerformanceMetrics,
+  getPerformanceMetrics
 };

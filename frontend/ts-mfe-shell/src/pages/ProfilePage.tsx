@@ -27,7 +27,7 @@ const ProfilePage: React.FC = () => {
   const fetchProfile = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/profile');
+      const response = await api.get('/auth/profile');
       setProfile(response.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load profile');
@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await api.post('/profile/picture', formData, {
+      const response = await api.post('/auth/profile/picture', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

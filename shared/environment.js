@@ -61,15 +61,34 @@ const getEnvVar = (key, defaultValue = null, type = 'string') => {
 
 // Database Configuration
 const getDatabaseConfig = () => {
-  validateEnvironment(['DATABASE_URL']);
+  // Support both DATABASE_URL (primary) and individual parameters (fallback)
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (databaseUrl) {
+    // Parse DATABASE_URL (e.g., postgresql://user:pass@host:5432/db)
+    return {
+      connectionString: databaseUrl,
+      ssl: getEnvVar('DB_SSL', false, 'boolean'),
+      minConnections: getEnvVar('DB_MIN_CONNECTIONS', 2, 'number'),
+      maxConnections: getEnvVar('DB_MAX_CONNECTIONS', 20, 'number'),
+      connectionTimeout: getEnvVar('DB_CONNECTION_TIMEOUT', 30000, 'number'),
+      idleTimeout: getEnvVar('DB_IDLE_TIMEOUT', 10000, 'number')
+    };
+  }
+  
+  // Fallback to individual parameters (for local development)
+  const host = process.env.DB_HOST || 'localhost';
+  const port = parseInt(process.env.DB_PORT, 10) || 5432;
+  const database = process.env.DB_NAME || 'talentsphere';
+  const username = process.env.DB_USER || 'talentsphere';
+  const password = process.env.DB_PASSWORD || 'talent123';
   
   return {
-    url: getEnvVar('DATABASE_URL'),
-    host: getEnvVar('DB_HOST', 'localhost'),
-    port: getEnvVar('DB_PORT', 5432, 'number'),
-    database: getEnvVar('DB_NAME', 'talentsphere'),
-    username: getEnvVar('DB_USER', 'talentsphere'),
-    password: getEnvVar('DB_PASSWORD', 'talent123'),
+    host,
+    port,
+    database,
+    user: username,
+    password,
     ssl: getEnvVar('DB_SSL', false, 'boolean'),
     minConnections: getEnvVar('DB_MIN_CONNECTIONS', 2, 'number'),
     maxConnections: getEnvVar('DB_MAX_CONNECTIONS', 20, 'number'),

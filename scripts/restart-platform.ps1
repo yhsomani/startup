@@ -242,7 +242,7 @@ Write-Host ""
 Write-Host "Access Points:" -ForegroundColor Cyan
 Write-Host "  - API Gateway:    http://localhost:8000"
 Write-Host "  - RabbitMQ Admin: http://localhost:15672 (guest/guest)"
-Write-Host "  - Grafana:        http://localhost:3000"
+Write-Host "  - Grafana:        http://localhost:3020"
 Write-Host "  - Prometheus:     http://localhost:9090"
 Write-Host ""
 Write-Host "Useful Commands:" -ForegroundColor Cyan

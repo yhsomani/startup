@@ -1,26 +1,45 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e3]:
-  - navigation [ref=e4]:
-    - link "🎓 TalentSphere" [ref=e5] [cursor=pointer]:
-      - /url: /
-    - link "Courses" [ref=e6] [cursor=pointer]:
-      - /url: /courses
-    - link "Challenges" [ref=e7] [cursor=pointer]:
-      - /url: /challenges
-    - generic [ref=e8]:
-      - link "Log In" [ref=e9] [cursor=pointer]:
-        - /url: /login
-      - link "Sign Up" [ref=e10] [cursor=pointer]:
-        - /url: /register
-  - generic [ref=e12]:
-    - heading "Welcome to TalentSphere" [level=1] [ref=e13]
-    - paragraph [ref=e14]: The next-generation learning platform.
-    - generic [ref=e15]:
-      - link "Browse Courses" [ref=e16] [cursor=pointer]:
-        - /url: /courses
-      - link "Get Started" [ref=e17] [cursor=pointer]:
-        - /url: /register
-  - button "Open AI Tutor" [ref=e18] [cursor=pointer]: 🤖
+- generic [ref=e6]:
+  - heading "Create Account" [level=2] [ref=e7]
+  - paragraph [ref=e8]: Join TalentSphere today
+  - generic [ref=e9]: Registration failed. Please try again.
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: First Name
+        - textbox "First Name" [ref=e14]:
+          - /placeholder: John
+          - text: John
+      - generic [ref=e15]:
+        - generic [ref=e16]: Last Name
+        - textbox "Last Name" [ref=e17]:
+          - /placeholder: Doe
+          - text: Doe
+    - generic [ref=e18]:
+      - generic [ref=e19]: Email Address
+      - textbox "Email Address" [ref=e20]:
+        - /placeholder: you@example.com
+        - text: jobseeker@talentsphere.test
+    - generic [ref=e21]:
+      - generic [ref=e22]: Password
+      - textbox "Password" [ref=e23]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e24]:
+      - generic [ref=e25]: Confirm Password
+      - textbox "Confirm Password" [ref=e26]:
+        - /placeholder: ••••••••
+        - text: TestPassword123!
+    - generic [ref=e27]:
+      - generic [ref=e28]: I want to be a
+      - generic [ref=e29]:
+        - generic [ref=e30] [cursor=pointer]: Job Seeker
+        - generic [ref=e31] [cursor=pointer]: Employer
+    - button "Sign Up" [ref=e32] [cursor=pointer]
+  - paragraph [ref=e33]:
+    - text: Already have an account?
+    - link "Log in" [ref=e34] [cursor=pointer]:
+      - /url: /login
 ```

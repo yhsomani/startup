@@ -41,7 +41,7 @@ namespace TalentSphere.API.Models
         
         public int LikeCount { get; set; } = 0;
         
-        public int ReplyCount { get; set; = 0;
+        public int ReplyCount { get; set; } = 0;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
@@ -50,6 +50,8 @@ namespace TalentSphere.API.Models
         public DateTime? LastReplyAt { get; set; }
         
         public Guid? LastReplyById { get; set; }
+
+        public ICollection<DiscussionReply> Replies { get; set; } = new List<DiscussionReply>();
     }
 
     public class DiscussionReply

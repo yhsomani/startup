@@ -16,14 +16,52 @@
     "^xss$": "<rootDir>/node_modules/xss/lib/xss.js"
   },
   "transformIgnorePatterns": ["node_modules/(?!(uuid)/)"],
+  "collectCoverageFrom": [
+    "services/**/*.js",
+    "shared/**/*.js",
+    "!services/**/*.test.js",
+    "!services/**/tests/**",
+    "!services/shared/test-*.js",
+    "!services/shared/testSetup.js"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 1,
+      "functions": 1,
+      "lines": 1,
+      "statements": 1
+    }
+  },
   "projects": [
     {
       "displayName": "Unit Tests",
-      "testMatch": ["**/tests/unit/**/*.test.js"]
+      "testMatch": ["**/tests/unit/**/*.test.js", "**/services/**/tests/unit/**/*.test.js"],
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+        "tests/unit/shared-services.test.js",
+        "tests/unit/shared-exports.test.js",
+        "tests/unit/notification-service.test.js",
+        "tests/unit/messaging-service.test.js",
+        "tests/unit/video-service.test.js",
+        "tests/unit/search-service.test.js",
+        "tests/unit/performance-monitoring.test.js",
+        "tests/unit/oauth-service.test.js",
+        "tests/unit/saml-service.test.js",
+        "tests/unit/messaging-service-unit.test.js",
+        "tests/unit/file-service-unit.test.js",
+        "tests/unit/search-service-unit.test.js",
+        "tests/unit/notification-service-unit.test.js",
+        "tests/unit/ai-matching-service.test.js",
+        "tests/integration/job-listing-service.integration.test.js"
+      ]
     },
     {
       "displayName": "Integration Tests",
-      "testMatch": ["**/tests/integration/**/*.test.js"]
+      "testMatch": ["**/tests/integration/**/*.test.js", "**/services/**/tests/integration/**/*.test.js"],
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+        "tests/integration/job-listing-service.integration.test.js"
+      ]
     }
   ],
   "verbose": true

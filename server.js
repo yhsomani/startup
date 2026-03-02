@@ -54,7 +54,7 @@ services.forEach(service => {
 const shutdown = () => {
     console.log("\n🛑 Shutting down TalentSphere services...");
     runningProcesses.forEach(item => {
-        console.log(`停止 ${item.name}...`);
+        console.log(`Shutting down ${item.name}...`);
         item.proc.kill("SIGINT");
     });
 

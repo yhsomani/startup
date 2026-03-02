@@ -38,6 +38,13 @@ interface UserSettings {
   };
 }
 
+const defaultSettings: UserSettings = {
+  profile: { email: '', firstName: '', lastName: '', bio: '', avatar: '', linkedIn: '', github: '', website: '' },
+  notifications: { emailNotifications: true, pushNotifications: false, newDiscussionAlerts: true, replyAlerts: true, achievementAlerts: true, weeklyDigest: false },
+  preferences: { language: 'en', timezone: 'UTC', theme: 'light', fontSize: 'medium', autoPlayVideos: false, showCaptions: false, quality: 'auto' },
+  privacy: { profileVisibility: 'public', showLearningProgress: true, showAchievements: true, allowMessages: true, allowConnectionRequests: true },
+};
+
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'preferences' | 'privacy'>('profile');
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -53,8 +60,35 @@ const SettingsPage: React.FC = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/user/settings');
-      setSettings(response.data);
+      // Load profile and preferences in parallel
+      const [profileRes, prefsRes] = await Promise.allSettled([
+        api.get('/auth/profile'),
+        api.get('/auth/preferences'),
+      ]);
+
+      const profileData = profileRes.status === 'fulfilled'
+        ? (profileRes.value.data?.user || profileRes.value.data)
+        : null;
+
+      const prefsData = prefsRes.status === 'fulfilled'
+        ? prefsRes.value.data?.preferences
+        : null;
+
+      setSettings({
+        profile: {
+          email: profileData?.email || '',
+          firstName: profileData?.firstName || '',
+          lastName: profileData?.lastName || '',
+          bio: profileData?.bio || '',
+          avatar: profileData?.profilePictureUrl || '',
+          linkedIn: profileData?.linkedin || '',
+          github: profileData?.github || '',
+          website: profileData?.website || '',
+        },
+        notifications: prefsData?.notifications ?? defaultSettings.notifications,
+        preferences: prefsData?.preferences ?? defaultSettings.preferences,
+        privacy: prefsData?.privacy ?? defaultSettings.privacy,
+      });
     } catch (err: unknown) {
       setError('Failed to load settings');
     } finally {
@@ -68,11 +102,25 @@ const SettingsPage: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
 
-      await api.put('/user/settings', updatedSettings);
+      // Save profile fields and all other preferences in parallel
+      await Promise.all([
+        api.put('/auth/profile', {
+          firstName: updatedSettings.profile.firstName,
+          lastName: updatedSettings.profile.lastName,
+          bio: updatedSettings.profile.bio,
+          linkedin: updatedSettings.profile.linkedIn,
+          github: updatedSettings.profile.github,
+          website: updatedSettings.profile.website,
+        }),
+        api.put('/auth/preferences', {
+          notifications: updatedSettings.notifications,
+          preferences: updatedSettings.preferences,
+          privacy: updatedSettings.privacy,
+        }),
+      ]);
+
       setSettings(updatedSettings);
       setSuccessMessage('Settings saved successfully!');
-
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: unknown) {
       setError((err as any).response?.data?.message || 'Failed to save settings');
@@ -529,7 +577,6 @@ const SettingsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Privacy Settings */}
         {activeTab === 'privacy' && (
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '2rem' }}>
@@ -537,12 +584,30 @@ const SettingsPage: React.FC = () => {
             </h2>
 
             <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: '1fr' }}>
-              {Object.entries(settings.privacy).map(([key, value]) => (
+              {/* Profile Visibility — string field → select */}
+              <div>
+                <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>
+                  Profile Visibility
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 400 }}>Control who can see your profile</div>
+                </label>
+                <select
+                  value={settings.privacy.profileVisibility}
+                  onChange={(e) => handlePrivacyChange('profileVisibility', e.target.value as 'public' | 'private' | 'connections')}
+                  style={{ width: '100%', maxWidth: '300px', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem' }}
+                >
+                  <option value="public">Public</option>
+                  <option value="connections">Connections Only</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
+
+              {/* Boolean privacy toggles */}
+              {(['showLearningProgress', 'showAchievements', 'allowMessages', 'allowConnectionRequests'] as const).map((key) => (
                 <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
-                    checked={value as any}
-                    onChange={(e) => handlePrivacyChange(key as keyof UserSettings['privacy'], e.target.checked)}
+                    checked={settings.privacy[key] as boolean}
+                    onChange={(e) => handlePrivacyChange(key, e.target.checked)}
                     style={{ cursor: 'pointer' }}
                   />
                   <div>
@@ -550,7 +615,6 @@ const SettingsPage: React.FC = () => {
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </div>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {key === 'profileVisibility' && 'Control who can see your profile'}
                       {key === 'showLearningProgress' && 'Display your learning progress to others'}
                       {key === 'showAchievements' && 'Show your achievements on your profile'}
                       {key === 'allowMessages' && 'Allow other users to send you messages'}

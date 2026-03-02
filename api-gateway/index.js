@@ -12,7 +12,7 @@ const rateLimit = require("express-rate-limit");
 const { getServicePort, getServiceUrl } = require("../shared/ports");
 const { getServiceConfig } = require("../shared/environment");
 const SecurityConfig = require("../shared/security");
-const { createLogger, performanceMonitor } = require("../shared/enhanced-logger");
+const { createLogger, performanceMonitor } = require("../../shared/enhanced-logger");
 const { v4: uuidv4 } = require("uuid");
 
 // Initialize structured logger
@@ -103,6 +103,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint with dependency verification
+// Updated: February 2026 - aligned with SSOT unified port scheme
 app.get("/health", async (req, res) => {
     const healthCheck = async () => {
         const serviceHealth = {};
@@ -114,6 +115,16 @@ app.get("/health", async (req, res) => {
             "notification-service",
             "email-service",
             "analytics-service",
+            "search-service",
+            "file-service",
+            "video-service",
+            "gamification-service",
+            "challenge-service",
+            "payments-service",
+            "lms-service",
+            "ai-assistant",
+            "recruitment-service",
+            "collaboration-service",
         ];
 
         // Check service availability (simplified check)
@@ -172,7 +183,8 @@ app.get("/health", async (req, res) => {
     }
 });
 
-// API Gateway routes using new port configuration
+// API Gateway routes using unified port configuration (aligned with SSOT)
+// Last Updated: February 2026
 const serviceRoutes = {
     // Authentication routes
     "/api/v1/auth": getServiceUrl("user-auth-service"),
@@ -213,6 +225,40 @@ const serviceRoutes = {
     // Video Streaming routes
     "/api/v1/video": getServiceUrl("video-service"),
     "/video": getServiceUrl("video-service"),
+
+    // Gamification routes (Python)
+    "/api/v1/gamification": getServiceUrl("gamification-service"),
+    "/gamification": getServiceUrl("gamification-service"),
+
+    // Challenge routes (.NET)
+    "/api/v1/challenges": getServiceUrl("challenge-service"),
+    "/challenges": getServiceUrl("challenge-service"),
+
+    // Payments routes (.NET)
+    "/api/v1/payments": getServiceUrl("payments-service"),
+    "/payments": getServiceUrl("payments-service"),
+
+    // LMS routes (Spring Boot)
+    "/api/v1/courses": getServiceUrl("lms-service"),
+    "/api/v1/lessons": getServiceUrl("lms-service"),
+    "/api/v1/enrollments": getServiceUrl("lms-service"),
+    "/courses": getServiceUrl("lms-service"),
+
+    // AI Assistant routes (Python)
+    "/api/v1/assistant": getServiceUrl("ai-assistant"),
+    "/assistant": getServiceUrl("ai-assistant"),
+
+    // Recruitment routes (Python)
+    "/api/v1/recruitment": getServiceUrl("recruitment-service"),
+    "/recruitment": getServiceUrl("recruitment-service"),
+
+    // Application (Job Applications) routes
+    "/api/v1/applications": getServiceUrl("application-service"),
+    "/applications": getServiceUrl("application-service"),
+
+    // Collaboration routes (SocketIO)
+    "/api/v1/collab": getServiceUrl("collaboration-service"),
+    "/collab": getServiceUrl("collaboration-service"),
 };
 
 // Create proxy middleware for each service
@@ -328,8 +374,6 @@ app.listen(PORT, () => {
         console.log(`📡 API Gateway: http://localhost:${PORT}`);
         console.log(`🔍 Health Check: http://localhost:${PORT}/health`);
         console.log(`📚 API Docs: http://localhost:${PORT}/api/docs`);
-    }
-    if (process.env.NODE_ENV !== "production") {
         console.log(`\n🔗 Service Routes:`);
         Object.entries(serviceRoutes).forEach(([route, target]) => {
             console.log(`  ${route} -> ${target}`);

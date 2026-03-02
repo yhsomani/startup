@@ -421,7 +421,7 @@ TalentSphere is now running!
 ACCESS POINTS:
 --------------
   API Gateway:       http://localhost:8000
-  Grafana:           http://localhost:3001 (admin/admin)
+  Grafana:           http://localhost:3020 (admin/admin)
   RabbitMQ:          http://localhost:15672 (guest/guest)
   PostgreSQL:        localhost:5440 (postgres/postgres)
 

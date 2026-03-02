@@ -9,7 +9,7 @@ const he = require('he');
 
 class InputSanitizer {
   constructor() {
-    this XSSOptions = {
+    this.XSSOptions = {
       whiteList: {
         a: ['href', 'title', 'target'],
         b: [],

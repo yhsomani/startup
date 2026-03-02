@@ -13,11 +13,14 @@ export interface RegistrationState {
 }
 
 export interface AuthResponse {
-    userId: string;
-    email: string;
-    role: UserRole;
-    accessToken: string;
-    expiresIn: number;
+    /** Primary field returned by the backend */
+    token: string;
+    /** Alias accepted for forward compat (some clients send this) */
+    accessToken?: string;
+    refreshToken: string;
+    expiresIn?: number;
+    sessionId?: string;
+    user: User;
 }
 
 export interface User {

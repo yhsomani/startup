@@ -440,22 +440,63 @@ class PerformanceOptimizer extends EventEmitter {
   }
 
   optimizeCache() {
-    // This would integrate with your caching system
-    // For now, just return a placeholder result
+    const cache = this.cache || new Map();
+    let entriesRemoved = 0;
+    let currentSize = cache.size;
+
+    if (currentSize > this.options.maxCacheSize) {
+      const entriesToRemove = currentSize - this.options.maxCacheSize;
+      const keysToRemove = Array.from(cache.keys()).slice(0, entriesToRemove);
+      keysToRemove.forEach(key => {
+        cache.delete(key);
+        entriesRemoved++;
+      });
+    }
+
+    let hitRate = 0;
+    if (this.cacheHits > 0 || this.cacheMisses > 0) {
+      hitRate = this.cacheHits / (this.cacheHits + this.cacheMisses);
+    }
+
     return {
       message: 'Cache optimization completed',
-      cacheSize: 'optimized',
-      hitRate: 'improved'
+      cacheSize: currentSize,
+      entriesRemoved,
+      hitRate: Math.round(hitRate * 100) / 100,
+      recommendations: currentSize > this.options.maxCacheSize * 0.9 
+        ? ['Consider increasing cache size', 'Review cache eviction policy'] 
+        : []
     };
   }
 
   improveErrorHandling() {
-    // This would integrate with your error handling system
+    const stats = this.getErrorStats();
+    
     return {
-      message: 'Error handling improved',
-      retryStrategies: 'updated',
-      circuitBreakers: 'adjusted'
+      message: 'Error handling analysis complete',
+      totalErrors: stats.total,
+      errorTypes: stats.byType,
+      recommendations: this.generateErrorRecommendations(stats)
     };
+  }
+
+  generateErrorRecommendations(stats) {
+    const recommendations = [];
+    
+    if (stats.byType['ValidationError'] > 10) {
+      recommendations.push('High validation errors - review input validation');
+    }
+    if (stats.byType['TimeoutError'] > 5) {
+      recommendations.push('Timeout errors detected - review service timeouts');
+    }
+    if (stats.byType['DatabaseError'] > 3) {
+      recommendations.push('Database errors - check connection pool and queries');
+    }
+    if (recommendations.length === 0) {
+      recommendations.push('Error rates within normal parameters');
+    }
+    
+    return recommendations;
   }
 
   cleanupOldMetrics() {

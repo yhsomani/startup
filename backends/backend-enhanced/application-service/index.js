@@ -43,7 +43,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
 
     // Initialize logger
     this.logger = createLogger('ApplicationService');
-    
+
     // Get JWT secret from secure storage
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -53,16 +53,16 @@ class ApplicationService extends EnhancedServiceWithTracing {
     this.interviewSchedules = new Map();
     this.applicationAnalytics = new Map();
     this.emailTemplates = new Map();
-    
+
     // Initialize service contracts
     this.initializeContracts();
-    
+
     // Create Express app with tracing middleware
     this.app = express();
     this.server = null;
     this.initializeMiddleware();
     this.initializeRoutes();
-    
+
     // Seed demo data
     this.seedDemoData();
   }
@@ -70,7 +70,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
   initializeContracts() {
     // Define service contracts for validation
     this.serviceContract = new ServiceContract('application-service');
-    
+
     // Job application schema
     this.serviceContract.defineOperation('submitApplication', {
       inputSchema: {
@@ -90,8 +90,8 @@ class ApplicationService extends EnhancedServiceWithTracing {
               min: { type: 'number', minimum: 0 },
               max: { type: 'number', minimum: 0 },
               currency: { type: 'string', default: 'USD' },
-              period: { 
-                type: 'string', 
+              period: {
+                type: 'string',
                 enum: ['hourly', 'monthly', 'yearly'],
                 default: 'yearly'
               }
@@ -184,7 +184,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
   // JWT Authentication middleware
   authenticateJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
       return res.status(401).json({
         success: false,
@@ -200,7 +200,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
     }
 
     const token = authHeader.split(' ')[1]; // Bearer TOKEN
-    
+
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -266,7 +266,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
     // Security middleware
     this.app.use(helmet());
     this.app.use(cors());
-    
+
     // Rate limiting
     this.app.use(rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -284,11 +284,11 @@ class ApplicationService extends EnhancedServiceWithTracing {
     this.app.use((req, res, next) => {
       req.requestId = req.headers['x-request-id'] || uuidv4();
       req.correlationId = req.headers['x-correlation-id'] || req.traceId || uuidv4();
-      
+
       res.setHeader('x-request-id', req.requestId);
       res.setHeader('x-correlation-id', req.correlationId);
       res.setHeader('x-service', this.config.serviceName);
-      
+
       next();
     });
   }
@@ -297,7 +297,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
     // Health check
     this.app.get('/health', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('application.health', req.traceContext) : null;
-      
+
       if (span) {
         span.setTag('component', 'application-service');
         span.setTag('health.check.type', 'service');
@@ -305,7 +305,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
 
       try {
         const health = await this.getServiceHealth();
-        
+
         if (span) {
           span.setTag('health.status', 'healthy');
           span.finish();
@@ -317,7 +317,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(503).json({
           status: 'unhealthy',
           error: error.message
@@ -328,10 +328,10 @@ class ApplicationService extends EnhancedServiceWithTracing {
     // Metrics endpoint
     this.app.get('/metrics', async (req, res) => {
       const span = this.tracer ? this.tracer.startSpan('application.metrics', req.traceContext) : null;
-      
+
       try {
         const metrics = this.getTracingMetrics();
-        
+
         if (span) {
           span.finish();
         }
@@ -342,7 +342,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
           span.logError(error);
           span.finish();
         }
-        
+
         res.status(500).json({ error: error.message });
       }
     });
@@ -444,7 +444,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
     // Error handling middleware
     this.app.use((error, req, res, next) => {
       const span = this.tracer ? this.tracer.getActiveSpans().find(s => s.getContext().spanId === req.traceContext?.spanId) : null;
-      
+
       if (span) {
         span.logError(error);
         span.finish();
@@ -477,17 +477,33 @@ class ApplicationService extends EnhancedServiceWithTracing {
   // Operation implementations
   async executeOperation(request, options) {
     const operationName = options.operationName || 'unknown';
-    
+
     try {
       switch (operationName) {
-        case 'application.createJob':
-          return await this.createApplication(request.validated);
-        case 'application.updateStatus':
-          return await this.updateApplicationStatus(request.validated);
         case 'application.submitApplication':
-          return await this.submitApplication(request.validated);
+          return await this.submitApplication(request.body || request.validated);
+        case 'application.getApplication':
+          return await this.getApplication(request.params?.applicationId);
+        case 'application.updateApplicationStatus':
+          return await this.updateApplicationStatus(request.params?.applicationId, request.body || request.validated);
         case 'application.getApplications':
-          return await this.getUserApplications(request.validated);
+          return await this.getApplications(request.query || {});
+        case 'application.getJobApplications':
+          return await this.getJobApplications(request.params?.jobId, request.query || {});
+        case 'application.getUserApplications':
+          return await this.getUserApplications(request.params?.userId, request.query || {});
+        case 'application.scheduleInterview':
+          return await this.scheduleInterview(request.params?.applicationId, request.body || {});
+        case 'application.getInterviews':
+          return await this.getInterviews(request.params?.applicationId);
+        case 'application.updateInterview':
+          return await this.updateInterview(request.params?.interviewId, request.body || {});
+        case 'application.getWorkflow':
+          return await this.getApplicationWorkflow(request.params?.applicationId);
+        case 'application.getApplicationAnalytics':
+          return await this.getApplicationAnalytics(request.query || {});
+        case 'application.getJobAnalytics':
+          return await this.getJobAnalytics(request.params?.jobId);
         default:
           throw new Error(`Unknown operation: ${operationName}`);
       }
@@ -510,7 +526,6 @@ class ApplicationService extends EnhancedServiceWithTracing {
       throw appError;
     }
   }
-  }
 
   async submitApplication(applicationData) {
     return this.executeWithTracing('application.submitApplication.process', async () => {
@@ -520,7 +535,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
       // Check if user has already applied
       const existingApplication = Array.from(this.applications.values())
         .find(app => app.jobId === applicationData.jobId && app.userId === applicationData.userId);
-      
+
       if (existingApplication) {
         throw new Error('You have already applied for this job');
       }
@@ -641,15 +656,15 @@ class ApplicationService extends EnhancedServiceWithTracing {
       const previousStatus = application.status;
       application.status = statusUpdate.status;
       application.lastUpdated = new Date().toISOString();
-      
+
       if (statusUpdate.notes) {
         application.notes = statusUpdate.notes;
       }
-      
+
       if (statusUpdate.nextSteps) {
         application.nextStep = statusUpdate.nextSteps;
       }
-      
+
       if (statusUpdate.rejectionReason && statusUpdate.status === 'rejected') {
         application.rejectionReason = statusUpdate.rejectionReason;
       }
@@ -705,14 +720,14 @@ class ApplicationService extends EnhancedServiceWithTracing {
 
   async getApplications(query) {
     return this.executeWithTracing('application.getApplications.process', async () => {
-      const { 
-        status, 
-        jobId, 
-        userId, 
+      const {
+        status,
+        jobId,
+        userId,
         companyId,
-        dateFrom, 
-        dateTo, 
-        limit = 20, 
+        dateFrom,
+        dateTo,
+        limit = 20,
         offset = 0,
         sortBy = 'submittedAt',
         sortOrder = 'desc'
@@ -779,7 +794,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
   async getJobApplications(jobId, query) {
     return this.executeWithTracing('application.getJobApplications.process', async () => {
       const { status, limit = 20, offset = 0 } = query;
-      
+
       let applications = Array.from(this.applications.values())
         .filter(app => app.jobId === jobId);
 
@@ -816,7 +831,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
   async getUserApplications(userId, query) {
     return this.executeWithTracing('application.getUserApplications.process', async () => {
       const { status, limit = 20, offset = 0 } = query;
-      
+
       let applications = Array.from(this.applications.values())
         .filter(app => app.userId === userId);
 
@@ -968,7 +983,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
   async getApplicationAnalytics(query) {
     return this.executeWithTracing('application.getApplicationAnalytics.process', async () => {
       const { dateFrom, dateTo, jobId, userId, companyId } = query;
-      
+
       let applications = Array.from(this.applications.values());
 
       // Apply filters
@@ -1000,14 +1015,14 @@ class ApplicationService extends EnhancedServiceWithTracing {
       applications.forEach(app => {
         // Status breakdown
         statusBreakdown[app.status] = (statusBreakdown[app.status] || 0) + 1;
-        
+
         // Source breakdown
         sourceBreakdown[app.source] = (sourceBreakdown[app.source] || 0) + 1;
-        
+
         // Applications by day
         const day = new Date(app.submittedAt).toISOString().split('T')[0];
         applicationsByDay[day] = (applicationsByDay[day] || 0) + 1;
-        
+
         // Time to hire (for accepted applications)
         if (app.status === 'accepted' && app.submittedAt) {
           const analytics = this.applicationAnalytics.get(app.id);
@@ -1025,9 +1040,9 @@ class ApplicationService extends EnhancedServiceWithTracing {
       const analytics = {
         overview: {
           totalApplications,
-          averageTimeToHire: timeToHire.length > 0 ? 
+          averageTimeToHire: timeToHire.length > 0 ?
             Math.round(timeToHire.reduce((a, b) => a + b, 0) / timeToHire.length) : 0,
-          acceptanceRate: totalApplications > 0 ? 
+          acceptanceRate: totalApplications > 0 ?
             Math.round((statusBreakdown.accepted || 0) / totalApplications * 100) : 0
         },
         statusBreakdown,
@@ -1074,10 +1089,10 @@ class ApplicationService extends EnhancedServiceWithTracing {
       applications.forEach(app => {
         statusBreakdown[app.status] = (statusBreakdown[app.status] || 0) + 1;
         sourceBreakdown[app.source] = (sourceBreakdown[app.source] || 0) + 1;
-        
+
         const day = new Date(app.submittedAt).toISOString().split('T')[0];
         applicationsByDay[day] = (applicationsByDay[day] || 0) + 1;
-        
+
         // Count views from analytics
         const analytics = this.applicationAnalytics.get(app.id);
         if (analytics) {
@@ -1143,7 +1158,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
     });
 
     return Object.entries(jobCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([jobId, count]) => ({ jobId, applicationCount: count }));
   }
@@ -1154,13 +1169,13 @@ class ApplicationService extends EnhancedServiceWithTracing {
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
     const recentApplications = applications.filter(app => new Date(app.submittedAt) >= thirtyDaysAgo);
-    const previousApplications = applications.filter(app => 
+    const previousApplications = applications.filter(app =>
       new Date(app.submittedAt) >= sixtyDaysAgo && new Date(app.submittedAt) < thirtyDaysAgo
     );
 
     const recentCount = recentApplications.length;
     const previousCount = previousApplications.length;
-    const growthPercent = previousCount > 0 ? 
+    const growthPercent = previousCount > 0 ?
       Math.round(((recentCount - previousCount) / previousCount) * 100) : 0;
 
     return {
@@ -1186,28 +1201,28 @@ class ApplicationService extends EnhancedServiceWithTracing {
         return Math.ceil((reviewTime - submittedTime) / (1000 * 60 * 60)); // hours
       });
 
-    return responseTimes.length > 0 ? 
+    return responseTimes.length > 0 ?
       Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
   }
 
   calculateScreeningPassRate(applications) {
-    const screenedApplications = applications.filter(app => 
+    const screenedApplications = applications.filter(app =>
       app.status === 'screening' || app.status === 'interview' || app.status === 'accepted'
     );
-    const totalReviewed = applications.filter(app => 
+    const totalReviewed = applications.filter(app =>
       app.status !== 'submitted' && app.status !== 'under-review'
     );
 
-    return totalReviewed.length > 0 ? 
+    return totalReviewed.length > 0 ?
       Math.round((screenedApplications.length / totalReviewed.length) * 100) : 0;
   }
 
   calculateInterviewRate(applications) {
-    const interviewApplications = applications.filter(app => 
+    const interviewApplications = applications.filter(app =>
       app.status === 'interview' || app.status === 'technical' || app.status === 'final-interview' || app.status === 'offered' || app.status === 'accepted'
     );
 
-    return applications.length > 0 ? 
+    return applications.length > 0 ?
       Math.round((interviewApplications.length / applications.length) * 100) : 0;
   }
 
@@ -1265,7 +1280,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
 
   async start() {
     const startupSpan = this.tracer ? this.tracer.startSpan('application-service.startup') : null;
-    
+
     try {
       this.server = this.app.listen(this.config.port, () => {
         this.logger.info(`📋 Application Service running on port ${this.config.port}`);
@@ -1290,7 +1305,7 @@ class ApplicationService extends EnhancedServiceWithTracing {
 
   async stop() {
     const shutdownSpan = this.tracer ? this.tracer.startSpan('application-service.shutdown') : null;
-    
+
     try {
       if (this.server) {
         await new Promise((resolve) => {

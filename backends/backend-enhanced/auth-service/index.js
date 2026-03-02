@@ -47,6 +47,7 @@ class AuthService extends EnhancedServiceWithTracing {
                 autoValidate: true,
             },
             circuitBreaker: {
+                enabled: true,
                 timeout: 5000,
                 maxFailures: 3,
                 resetTimeout: 30000,
@@ -216,7 +217,15 @@ class AuthService extends EnhancedServiceWithTracing {
             })
         );
 
-        // Profile endpoint
+        // Refresh token endpoint
+        this.app.post("/refresh-token", (req, res) =>
+            this.handleRequestWithTracing(req, res, "auth.refresh", {
+                validateInput: false,
+                validateOutput: false,
+            })
+        );
+
+        // Profile endpoints
         this.app.get("/profile", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.profile", {
                 validateInput: false,
@@ -224,7 +233,36 @@ class AuthService extends EnhancedServiceWithTracing {
             })
         );
 
-        // Error handling middleware
+        this.app.put("/profile", (req, res) =>
+            this.handleRequestWithTracing(req, res, "auth.profile.update", {
+                validateInput: false,
+                validateOutput: false,
+            })
+        );
+
+        this.app.post("/profile/picture", (req, res) =>
+            this.handleRequestWithTracing(req, res, "auth.profile.picture", {
+                validateInput: false,
+                validateOutput: false,
+            })
+        );
+
+        // Preferences endpoints (notifications + UI settings)
+        this.app.get("/preferences", (req, res) =>
+            this.handleRequestWithTracing(req, res, "auth.preferences.get", {
+                validateInput: false,
+                validateOutput: false,
+            })
+        );
+
+        this.app.put("/preferences", (req, res) =>
+            this.handleRequestWithTracing(req, res, "auth.preferences.update", {
+                validateInput: false,
+                validateOutput: false,
+            })
+        );
+
+
         this.app.use((error, req, res, next) => {
             const span = this.tracer
                 ? this.tracer
@@ -274,8 +312,18 @@ class AuthService extends EnhancedServiceWithTracing {
                 return this.logoutUser(request.headers);
             case "auth.verify":
                 return this.verifyToken(request.headers);
+            case "auth.refresh":
+                return this.refreshUserToken(request.body);
             case "auth.profile":
                 return this.getUserProfile(request.headers);
+            case "auth.profile.update":
+                return this.updateUserProfile(request.headers, request.body);
+            case "auth.profile.picture":
+                return { success: true, message: "Profile picture upload not yet implemented" };
+            case "auth.preferences.get":
+                return this.getUserPreferences(request.headers);
+            case "auth.preferences.update":
+                return this.updateUserPreferences(request.headers, request.body);
             default:
                 throw new Error(`Unknown operation: ${operationName}`);
         }
@@ -303,9 +351,9 @@ class AuthService extends EnhancedServiceWithTracing {
             const user = await this.database.insert("users", {
                 email: userData.email,
                 password_hash: hashedPassword,
-                first_name: userData.firstName || userData.name?.split(' ')[0] || '',
-                last_name: userData.lastName || userData.name?.split(' ').slice(1).join(' ') || '',
-                role: userData.role || "user",
+                first_name: userData.firstName || userData.name?.split(" ")[0] || "",
+                last_name: userData.lastName || userData.name?.split(" ").slice(1).join(" ") || "",
+                role: userData.role || "STUDENT",
             });
 
             return {
@@ -349,15 +397,24 @@ class AuthService extends EnhancedServiceWithTracing {
                 user.id,
             ]);
 
-            // Generate JWT token
+            // Generate access JWT token
             const token = jwt.sign(
                 {
                     userId: user.id,
                     email: user.email,
-                    name: user.name,
+                    role: user.role,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
                 },
                 this.jwtSecret,
                 { expiresIn: "24h" }
+            );
+
+            // Generate refresh token (longer-lived, used only to get new access tokens)
+            const refreshToken = jwt.sign(
+                { userId: user.id },
+                this.jwtSecret,
+                { expiresIn: "7d" }
             );
 
             // Create session (still in memory for now, could move to database)
@@ -372,6 +429,7 @@ class AuthService extends EnhancedServiceWithTracing {
             return {
                 success: true,
                 token,
+                refreshToken,
                 sessionId,
                 user: {
                     id: user.id,
@@ -408,10 +466,17 @@ class AuthService extends EnhancedServiceWithTracing {
                     name: Joi.string().min(2).max(100),
                     firstName: Joi.string().min(1).max(100),
                     lastName: Joi.string().min(1).max(100),
-                    role: Joi.string().valid('STUDENT', 'RECRUITER', 'ADMIN', 'user', 'employee', 'employer'),
-                    company: Joi.string().allow('', null),
-                    title: Joi.string().allow('', null)
-                }).or('name', 'firstName'),
+                    role: Joi.string().valid(
+                        "STUDENT",
+                        "RECRUITER",
+                        "ADMIN",
+                        "user",
+                        "employee",
+                        "employer"
+                    ),
+                    company: Joi.string().allow("", null),
+                    title: Joi.string().allow("", null),
+                }).or("name", "firstName"),
                 outputSchema: Joi.object({
                     success: Joi.boolean().required(),
                     user: Joi.object().required(),
@@ -474,12 +539,67 @@ class AuthService extends EnhancedServiceWithTracing {
                     user: {
                         id: decoded.userId,
                         email: decoded.email,
-                        name: decoded.name,
+                        role: decoded.role,
+                        firstName: decoded.firstName,
+                        lastName: decoded.lastName,
                     },
                 };
             } catch (error) {
                 throw new Error("Invalid token");
             }
+        });
+    }
+
+    async refreshUserToken(body) {
+        return this.executeWithTracing("auth.refresh.process", async () => {
+            const { refreshToken } = body;
+            if (!refreshToken) {
+                throw new Error("No refresh token provided");
+            }
+
+            let decoded;
+            try {
+                decoded = jwt.verify(refreshToken, this.jwtSecret);
+            } catch (error) {
+                throw new Error("Invalid or expired refresh token");
+            }
+
+            // Load fresh user data from DB
+            await this.database.initialize();
+            const result = await this.database.query(
+                "SELECT id, email, first_name, last_name, role FROM users WHERE id = $1 AND is_active = TRUE",
+                [decoded.userId]
+            );
+
+            if (result.rows.length === 0) {
+                throw new Error("User not found");
+            }
+
+            const user = result.rows[0];
+
+            const newToken = jwt.sign(
+                {
+                    userId: user.id,
+                    email: user.email,
+                    role: user.role,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                },
+                this.jwtSecret,
+                { expiresIn: "24h" }
+            );
+
+            return {
+                success: true,
+                token: newToken,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    role: user.role,
+                },
+            };
         });
     }
 
@@ -495,7 +615,7 @@ class AuthService extends EnhancedServiceWithTracing {
 
                 // Get user from database
                 const result = await this.database.query(
-                    "SELECT id, email, name, created_at, role, email_verified FROM users WHERE id = $1 AND is_active = TRUE",
+                    "SELECT id, email, first_name, last_name, created_at, role, email_verified FROM users WHERE id = $1 AND is_active = TRUE",
                     [decoded.userId]
                 );
 
@@ -510,7 +630,8 @@ class AuthService extends EnhancedServiceWithTracing {
                     user: {
                         id: user.id,
                         email: user.email,
-                        name: user.name,
+                        firstName: user.first_name,
+                        lastName: user.last_name,
                         createdAt: user.created_at,
                         role: user.role,
                         emailVerified: user.email_verified,
@@ -519,6 +640,180 @@ class AuthService extends EnhancedServiceWithTracing {
             } catch (error) {
                 throw new Error("Invalid token or user not found");
             }
+        });
+    }
+
+    async updateUserProfile(headers, body) {
+        return this.executeWithTracing("auth.profile.update.process", async () => {
+            const token = this.extractToken(headers);
+            const decoded = jwt.verify(token, this.jwtSecret);
+
+            const { firstName, lastName, bio, linkedin, github, website } = body;
+
+            await this.database.initialize();
+
+            // Build update query dynamically for only the provided fields
+            const updates = [];
+            const values = [];
+            let idx = 1;
+
+            if (firstName !== undefined) { updates.push(`first_name = $${idx++}`); values.push(firstName); }
+            if (lastName !== undefined) { updates.push(`last_name = $${idx++}`); values.push(lastName); }
+            if (bio !== undefined) { updates.push(`bio = $${idx++}`); values.push(bio); }
+            if (linkedin !== undefined) { updates.push(`linkedin = $${idx++}`); values.push(linkedin); }
+            if (github !== undefined) { updates.push(`github = $${idx++}`); values.push(github); }
+            if (website !== undefined) { updates.push(`website = $${idx++}`); values.push(website); }
+
+            if (updates.length === 0) {
+                throw Object.assign(new Error("No updatable fields provided"), { statusCode: 400 });
+            }
+
+            updates.push(`updated_at = NOW()`);
+            values.push(decoded.userId);
+
+            const result = await this.database.query(
+                `UPDATE users SET ${updates.join(", ")} WHERE id = $${idx} AND is_active = TRUE RETURNING id, email, first_name, last_name, role`,
+                values
+            );
+
+            if (result.rows.length === 0) {
+                throw Object.assign(new Error("User not found"), { statusCode: 404 });
+            }
+
+            const user = result.rows[0];
+            return {
+                success: true,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    role: user.role,
+                },
+            };
+        });
+    }
+
+    async getUserPreferences(headers) {
+        return this.executeWithTracing("auth.preferences.get.process", async () => {
+            const token = this.extractToken(headers);
+            const decoded = jwt.verify(token, this.jwtSecret);
+            await this.database.initialize();
+
+            const [notifRow, prefRow] = await Promise.all([
+                this.database.query(
+                    "SELECT * FROM user_notification_preferences WHERE user_id = $1",
+                    [decoded.userId]
+                ).then(r => r.rows[0]).catch(() => null),
+                this.database.query(
+                    "SELECT * FROM user_preferences WHERE user_id = $1",
+                    [decoded.userId]
+                ).then(r => r.rows[0]).catch(() => null),
+            ]);
+
+            return {
+                success: true,
+                preferences: {
+                    notifications: notifRow ? {
+                        emailNotifications: notifRow.email_notifications,
+                        pushNotifications: notifRow.push_notifications,
+                        newDiscussionAlerts: notifRow.new_discussion_alerts,
+                        replyAlerts: notifRow.reply_alerts,
+                        achievementAlerts: notifRow.achievement_alerts,
+                        weeklyDigest: notifRow.weekly_digest,
+                    } : {
+                        emailNotifications: true, pushNotifications: false,
+                        newDiscussionAlerts: true, replyAlerts: true,
+                        achievementAlerts: true, weeklyDigest: false,
+                    },
+                    preferences: prefRow ? {
+                        language: prefRow.language, timezone: prefRow.timezone,
+                        theme: prefRow.theme, fontSize: prefRow.font_size,
+                        autoPlayVideos: prefRow.auto_play_videos, showCaptions: prefRow.show_captions,
+                        quality: prefRow.quality,
+                    } : {
+                        language: "en", timezone: "UTC", theme: "light",
+                        fontSize: "medium", autoPlayVideos: false, showCaptions: false, quality: "auto",
+                    },
+                    privacy: prefRow ? {
+                        profileVisibility: prefRow.profile_visibility,
+                        showLearningProgress: prefRow.show_learning_progress,
+                        showAchievements: prefRow.show_achievements,
+                        allowMessages: prefRow.allow_messages,
+                        allowConnectionRequests: prefRow.allow_connection_requests,
+                    } : {
+                        profileVisibility: "public", showLearningProgress: true,
+                        showAchievements: true, allowMessages: true, allowConnectionRequests: true,
+                    },
+                },
+            };
+        });
+    }
+
+    async updateUserPreferences(headers, body) {
+        return this.executeWithTracing("auth.preferences.update.process", async () => {
+            const token = this.extractToken(headers);
+            const decoded = jwt.verify(token, this.jwtSecret);
+            await this.database.initialize();
+
+            const { notifications, preferences, privacy } = body;
+
+            // Upsert notification preferences
+            if (notifications) {
+                await this.database.query(`
+                    INSERT INTO user_notification_preferences
+                        (user_id, email_notifications, push_notifications, new_discussion_alerts,
+                         reply_alerts, achievement_alerts, weekly_digest, updated_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                    ON CONFLICT (user_id) DO UPDATE SET
+                        email_notifications = EXCLUDED.email_notifications,
+                        push_notifications = EXCLUDED.push_notifications,
+                        new_discussion_alerts = EXCLUDED.new_discussion_alerts,
+                        reply_alerts = EXCLUDED.reply_alerts,
+                        achievement_alerts = EXCLUDED.achievement_alerts,
+                        weekly_digest = EXCLUDED.weekly_digest,
+                        updated_at = NOW()
+                `, [
+                    decoded.userId,
+                    notifications.emailNotifications ?? true,
+                    notifications.pushNotifications ?? false,
+                    notifications.newDiscussionAlerts ?? true,
+                    notifications.replyAlerts ?? true,
+                    notifications.achievementAlerts ?? true,
+                    notifications.weeklyDigest ?? false,
+                ]);
+            }
+
+            // Upsert UI preferences and privacy
+            const prefs = preferences || {};
+            const priv = privacy || {};
+            await this.database.query(`
+                INSERT INTO user_preferences
+                    (user_id, language, timezone, theme, font_size, auto_play_videos, show_captions, quality,
+                     profile_visibility, show_learning_progress, show_achievements, allow_messages,
+                     allow_connection_requests, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+                ON CONFLICT (user_id) DO UPDATE SET
+                    language = EXCLUDED.language, timezone = EXCLUDED.timezone, theme = EXCLUDED.theme,
+                    font_size = EXCLUDED.font_size, auto_play_videos = EXCLUDED.auto_play_videos,
+                    show_captions = EXCLUDED.show_captions, quality = EXCLUDED.quality,
+                    profile_visibility = EXCLUDED.profile_visibility,
+                    show_learning_progress = EXCLUDED.show_learning_progress,
+                    show_achievements = EXCLUDED.show_achievements,
+                    allow_messages = EXCLUDED.allow_messages,
+                    allow_connection_requests = EXCLUDED.allow_connection_requests,
+                    updated_at = NOW()
+            `, [
+                decoded.userId,
+                prefs.language ?? "en", prefs.timezone ?? "UTC", prefs.theme ?? "light",
+                prefs.fontSize ?? "medium", prefs.autoPlayVideos ?? false,
+                prefs.showCaptions ?? false, prefs.quality ?? "auto",
+                priv.profileVisibility ?? "public",
+                priv.showLearningProgress ?? true, priv.showAchievements ?? true,
+                priv.allowMessages ?? true, priv.allowConnectionRequests ?? true,
+            ]).catch(() => null); // Gracefully fail if tables don't exist yet
+
+            return { success: true, message: "Preferences saved successfully" };
         });
     }
 
@@ -558,8 +853,9 @@ class AuthService extends EnhancedServiceWithTracing {
                     const demoUser = await this.database.insert("users", {
                         email: "demo@example.com",
                         password_hash: hashedPassword,
-                        name: "Demo User",
-                        role: "user",
+                        first_name: "Demo",
+                        last_name: "User",
+                        role: "STUDENT",
                         email_verified: true,
                     });
 

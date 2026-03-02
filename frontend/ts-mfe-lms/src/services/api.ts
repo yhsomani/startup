@@ -10,7 +10,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
+    // Shell authService stores the token as 'token'; fall back to 'accessToken' for compatibility
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

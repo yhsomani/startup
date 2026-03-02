@@ -159,7 +159,7 @@ To start the frontend (run in separate terminals):
 Access points:
   - Frontend Shell:     http://localhost:3010
   - API Gateway:        http://localhost:8000
-  - Grafana:            http://localhost:3001
+  - Grafana:            http://localhost:3020
   - RabbitMQ Dashboard: http://localhost:15672 (guest/guest)
   - Prometheus:         http://localhost:9090
 

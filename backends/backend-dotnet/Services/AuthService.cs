@@ -41,7 +41,7 @@ namespace TalentSphere.API.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            _eventPublisher.PublishEvent("user.registered", new { UserId = user.Id, Email = user.Email, Role = user.Role });
+            _eventPublisher?.PublishEvent("user.registered", new { UserId = user.Id, Email = user.Email, Role = user.Role });
 
             return GenerateToken(user);
         }

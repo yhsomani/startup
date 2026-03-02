@@ -50,17 +50,21 @@ namespace TalentSphere.API.DTOs
     
     public class CourseListResponse
     {
-         public List<CourseDTO> Data { get; set; } = new();
-         public PaginationMetadata Pagination { get; set; } = new();
+         public required List<CourseDTO> Data { get; set; } = new();
+         public required PaginationMetadata Pagination { get; set; } = new();
     }
     
     public class PaginationMetadata
     {
         public int Page { get; set; }
+        public int PageSize { get; set; }
         public int Limit { get; set; }
+        public int TotalCount { get; set; }
         public long Total { get; set; }
         public int TotalPages { get; set; }
+        public bool HasNext { get; set; }
         public bool HasNextPage { get; set; }
+        public bool HasPrevious { get; set; }
         public bool HasPreviousPage { get; set; }
     }
 }

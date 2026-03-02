@@ -9,10 +9,12 @@
       - /url: /courses
     - link "Challenges" [ref=e7] [cursor=pointer]:
       - /url: /challenges
-    - generic [ref=e8]:
-      - link "Log In" [ref=e9] [cursor=pointer]:
+    - link "Jobs & Courses" [ref=e8] [cursor=pointer]:
+      - /url: /courses
+    - generic [ref=e9]:
+      - link "Log In" [ref=e10] [cursor=pointer]:
         - /url: /login
-      - link "Sign Up" [ref=e10] [cursor=pointer]:
+      - link "Sign Up" [ref=e11] [cursor=pointer]:
         - /url: /register
-  - button "Open AI Tutor" [ref=e12] [cursor=pointer]: 🤖
+  - button "Open AI Tutor" [ref=e13] [cursor=pointer]: 🤖
 ```

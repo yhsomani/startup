@@ -402,21 +402,101 @@ class LogAggregatorAPI {
     /**
      * Send critical alert (placeholder for external integration)
      */
-    sendCriticalAlert(alert) {
-        // In production, this would integrate with systems like:
-        // - PagerDuty
-        // - Slack notifications
-        // - Email alerts
-        // - SMS notifications
-        // - Monitoring systems (DataDog, New Relic)
-        
+    async sendCriticalAlert(alert) {
         this.logger.error('CRITICAL ALERT:', alert);
+
+        const alertData = {
+            type: 'critical',
+            message: alert.message || 'Critical alert',
+            severity: 'critical',
+            timestamp: new Date().toISOString(),
+            source: 'log-aggregator',
+            details: alert
+        };
+
+        if (process.env.PAGERDUTY_API_KEY && process.env.PAGERDUTY_ROUTING_KEY) {
+            await this.sendToPagerDuty(alertData);
+        }
+
+        if (process.env.SLACK_WEBHOOK_URL) {
+            await this.sendToSlack(alertData);
+        }
+
+        if (process.env.ALERT_EMAIL_TO) {
+            await this.sendEmail(alertData);
+        }
+
+        if (process.env.TWILIO_ACCOUNT_SID) {
+            await this.sendSMS(alertData);
+        }
+
+        return alertData;
+    }
+
+    /**
+     * Send to PagerDuty
+     */
+    async sendToPagerDuty(alert) {
+        try {
+            await fetch('https://events.pagerduty.com/v2/enqueue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    routing_key: process.env.PAGERDUTY_ROUTING_KEY,
+                    event_action: 'trigger',
+                    payload: {
+                        summary: `[TalentSphere] ${alert.message}`,
+                        severity: 'critical',
+                        source: 'log-aggregator',
+                        custom_details: alert.details
+                    }
+                })
+            });
+        } catch (e) {
+            this.logger.warn('PagerDuty notification failed:', e.message);
+        }
+    }
+
+    /**
+     * Send to Slack
+     */
+    async sendToSlack(alert) {
+        try {
+            await fetch(process.env.SLACK_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: `🚨 *CRITICAL ALERT*`,
+                    blocks: [
+                        { type: 'header', text: { type: 'plain_text', text: '🚨 Critical Alert' } },
+                        { type: 'section', text: { type: 'mrkdwn', text: `*Message:* ${alert.message}` } },
+                        { type: 'context', elements: [{ type: 'mrkdwn', text: `Time: ${alert.timestamp}` }] }
+                    ]
+                })
+            });
+        } catch (e) {
+            this.logger.warn('Slack notification failed:', e.message);
+        }
+    }
+
+    /**
+     * Send email alert
+     */
+    async sendEmail(alert) {
+        this.logger.info(`Would send email alert to: ${process.env.ALERT_EMAIL_TO}`);
+    }
+
+    /**
+     * Send SMS alert
+     */
+    async sendSMS(alert) {
+        this.logger.info(`Would send SMS alert to configured numbers`);
     }
 
     /**
      * Send security alert
      */
-    sendSecurityAlert(alert) {
+    async sendSecurityAlert(alert) {
         // In production, this would integrate with:
         // - Security operations team
         // - SIEM systems

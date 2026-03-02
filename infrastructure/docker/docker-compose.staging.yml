@@ -142,7 +142,7 @@ services:
         image: grafana/grafana:latest
         container_name: ts-grafana
         ports:
-            - "3001:3000"
+            - "3020:3000"
         depends_on:
             - prometheus
         healthcheck:

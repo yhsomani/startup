@@ -96,7 +96,7 @@ const requirePermission = (requiredPermissions) => {
     }
 
     const userPermissions = req.user.permissions || [];
-    const hasPermission = requiredPermissions.every(permission => 
+    const hasPermission = requiredPermissions.every(permission =>
       userPermissions.includes(permission) || userPermissions.includes('*')
     );
 
@@ -127,7 +127,7 @@ const requireCompanyAccess = (req, res, next) => {
   }
 
   // Super admins can access all companies
-  if (req.user.role === 'super_admin') {
+  if (req.user.role === 'SUPER_ADMIN') {
     return next();
   }
 
@@ -167,14 +167,14 @@ const requireOwnership = (resourceIdField = 'userId') => {
     }
 
     // Admins can access all resources
-    if (['admin', 'super_admin'].includes(req.user.role)) {
+    if (['ADMIN', 'SUPER_ADMIN'].includes(req.user.role)) {
       return next();
     }
 
-    const requestedUserId = req.params[resourceIdField] || 
-                           req.body[resourceIdField] || 
-                           req.query[resourceIdField];
-    
+    const requestedUserId = req.params[resourceIdField] ||
+      req.body[resourceIdField] ||
+      req.query[resourceIdField];
+
     if (requestedUserId && requestedUserId !== req.user.userId) {
       return res.status(403).json({
         success: false,
@@ -221,8 +221,8 @@ const optionalAuth = (req, res, next) => {
  * Socket.IO Authentication Middleware
  */
 const socketAuth = (socket, next) => {
-  const token = socket.handshake.auth.token || 
-                socket.handshake.headers.authorization?.split(' ')[1];
+  const token = socket.handshake.auth.token ||
+    socket.handshake.headers.authorization?.split(' ')[1];
 
   if (!token) {
     return next(new Error('Authentication required'));
@@ -250,26 +250,26 @@ const auth = {
   // Basic authentication
   required: authenticateToken,
   optional: optionalAuth,
-  
+
   // Role-based access
-  requireAdmin: requireRole(['admin', 'super_admin']),
-  requireSuperAdmin: requireRole(['super_admin']),
-  requireHr: requireRole(['hr', 'admin', 'super_admin']),
-  requireManager: requireRole(['manager', 'hr', 'admin', 'super_admin']),
-  requireEmployee: requireRole(['employee', 'manager', 'hr', 'admin', 'super_admin']),
-  
+  requireAdmin: requireRole(['ADMIN', 'SUPER_ADMIN']),
+  requireSuperAdmin: requireRole(['SUPER_ADMIN']),
+  requireHr: requireRole(['RECRUITER', 'ADMIN', 'SUPER_ADMIN']),
+  requireManager: requireRole(['RECRUITER', 'ADMIN', 'SUPER_ADMIN']),
+  requireEmployee: requireRole(['STUDENT', 'INSTRUCTOR', 'RECRUITER', 'ADMIN', 'SUPER_ADMIN']),
+
   // Permission-based access
   requireReadPermission: requirePermission(['read']),
   requireWritePermission: requirePermission(['read', 'write']),
   requireAdminPermission: requirePermission(['read', 'write', 'admin']),
-  
+
   // Resource-based access
   requireCompanyAccess,
   requireOwnership,
-  
+
   // Socket authentication
   socket: socketAuth,
-  
+
   // Custom middleware creators
   requireRole,
   requirePermission,

@@ -7,32 +7,60 @@ namespace TalentSphere.API.Services
 {
     public class RabbitMQEventPublisher : IEventPublisher, IDisposable
     {
-        private readonly IConnection? _connection;
-        private readonly IModel? _channel;
-        private readonly string _exchangeName = "talentsphere.events";
         private readonly ILogger<RabbitMQEventPublisher> _logger;
+        private IConnection? _connection;
+        private IChannel? _channel;
+        private readonly string _exchangeName = "talentsphere.events";
+        private bool _isInitialized = false;
 
         public RabbitMQEventPublisher(ILogger<RabbitMQEventPublisher> logger)
         {
             _logger = logger;
             try
             {
-                var factory = new ConnectionFactory { HostName = "localhost" };
-                _connection = factory.CreateConnection();
-                _channel = _connection.CreateModel();
-                _channel.ExchangeDeclare(exchange: _exchangeName, type: "topic");
+                var factory = new ConnectionFactory 
+                { 
+                    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+                    Port = int.TryParse(Environment.GetEnvironmentVariable("RABBITMQ_PORT"), out var port) ? port : 5672
+                };
+                
+                Task.Run(async () => await InitializeAsync()).Wait(5000);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to connect to RabbitMQ");
+                _logger.LogWarning(ex, "RabbitMQ not available. Events will be logged only.");
+                _isInitialized = false;
             }
         }
 
-        public void PublishEvent(string routingKey, object eventData)
+        private async Task InitializeAsync()
         {
-            if (_channel == null || _channel.IsClosed)
+            try
             {
-                _logger.LogWarning("RabbitMQ channel is not open. Event {RoutingKey} dropped.", routingKey);
+                var factory = new ConnectionFactory 
+                { 
+                    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+                    Port = int.TryParse(Environment.GetEnvironmentVariable("RABBITMQ_PORT"), out var port) ? port : 5672
+                };
+                
+                _connection = await factory.CreateConnectionAsync();
+                _channel = await _connection.CreateChannelAsync();
+                await _channel.ExchangeDeclareAsync(exchange: _exchangeName, type: ExchangeType.Topic, durable: true);
+                _isInitialized = true;
+                _logger.LogInformation("RabbitMQ connected successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to connect to RabbitMQ");
+                _isInitialized = false;
+            }
+        }
+
+        public async Task PublishEventAsync(string routingKey, object eventData)
+        {
+            if (!_isInitialized || _channel == null)
+            {
+                _logger.LogWarning("RabbitMQ not initialized. Event {RoutingKey} logged but not published.", routingKey);
                 return;
             }
 
@@ -40,24 +68,35 @@ namespace TalentSphere.API.Services
             {
                 var json = JsonSerializer.Serialize(eventData);
                 var body = Encoding.UTF8.GetBytes(json);
+                
+                var properties = new BasicProperties
+                {
+                    DeliveryMode = DeliveryModes.Persistent,
+                    ContentType = "application/json"
+                };
 
-                _channel.BasicPublish(exchange: _exchangeName,
-                                     routingKey: routingKey,
-                                     basicProperties: null,
-                                     body: body);
-                                     
-                _logger.LogInformation("Published event to {RoutingKey}", routingKey);
+                await _channel.BasicPublishAsync(
+                    exchange: _exchangeName,
+                    routingKey: routingKey,
+                    mandatory: false,
+                    basicProperties: properties,
+                    body: body);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to publish event");
+                _logger.LogError(ex, "Failed to publish event {RoutingKey}", routingKey);
             }
+        }
+
+        public void PublishEvent(string routingKey, object eventData)
+        {
+            PublishEventAsync(routingKey, eventData).Wait();
         }
 
         public void Dispose()
         {
-            _channel?.Close();
-            _connection?.Close();
+            _channel?.CloseAsync();
+            _connection?.CloseAsync();
         }
     }
 }

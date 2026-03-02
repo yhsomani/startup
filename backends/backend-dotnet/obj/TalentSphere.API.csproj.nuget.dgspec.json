@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj": {}
+    "C:\\Users\\yashs\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj": {
+    "C:\\Users\\yashs\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj",
+        "projectUniqueName": "C:\\Users\\yashs\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj",
         "projectName": "TalentSphere.API",
-        "projectPath": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj",
-        "packagesPath": "C:\\Users\\ysoma\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ysoma\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\obj\\",
+        "projectPath": "C:\\Users\\yashs\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\TalentSphere.API.csproj",
+        "packagesPath": "C:\\Users\\yashs\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\yashs\\OneDrive\\Documents\\Startup\\TalentSphere\\backends\\backend-dotnet\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ysoma\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\yashs\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -73,13 +72,21 @@
               "target": "Package",
               "version": "[8.0.11, )"
             },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.IdentityModel.JsonWebTokens": {
+              "target": "Package",
+              "version": "[8.3.0, )"
+            },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[8.0.11, )"
             },
             "RabbitMQ.Client": {
               "target": "Package",
-              "version": "[6.8.1, )"
+              "version": "[7.0.0, )"
             },
             "Stripe.net": {
               "target": "Package",
@@ -88,6 +95,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.3.0, )"
             },
             "prometheus-net.AspNetCore": {
               "target": "Package",
@@ -108,19 +119,19 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
+              "version": "[8.0.24, 8.0.24]"
             },
             {
               "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.23, 8.0.23]"
+              "version": "[8.0.24, 8.0.24]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
+              "version": "[8.0.24, 8.0.24]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
+              "version": "[8.0.24, 8.0.24]"
             }
           ],
           "frameworkReferences": {
@@ -131,7 +142,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200-preview.0.26103.119/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -35,11 +35,23 @@ interface ServiceConfig {
 }
 
 const SERVICES: ServiceConfig[] = [
-    { name: 'Job Listing', url: '/api', port: 3008 },
-    { name: 'User Profile', url: '/api', port: 3009 },
+    { name: 'Job Listing', url: '/api/v1/jobs', port: 3008 },
+    { name: 'User Profile', url: '/api/v1/users', port: 3009 },
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Metrics are fetched through the API gateway, not directly by port.
+// The gateway exposes /api/v1/metrics/{serviceName} which proxies to each service's /metrics endpoint.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+
+const getMetricsUrl = (svc: ServiceConfig): string => {
+    // Map service to its gateway route prefix
+    const routeMap: Record<string, string> = {
+        'Job Listing': 'jobs',
+        'User Profile': 'users',
+    };
+    const segment = routeMap[svc.name] || svc.name.toLowerCase().replace(' ', '-');
+    return `${API_BASE}/${segment}/metrics`;
+};
 
 const formatUptime = (ms: number): string => {
     const s = Math.floor(ms / 1000);
@@ -178,7 +190,7 @@ const PerformanceDashboard: React.FC = () => {
         await Promise.allSettled(
             SERVICES.map(async (svc) => {
                 try {
-                    const resp = await axios.get(`${API_BASE}:${svc.port}/metrics`, { timeout: 5000 });
+                    const resp = await axios.get(getMetricsUrl(svc), { timeout: 5000 });
                     results[svc.name] = resp.data;
                     errs[svc.name] = null;
                 } catch (e: unknown) {

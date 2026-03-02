@@ -132,6 +132,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vite-plugin-compression:
+        specifier: ^0.5.1
+        version: 0.5.1(vite@7.3.1(@types/node@25.3.0)(jiti@1.21.7)(terser@5.46.0)(yaml@2.8.2))
       webpack-bundle-analyzer:
         specifier: ^5.2.0
         version: 5.2.0
@@ -717,8 +720,8 @@ importers:
         specifier: ^7.0.0
         version: 7.2.0
       ioredis:
-        specifier: ^2.4.0
-        version: 2.5.0
+        specifier: ^1.0.0
+        version: 1.15.1
       joi:
         specifier: ^17.9.2
         version: 17.13.3
@@ -731,6 +734,9 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.1
+      node-cron:
+        specifier: ^3.0.2
+        version: 3.0.3
       nodemailer:
         specifier: ^6.9.1
         version: 6.10.1
@@ -6120,6 +6126,9 @@ packages:
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
+  bluebird@2.11.0:
+    resolution: {integrity: sha512-UfFSr22dmHPQqPP9XWHRhq+gWnHCYguQGkXQlbyPtW5qTnhFWA8/iXg765tH0cAjy7l/zPJ1aBTO0g5XgA7kvQ==}
+
   bluebird@3.4.7:
     resolution: {integrity: sha512-iD3898SR7sWVRHbiQv+sHUtHnMvC1o3nW5rAcqnq3uOn07DSAppZYUkIGslDz6gXC7HfunPe7YVBgoEJASPcHA==}
 
@@ -7626,6 +7635,10 @@ packages:
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
 
+  fs-extra@10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+
   fs-extra@8.1.0:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
@@ -8081,6 +8094,10 @@ packages:
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
+
+  ioredis@1.15.1:
+    resolution: {integrity: sha512-uP4u1chrqPNgrxVHI5SFAZNXCYrB7HjSgsrVWKjusTXmXsuQE5QFeG/dSehkld329Yr5QGsFOGBfBcRE/ySBCg==}
+    engines: {iojs: '>= 1.0.0', node: '>= 0.10.16'}
 
   ioredis@2.5.0:
     resolution: {integrity: sha512-2jcmF1oVbNf8z+BJ8OmlwKsT+tqOJsJJuTh8qAX5Hwo0424E92A3qu9qcWM9vRhP0R4gCrJ9Y72QZwuVj8weMw==}
@@ -9023,6 +9040,9 @@ packages:
 
   lodash.upperfirst@4.3.1:
     resolution: {integrity: sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==}
+
+  lodash@3.10.1:
+    resolution: {integrity: sha512-9mDDwqVIma6OZX79ZlDACZl8sBm0TEnkf99zV3iMA4GzkIT/9hiqP5mY0HoT1iNLCrKc/R1HByV+yJfRWVJryQ==}
 
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
@@ -11672,6 +11692,11 @@ packages:
     resolution: {integrity: sha512-YAXkfvGtuTzwWbDSACdJSg4A4DZiAqckWe90Zapc/sEX3XvHcw1NdurM/6od8J207tSDqNbSsgdCacBgvJKFuA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
+
+  vite-plugin-compression@0.5.1:
+    resolution: {integrity: sha512-5QJKBDc+gNYVqL/skgFAP81Yuzo9R+EAf19d+EtsMF/i8kFUpNi3J/H01QD3Oo8zBQn+NzoCIFkpPLynoOzaJg==}
+    peerDependencies:
+      vite: '>=2.0.0'
 
   vite-plugin-pwa@1.2.0:
     resolution: {integrity: sha512-a2xld+SJshT9Lgcv8Ji4+srFJL4k/1bVbd1x06JIkvecpQkwkvCncD1+gSzcdm3s+owWLpMJerG3aN5jupJEVw==}
@@ -17614,6 +17639,8 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
+  bluebird@2.11.0: {}
+
   bluebird@3.4.7: {}
 
   bluebird@3.7.2: {}
@@ -19523,6 +19550,12 @@ snapshots:
 
   fs-constants@1.0.0: {}
 
+  fs-extra@10.1.0:
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.2.0
+      universalify: 2.0.1
+
   fs-extra@8.1.0:
     dependencies:
       graceful-fs: 4.2.11
@@ -20029,6 +20062,16 @@ snapshots:
   invariant@2.2.4:
     dependencies:
       loose-envify: 1.4.0
+
+  ioredis@1.15.1:
+    dependencies:
+      bluebird: 2.11.0
+      debug: 2.6.9
+      double-ended-queue: 2.1.0-0
+      flexbuffer: 0.0.6
+      lodash: 3.10.1
+    transitivePeerDependencies:
+      - supports-color
 
   ioredis@2.5.0:
     dependencies:
@@ -21446,6 +21489,8 @@ snapshots:
   lodash.uniq@4.5.0: {}
 
   lodash.upperfirst@4.3.1: {}
+
+  lodash@3.10.1: {}
 
   lodash@4.17.23: {}
 
@@ -24431,6 +24476,15 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vite-plugin-compression@0.5.1(vite@7.3.1(@types/node@25.3.0)(jiti@1.21.7)(terser@5.46.0)(yaml@2.8.2)):
+    dependencies:
+      chalk: 4.1.2
+      debug: 4.4.3(supports-color@5.5.0)
+      fs-extra: 10.1.0
+      vite: 7.3.1(@types/node@25.3.0)(jiti@1.21.7)(terser@5.46.0)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - supports-color
 
   vite-plugin-pwa@1.2.0(vite@5.4.21(@types/node@20.19.33)(terser@5.46.0))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0):
     dependencies:

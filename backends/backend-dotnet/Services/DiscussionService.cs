@@ -343,7 +343,7 @@ namespace TalentSphere.API.Services
                 if (discussion.AuthorId != userId)
                 {
                     var user = await _context.Users.FindAsync(userId);
-                    if (user == null || user.Role == UserRole.Student)
+                    if (user == null || user.Role == "STUDENT")
                     {
                         throw new UnauthorizedAccessException("Only discussion authors or instructors can delete discussions");
                     }
@@ -391,7 +391,7 @@ namespace TalentSphere.API.Services
                     DiscussionId = discussionId,
                     AuthorId = userId,
                     ParentReplyId = request.ParentReplyId,
-                    IsInstructorReply = user.Role != UserRole.Student,
+                    IsInstructorReply = user.Role != "STUDENT",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -466,7 +466,7 @@ namespace TalentSphere.API.Services
                 if (reply.AuthorId != userId)
                 {
                     var user = await _context.Users.FindAsync(userId);
-                    if (user == null || user.Role == UserRole.Student)
+                    if (user == null || user.Role == "STUDENT")
                     {
                         throw new UnauthorizedAccessException("Only reply authors or instructors can delete replies");
                     }
@@ -592,7 +592,7 @@ namespace TalentSphere.API.Services
                 if (discussion.AuthorId != userId)
                 {
                     var user = await _context.Users.FindAsync(userId);
-                    if (user == null || user.Role == UserRole.Student)
+                    if (user == null || user.Role == "STUDENT")
                     {
                         throw new UnauthorizedAccessException("Only discussion authors or instructors can accept answers");
                     }

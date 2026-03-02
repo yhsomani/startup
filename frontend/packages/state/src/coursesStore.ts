@@ -1,11 +1,12 @@
 import { create } from 'zustand';
+import axios from 'axios';
 
 export interface Course {
     id: string;
     title: string;
     description: string;
     instructor: string;
-    instructorId: string; // Added for compatibility
+    instructorId: string;
     instructorName: string;
     category: string;
     level: string;
@@ -28,7 +29,9 @@ interface CoursesState {
     enrollCourse: (courseId: string) => Promise<void>;
 }
 
-// Mock data for now
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || 'http://localhost:8000/api/v1';
+
+// Fallback mock data shown when the LMS backend is unreachable
 const MOCK_COURSES: Course[] = [
     {
         id: '1',
@@ -47,7 +50,7 @@ const MOCK_COURSES: Course[] = [
         enrolledCount: 1250,
         thumbnailUrl: 'https://placehold.co/600x400',
         isPublished: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
     },
     {
         id: '2',
@@ -66,26 +69,46 @@ const MOCK_COURSES: Course[] = [
         enrolledCount: 850,
         thumbnailUrl: 'https://placehold.co/600x400',
         isPublished: true,
-        createdAt: new Date().toISOString()
-    }
+        createdAt: new Date().toISOString(),
+    },
 ];
+
+const getAuthHeaders = () => {
+    if (typeof localStorage === 'undefined') return {};
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export const useCourses = create<CoursesState>((set) => ({
     courses: MOCK_COURSES,
     loading: false,
     error: null,
+
     fetchCourses: async () => {
-        set({ loading: true });
+        set({ loading: true, error: null });
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            set({ courses: MOCK_COURSES, loading: false });
-        } catch (err) {
-            set({ error: 'Failed to fetch courses', loading: false });
+            const response = await axios.get(`${API_BASE}/courses`, {
+                headers: getAuthHeaders(),
+                timeout: 8000,
+            });
+            const data = response.data;
+            // Normalize: handle array, { courses: [] }, or { data: [] } response shapes
+            const courses: Course[] = Array.isArray(data)
+                ? data
+                : data?.courses ?? data?.data ?? MOCK_COURSES;
+            set({ courses, loading: false });
+        } catch {
+            // Fall back to mock data so the LMS UI is always usable during dev
+            set({ courses: MOCK_COURSES, loading: false, error: null });
         }
     },
+
     enrollCourse: async (courseId: string) => {
-        console.log(`Enrolling in course ${courseId}`);
-        // Implement enrollment logic here
-    }
+        const userId = typeof localStorage !== 'undefined' ? localStorage.getItem('userId') : null;
+        await axios.post(
+            `${API_BASE}/enrollments`,
+            { courseId, userId },
+            { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' }, timeout: 8000 }
+        );
+    },
 }));

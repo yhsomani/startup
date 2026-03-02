@@ -8,13 +8,13 @@ const express = require("express");
 console.log("DEBUG: Required express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 console.log("DEBUG: Required http-proxy-middleware");
-const { logger: enhancedLogger } = require("../shared/enhanced-logger");
+const { logger: enhancedLogger } = require("../../shared/enhanced-logger");
 console.log("DEBUG: Required enhanced-logger");
-const { getServiceUrl } = require("../shared/ports");
+const { getServiceUrl } = require("../../shared/ports");
 console.log("DEBUG: Required ports");
-const SecurityManager = require("../backends/shared/enhanced-security-manager");
+const SecurityManager = require("../../backends/shared/enhanced-security-manager");
 console.log("DEBUG: Required enhanced-security-manager");
-const { createErrorHandler, asyncHandler } = require("../backends/shared/error-handler");
+const { createErrorHandler, asyncHandler } = require("../../backends/shared/error-handler");
 console.log("DEBUG: Required error-handler");
 
 // Create Express app with enhanced security
