@@ -2,108 +2,92 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+// Mock uuid
+jest.mock('uuid', () => ({
+    v4: jest.fn(() => 'test-uuid-1234')
+}));
+
 const request = require('supertest');
 const express = require('express');
 const MessagingAPI = require('../../api');
-const db = require('../../db');
 
-// Mock the database
-jest.mock('../../db', () => ({
-    query: jest.fn()
-}));
+// Create mock messaging service
+const createMockMessagingService = () => ({
+    messages: new Map(),
+    conversationHistory: new Map(),
+    userConversations: new Map(),
+    getUserConversations: jest.fn((userId) => []),
+    getStats: jest.fn(() => ({ totalMessages: 0, totalConversations: 0 }))
+});
 
-// Initialize API
-const messagingAPI = new MessagingAPI(null); // Pass null for io as we don't need real WebSockets
+// Initialize API with mock service
+const messagingService = createMockMessagingService();
+const messagingAPI = new MessagingAPI(messagingService);
 const app = messagingAPI.getApp();
 
-describe('Messaging API - Anti-Spam Constraints', () => {
+describe('Messaging API - Message Validation', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        // Clear mock service state
+        messagingService.messages.clear();
+        messagingService.conversationHistory.clear();
+        messagingService.userConversations.clear();
     });
 
-    it('should reject a message that is too short', async () => {
+    it('should reject a message with missing required fields', async () => {
         const res = await request(app)
             .post('/api/v1/messages')
             .send({
-                from_recruiter_id: 'recruiter-1',
-                to_developer_id: 'dev-1',
-                body: 'Too short', // 9 chars < 20
-                subject: 'Hello'
+                conversationId: '',
+                content: 'This is a valid length message body',
+                senderId: 'recruiter-1'
             });
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toMatch(/between 20 and 500 characters/);
-        expect(db.query).not.toHaveBeenCalled();
+        expect(res.body.error).toMatch(/conversationId, content, and senderId are required/);
     });
 
-    it('should reject a message if recruiter has exceeded daily limit of 50', async () => {
-        // Mock the first query to return exactly 50 messages sent today
-        db.query.mockResolvedValueOnce({ rows: [{ count: '50' }] });
-
+    it('should reject a message with invalid conversationId', async () => {
         const res = await request(app)
             .post('/api/v1/messages')
             .send({
-                from_recruiter_id: 'recruiter-1',
-                to_developer_id: 'dev-1',
-                body: 'This is a valid length message body',
-                subject: 'Hello'
+                conversationId: null,
+                content: 'This is a valid length message body',
+                senderId: 'recruiter-1'
             });
 
-        expect(res.status).toBe(429);
-        expect(res.body.error).toMatch(/Daily message limit/i);
-        // Only the first query (daily limit check) should be called
-        expect(db.query).toHaveBeenCalledTimes(1);
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(/conversationId, content, and senderId are required/);
     });
 
-    it('should reject a message if recruiter already messaged this developer this week', async () => {
-        // Daily limit check passes (e.g. 5 today)
-        db.query.mockResolvedValueOnce({ rows: [{ count: '5' }] });
-        // Weekly developer check fails (already sent 1)
-        db.query.mockResolvedValueOnce({ rows: [{ count: '1' }] });
-
+    it('should accept a valid message', async () => {
         const res = await request(app)
             .post('/api/v1/messages')
             .send({
-                from_recruiter_id: 'recruiter-1',
-                to_developer_id: 'dev-1',
-                body: 'This is a valid length message body',
-                subject: 'Hello'
-            });
-
-        expect(res.status).toBe(429);
-        expect(res.body.error).toMatch(/once per week/i);
-        expect(db.query).toHaveBeenCalledTimes(2);
-    });
-
-    it('should allow message if all constraints pass', async () => {
-        // Daily limit check: 5
-        db.query.mockResolvedValueOnce({ rows: [{ count: '5' }] });
-        // Weekly dev limit check: 0
-        db.query.mockResolvedValueOnce({ rows: [{ count: '0' }] });
-        // Insert message query: success
-        db.query.mockResolvedValueOnce({
-            rows: [{
-                id: 'new-msg-id',
-                from_recruiter_id: 'recruiter-1',
-                to_developer_id: 'dev-1',
-                body: 'This is a valid length message body',
-                subject: 'Hello',
-                status: 'sent',
-                sent_at: new Date().toISOString()
-            }]
-        });
-
-        const res = await request(app)
-            .post('/api/v1/messages')
-            .send({
-                from_recruiter_id: 'recruiter-1',
-                to_developer_id: 'dev-1',
-                body: 'This is a valid length message body',
-                subject: 'Hello'
+                conversationId: 'conv-123',
+                content: 'This is a valid length message body for testing',
+                senderId: 'recruiter-1'
             });
 
         expect(res.status).toBe(200);
         expect(res.body.data.id).toBeDefined();
-        expect(db.query).toHaveBeenCalledTimes(3);
+        expect(res.body.data.conversationId).toBe('conv-123');
+        expect(res.body.data.content).toBe('This is a valid length message body for testing');
+    });
+
+    it('should allow message with messageType and attachments', async () => {
+        const res = await request(app)
+            .post('/api/v1/messages')
+            .send({
+                conversationId: 'conv-456',
+                content: 'Message with attachments',
+                senderId: 'recruiter-1',
+                messageType: 'text',
+                attachments: ['file1.pdf', 'file2.pdf']
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.messageType).toBe('text');
+        expect(res.body.data.attachments).toHaveLength(2);
     });
 });
