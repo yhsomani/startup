@@ -27,11 +27,7 @@
     "prepare": "husky install",
     "docs:validate": "node tools/validate-docs.js",
     "docs:check-ports": "node tools/check-ports.js",
-    "docs:verify": "node tools/verify-references.js",
-    "docs:audit": "node scripts/alignment-tools/index.js validate-docs",
-    "docs:update": "node scripts/alignment-tools/index.js update-docs",
-    "docs:report": "node scripts/alignment-tools/index.js report:generate",
-    "quality:check": "node scripts/alignment-tools/index.js validate-all"
+    "docs:verify": "node tools/verify-references.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -47,6 +43,7 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
     "mongodb": "^6.8.0",
+    "node-fetch": "^3.3.2",
     "uuid": "^9.0.1",
     "validator": "^13.12.0",
     "winston": "^3.14.0"

@@ -6,10 +6,10 @@
 const { performance } = require('perf_hooks');
 const { v4: uuidv4 } = require('uuid');
 const { getTracer, TraceMiddleware } = require('./tracing');
-const { CircuitBreaker } = require('./circuit-breaker');
-const { ErrorRecovery } = require('./error-recovery');
-const { validateRequest, validateResponse } = require('./validation');
-const { ServiceContract } = require('./contracts');
+// const { CircuitBreaker } = require('./circuit-breaker'); // Circuit breaker implemented inline
+const { ErrorRecovery, CircuitBreaker } = require('./error-recovery');
+const { validateRequest, validateResponse } = require('../../shared/validation');
+const { ServiceContract } = require('../../shared/contracts');
 
 class EnhancedServiceWithTracing {
   constructor(config = {}) {
@@ -64,8 +64,8 @@ class EnhancedServiceWithTracing {
     // Initialize existing components
     this.circuitBreaker = new CircuitBreaker(this.config.serviceName, this.config.circuitBreaker);
     this.errorRecovery = new ErrorRecovery(this.config.errorRecovery);
-    this.performanceMonitor = require('./monitoring');
-    this.logger = require('./logger');
+    this.performanceMonitor = null; // require('./monitoring');
+    this.logger = require('../../shared/logger').createLogger(this.config.serviceName);
     this.serviceContract = new ServiceContract(this.config.serviceName);
   }
 

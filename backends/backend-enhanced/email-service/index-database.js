@@ -100,7 +100,7 @@ class EmailService extends EnhancedServiceWithTracing {
    */
   initializeEmailTransporters() {
     // Primary SMTP transporter (production)
-    this.primaryTransporter = nodemailer.createTransporter({
+    this.primaryTransporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT) || 587,
       secure: process.env.SMTP_SECURE === 'true',
@@ -116,7 +116,7 @@ class EmailService extends EnhancedServiceWithTracing {
     });
 
     // Backup transporter (fallback)
-    this.backupTransporter = nodemailer.createTransporter({
+    this.backupTransporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.BACKUP_EMAIL_USER,

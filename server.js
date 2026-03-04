@@ -15,8 +15,8 @@ const services = [
     { name: "Job Listing Service", path: "backends/backend-enhanced/job-listing-service/index.js" },
     { name: "Company Service", path: "backends/backend-enhanced/company-service/index.js" },
     { name: "Notification Service", path: "backends/backend-enhanced/notification-service/index.js" },
-    { name: "Email Service", path: "backends/backend-enhanced/email-service/index.js" },
-    { name: "Analytics Service", path: "backends/backend-enhanced/analytics-service/index.js" }
+    { name: "Email Service", path: "backends/backend-enhanced/email-service/index.js" }
+    // NOTE: Analytics Service not currently implemented; see backends/backend-enhanced/ for services directory
 ];
 
 const runningProcesses = [];

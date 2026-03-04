@@ -2,12 +2,12 @@
   "name": "job-listing-service",
   "version": "1.0.0",
   "description": "Job Listing Service with Production Database Integration",
-  "main": "enhanced-index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node enhanced-index.js",
-    "dev": "nodemon --watch enhanced-index.js",
-    "test": "NODE_ENV=development node enhanced-index.js",
-    "migrate": "knex enhanced-index.js up"
+    "start": "node index.js",
+    "dev": "nodemon --watch index.js",
+    "test": "NODE_ENV=development node index.js",
+    "migrate": "knex index.js up"
   },
   "dependencies": {
     "express": "^4.18.2",

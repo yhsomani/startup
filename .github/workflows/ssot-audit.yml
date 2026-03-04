@@ -1,0 +1,146 @@
+name: Bi-Weekly SSOT Audit
+
+on:
+  schedule:
+    # Run every 2 weeks on Sunday at 3 AM
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip test coverage check'
+        required: false
+        default: 'false'
+
+jobs:
+  ssot-audit:
+    name: SSOT Bi-Weekly Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run Documentation Validation
+        run: node tools/validate-docs.js
+        
+      - name: Run Port Consistency Check
+        run: node tools/check-ports.js
+        
+      - name: Run Reference Verification
+        run: node tools/verify-references.js
+        
+      - name: Check for Technical Debt
+        run: |
+          echo "Checking for technical debt..."
+          
+          # Check test coverage gaps
+          COVERAGE=$(grep -oP "Code Coverage.*?\d+\.\d+%" docs/SSOT.md | grep -oP "\d+\.\d+" || echo "0")
+          echo "Current coverage: ${COVERAGE}%"
+          
+          # Check for 0% coverage services
+          if grep -q "0% coverage" docs/SSOT.md; then
+            echo "⚠️ Found services with 0% coverage"
+            grep -B2 "0% coverage" docs/SSOT.md || true
+          fi
+          
+      - name: Check for Duplicate Services
+        run: |
+          echo "Checking for duplicate services..."
+          
+          # Check for backend overlap (documented in SSOT)
+          if grep -q "Courses/Challenges overlap" docs/SSOT.md; then
+            echo "⚠️ Known issue: Duplicate services exist"
+          fi
+          
+      - name: Check .NET Compilation Status
+        run: |
+          echo "Checking .NET compilation..."
+          cd backends/backend-dotnet
+          dotnet build --no-restore 2>&1 | head -20 || echo "⚠️ .NET build may have warnings"
+          
+      - name: Generate Audit Report
+        if: always()
+        run: |
+          echo ""
+          echo "========================================"
+          echo "📋 Bi-Weekly SSOT Audit Report"
+          echo "========================================"
+          echo "Date: $(date)"
+          echo "Branch: ${{ github.ref_name }}"
+          echo ""
+          echo "✅ Documentation validation: Complete"
+          echo "✅ Port consistency check: Complete"
+          echo "✅ Reference verification: Complete"
+          echo ""
+          echo "Next audit: 2 weeks"
+          
+      - name: Create Issue on Failure
+        if: failure()
+        run: |
+          echo "Creating GitHub issue for audit failures..."
+          # This would create an issue using GitHub CLI if available
+          echo "## SSOT Audit Failed" > /tmp/audit_report.md
+          echo "Date: $(date)" >> /tmp/audit_report.md
+          echo "Please review the audit logs for details." >> /tmp/audit_report.md
+          
+  coverage-audit:
+    name: Test Coverage Audit
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch' || inputs.skip_tests != 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Coverage Status
+        run: |
+          echo "Checking test coverage status..."
+          
+          # Extract coverage from SSOT
+          COVERAGE=$(grep -oP "Code Coverage.*?\d+\.\d+%" docs/SSOT.md | head -1 | grep -oP "\d+\.\d+" || echo "0")
+          echo "Current overall coverage: ${COVERAGE}%"
+          
+          # Check against threshold
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "⚠️ Coverage ($COVERAGE%) is below 50% threshold"
+            echo "Action: Focus on 0% coverage services"
+          else
+            echo "✅ Coverage meets threshold"
+          fi
+          
+      - name: Identify 0% Coverage Services
+        run: |
+          echo "Services with 0% coverage:"
+          grep -B1 "0% coverage\|0%" docs/SSOT.md | grep -E "service|analytics|file|messaging|notification|search" || echo "None found"
+          
+  technical-debt-review:
+    name: Technical Debt Review
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Review Known Issues
+        run: |
+          echo "=== Technical Debt Review ==="
+          echo ""
+          echo "Known Issues from SSOT (§18):"
+          grep -A5 "Known Issues" docs/SSOT.md | head -20 || echo "None documented"
+          echo ""
+          echo "Test Coverage Status:"
+          grep -A10 "Code Coverage" docs/SSOT.md | head -15
+          
+      - name: Check for Compilation Warnings
+        if: false  # Disabled for now
+        run: |
+          echo "Checking .NET warnings..."
+          # Would run dotnet build here

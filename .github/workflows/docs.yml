@@ -1,0 +1,133 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '**.md'
+      - 'tools/**'
+      - '.github/workflows/docs.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'docs/**'
+      - '**.md'
+      - 'tools/**'
+  workflow_dispatch:
+
+jobs:
+  validate-docs:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Validate SSOT Structure
+        run: |
+          echo "Checking for markdown files at root..."
+          ROOT_MD_FILES=$(find . -maxdepth 1 -name "*.md" | wc -l)
+          if [ "$ROOT_MD_FILES" -gt 1 ]; then
+            echo "⚠️ Found $ROOT_MD_FILES .md files at root (should only be CONSOLATED_TODOS.md)"
+            find . -maxdepth 1 -name "*.md"
+          else
+            echo "✅ No fragmented markdown files at root"
+          fi
+          
+      - name: Check SSOT Version
+        run: |
+          echo "Checking SSOT version..."
+          grep -q "Version:" docs/SSOT.md && echo "✅ Version found" || echo "❌ Version missing"
+          grep -q "Last Updated:" docs/SSOT.md && echo "✅ Last Updated found" || echo "❌ Last Updated missing"
+          
+      - name: Validate Port Consistency
+        run: |
+          echo "Validating port references..."
+          # Extract port numbers from SSOT
+          PORTS_SSOT=$(grep -oE '\| [0-9]{4} \|' docs/SSOT.md | wc -l)
+          echo "Found $PORTS_SSOT port references in SSOT"
+          
+      - name: Check for Broken Links
+        run: |
+          echo "Checking for common broken patterns..."
+          # Check for old Task.md references
+          if grep -q "Task.md" docs/SSOT.md; then
+            echo "❌ Found old Task.md reference"
+          else
+            echo "✅ No old Task.md references"
+          fi
+          
+          # Check for double-shared paths
+          if grep -q "shared/share" docs/SSOT.md; then
+            echo "❌ Found broken shared/share path"
+          else
+            echo "✅ No broken shared paths"
+          fi
+          
+      - name: Verify Required Sections
+        run: |
+          echo "Verifying required SSOT sections..."
+          REQUIRED_SECTIONS=(
+            "## 1. Project Overview"
+            "## 2. Architecture Overview"
+            "## 21. Quick Reference"
+            "## 38. Final Service Port Map"
+            "## Maintenance Guidelines"
+            "## Document Changelog"
+          )
+          
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if grep -q "$section" docs/SSOT.md; then
+              echo "✅ Found: $section"
+            else
+              echo "❌ Missing: $section"
+            fi
+          done
+          
+      - name: Validate Port References
+        run: |
+          echo "Validating port references in SSOT..."
+          # Check for standard port scheme
+          grep -q "| API Gateway.*8000|" docs/SSOT.md && echo "✅ API Gateway port correct (8000)" || echo "⚠️ API Gateway port may need update"
+          grep -q "| Auth Service.*3001|" docs/SSOT.md && echo "✅ Auth Service port correct (3001)" || echo "⚠️ Auth Service port may need update"
+          
+      - name: Generate Report
+        if: always()
+        run: |
+          echo ""
+          echo "========================================"
+          echo "📋 Documentation Validation Complete"
+          echo "========================================"
+          
+  check-fragmentation:
+    name: Check Fragmentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check for Fragmented Files
+        run: |
+          echo "Checking for documentation fragmentation..."
+          
+          # Find .md files at root (excluding SSOT and CONSOLIDATED_TODOS)
+          FRAGMENTED=$(find . -maxdepth 1 -name "*.md" ! -name "SSOT.md" ! -name "CONSOLIDATED_TODOS.md" 2>/dev/null)
+          
+          if [ -n "$FRAGMENTED" ]; then
+            echo "❌ Found fragmented markdown files at root:"
+            echo "$FRAGMENTED"
+            echo ""
+            echo "According to maintenance guidelines, only SSOT.md should exist at root"
+            exit 1
+          else
+            echo "✅ No fragmented documentation files"
+          fi

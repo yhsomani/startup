@@ -10,7 +10,7 @@
  */
 
 const { Pool, Client } = require('pg');
-const { createLogger } = require('../../../services/shared/logger');
+const { createLogger } = require('./logger');
 
 class DatabaseConnectionPool {
   constructor(serviceName = 'unknown-service') {
@@ -31,7 +31,7 @@ class DatabaseConnectionPool {
       lastHealthCheck: null,
       connectionErrors: []
     };
-    
+
     // Pool configuration with environment variable support
     this.poolConfig = {
       host: process.env.DB_HOST || 'localhost',
@@ -129,7 +129,7 @@ class DatabaseConnectionPool {
     this.pool.on('connect', (client) => {
       this.connectionMetrics.totalConnections++;
       this.connectionMetrics.activeConnections++;
-      
+
       this.logger.debug('New database client connected', {
         totalCount: this.connectionMetrics.totalConnections,
         activeCount: this.connectionMetrics.activeConnections,
@@ -143,7 +143,7 @@ class DatabaseConnectionPool {
     this.pool.on('acquire', (client) => {
       this.connectionMetrics.activeConnections++;
       this.connectionMetrics.idleConnections--;
-      
+
       this.logger.debug('Database client acquired from pool', {
         activeCount: this.connectionMetrics.activeConnections,
         idleCount: this.pool.idleCount,
@@ -156,7 +156,7 @@ class DatabaseConnectionPool {
       if (this.connectionMetrics.activeConnections > 0) {
         this.connectionMetrics.activeConnections--;
       }
-      
+
       this.logger.debug('Database client removed from pool', {
         totalCount: this.connectionMetrics.totalConnections,
         activeCount: this.connectionMetrics.activeConnections,
@@ -192,7 +192,7 @@ class DatabaseConnectionPool {
   setupClientEventListeners(client) {
     client.on('error', (error) => {
       this.connectionMetrics.failedQueries++;
-      
+
       this.logger.error('Database client error', {
         error: error.message,
         stack: error.stack,
@@ -216,16 +216,16 @@ class DatabaseConnectionPool {
    */
   async testConnection() {
     const client = await this.pool.connect();
-    
+
     try {
       const result = await client.query('SELECT NOW() as current_time, version() as version');
-      
+
       this.logger.info('Database connection test successful', {
         currentTime: result.rows[0].current_time,
         version: result.rows[0].version,
         connectionParameters: client.connectionParameters
       });
-      
+
       return true;
     } finally {
       client.release();
@@ -243,7 +243,7 @@ class DatabaseConnectionPool {
     this.healthCheckInterval = setInterval(async () => {
       try {
         const isHealthy = await this.checkHealth();
-        
+
         if (!isHealthy) {
           this.logger.warn('Database health check failed, attempting reconnection');
           await this.attemptReconnection();
@@ -265,10 +265,10 @@ class DatabaseConnectionPool {
     }
 
     const client = await this.pool.connect();
-    
+
     try {
       await client.query('SELECT 1');
-      
+
       this.connectionMetrics.lastHealthCheck = {
         timestamp: new Date().toISOString(),
         status: 'healthy',
@@ -297,7 +297,7 @@ class DatabaseConnectionPool {
   async attemptReconnection() {
     try {
       this.logger.info('Attempting database reconnection');
-      
+
       // Close existing pool
       if (this.pool) {
         await this.pool.end();
@@ -308,9 +308,9 @@ class DatabaseConnectionPool {
 
       // Reinitialize pool
       await this.initialize();
-      
+
       this.logger.info('Database reconnection successful');
-      
+
     } catch (error) {
       this.logger.error('Database reconnection failed', {
         error: error.message,
@@ -328,11 +328,11 @@ class DatabaseConnectionPool {
     }
 
     const startTime = Date.now();
-    
+
     try {
       const client = await this.pool.connect();
       const acquireTime = Date.now() - startTime;
-      
+
       this.logger.debug('Client acquired from pool', {
         acquireTime,
         totalCount: this.pool.totalCount,
@@ -344,43 +344,43 @@ class DatabaseConnectionPool {
       const originalQuery = client.query;
       client.query = async (...args) => {
         const queryStartTime = Date.now();
-        
+
         try {
           const result = await originalQuery.apply(client, args);
           const queryTime = Date.now() - queryStartTime;
-          
+
           this.connectionMetrics.totalQueries++;
-          this.connectionMetrics.averageQueryTime = 
+          this.connectionMetrics.averageQueryTime =
             (this.connectionMetrics.averageQueryTime + queryTime) / 2;
-          
+
           if (queryTime > 5000) { // Slow query > 5 seconds
             this.connectionMetrics.slowQueries++;
-            
+
             this.logger.warn('Slow query detected', {
               query: args[0],
               queryTime,
               parameters: args[1]
             });
           }
-          
+
           this.logger.debug('Query executed successfully', {
             query: args[0],
             queryTime,
             parameters: args[1]
           });
-          
+
           return result;
         } catch (error) {
           const queryTime = Date.now() - queryStartTime;
           this.connectionMetrics.failedQueries++;
-          
+
           this.logger.error('Query execution failed', {
             query: args[0],
             queryTime,
             error: error.message,
             parameters: args[1]
           });
-          
+
           throw error;
         }
       };
@@ -389,13 +389,13 @@ class DatabaseConnectionPool {
       const originalRelease = client.release;
       client.release = () => {
         const releaseTime = Date.now();
-        
+
         if (this.connectionMetrics.activeConnections > 0) {
           this.connectionMetrics.activeConnections--;
         }
-        
+
         originalRelease.call(client);
-        
+
         this.logger.debug('Client released to pool', {
           activeCount: this.connectionMetrics.activeConnections,
           idleCount: this.pool.idleCount
@@ -418,18 +418,18 @@ class DatabaseConnectionPool {
    */
   async executeTransaction(operations) {
     const client = await this.getClient();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       const results = [];
       for (const operation of operations) {
         const result = await operation(client);
         results.push(result);
       }
-      
+
       await client.query('COMMIT');
-      
+
       return results;
     } catch (error) {
       await client.query('ROLLBACK');
@@ -444,20 +444,20 @@ class DatabaseConnectionPool {
    */
   async executePreparedQuery(name, text, params = []) {
     const client = await this.getClient();
-    
+
     try {
       // Prepare the statement
       await client.query({ name, text });
-      
+
       // Execute the prepared statement
       const result = await client.query(name, params);
-      
+
       this.logger.debug('Prepared query executed successfully', {
         name,
         params,
         rowCount: result.rowCount
       });
-      
+
       return result;
     } finally {
       client.release();
@@ -469,17 +469,17 @@ class DatabaseConnectionPool {
    */
   async executeBatch(queries) {
     const client = await this.getClient();
-    
+
     try {
       const results = await Promise.all(
         queries.map(query => client.query(query.text || query, query.params || []))
       );
-      
+
       this.logger.debug('Batch query executed successfully', {
         queryCount: queries.length,
         totalResults: results.length
       });
-      
+
       return results;
     } finally {
       client.release();

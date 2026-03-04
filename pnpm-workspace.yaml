@@ -2,15 +2,21 @@
 # This file defines workspace packages for the monorepo
 
 packages:
-  # Backend services
-  - 'services/*'
-  - 'backends/backend-enhanced/*'
-  - 'backends/backend-flask'
-  - 'backends/backend-dotnet'
-  - 'backends/backend-springboot'
-  - 'backends/collaboration-service'
+  # API Gateway
+  - 'api-gateway'
 
+  # Backend services (primary implementation)
+  - 'backends/backend-enhanced/*'
+  
+  # Additional backend services
+  - 'services/*'
+  
   # Frontend applications and packages
-  - 'frontends/*'
-  - 'frontend/packages/*'
   - 'frontend/ts-mfe-*'
+  - 'frontend/packages/*'
+
+  # NOTE: These are archived/experimental implementations (not currently in use)
+  # - 'backends/backend-flask'
+  # - 'backends/backend-dotnet'
+  # - 'backends/backend-springboot'
+  # - 'backends/collaboration-service'

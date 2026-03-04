@@ -1,1097 +1,675 @@
 /**
- * Real-time Notification Service
+ * Enhanced Notification Service with Production Database
  * 
- * Comprehensive notification management with:
- * - WebSocket support for real-time delivery
- * - Push notifications (email, SMS, in-app)
- * - User preferences and subscription management
- * - Notification history and analytics
- * - Scheduled and recurring notifications
+ * Complete notification system with:
+ * - PostgreSQL integration for persistence
+ * - Real-time delivery via WebSocket
+ * - Email/SMS/Push notification channels
+ * - User preferences and templates
+ * - Background worker for async processing
  */
 
-const express = require('express');
-const { Server } = require('socket.io');
-const redis = require('redis');
-const { v4: uuidv4 } = require('uuid');
 const { getServicePort, getServiceUrl } = require('../../../shared/ports');
 const { getServiceConfig } = require('../../../shared/environment');
-const { createLogger } = require('../../../shared/logger');
+const { NotificationService } = require('./index');
 const DatabaseConnectionPool = require('./database-pool');
-const Joi = require('joi');
-const cron = { schedule: () => ({ start: () => { } }), validate: () => true }; // Mock node-cron
-const logger = createLogger('NotificationService-Global');
+const { createLogger } = require('../../../shared/logger');
 
-class NotificationService {
+class EnhancedNotificationService extends NotificationService {
   constructor() {
-    this.app = express();
-    this.server = null;
-    this.io = null;
+    super();
+
     this.dbPool = new DatabaseConnectionPool('notification-service');
-    this.logger = createLogger('NotificationService');
-    this.redisClient = null;
-    this.connectedUsers = new Map(); // Connected WebSocket clients
+    this.logger = createLogger('EnhancedNotificationService');
 
-    // Initialize
-    this.initializeMiddleware();
-    this.initializeRoutes();
-    this.initializeWebSocket();
-    this.initializeScheduledTasks();
+    // Override with database operations
+    this.initializeDatabaseOperations();
   }
 
   /**
-   * Initialize Express middleware
+   * Initialize database-specific operations
    */
-  initializeMiddleware() {
-    this.app.use(express.json({ limit: '10mb' }));
-    this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  initializeDatabaseOperations() {
+    // Override notification creation with database persistence
+    this.createNotification = async (notificationData) => {
+      return this.executeWithTracing('notification.createNotification.process', async () => {
+        const client = await this.dbPool.getClient();
 
-    // CORS configuration
-    this.app.use((req, res, next) => {
-      const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
-      const origin = req.headers.origin;
-
-      if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
-      }
-
-      next();
-    });
-
-    // Request logging
-    this.app.use((req, res, next) => {
-      const start = Date.now();
-      res.on('finish', () => {
-        const duration = Date.now() - start;
-        this.logger.info(`${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
-      });
-      next();
-    });
-  }
-
-  /**
-   * Initialize API routes
-   */
-  initializeRoutes() {
-    // Health check
-    this.app.get('/health', (req, res) => {
-      res.json({
-        status: 'healthy',
-        service: 'notification-service',
-        timestamp: new Date().toISOString(),
-        connectedUsers: this.connectedUsers.size
-      });
-    });
-
-    // Get user notifications
-    this.app.get('/notifications/:userId', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { userId } = req.params;
-        const { page = 1, limit = 20, unreadOnly = false } = req.query;
-
-        const result = await this.getUserNotifications(userId, { page, limit, unreadOnly });
-
-        res.json({
-          success: true,
-          data: result
-        });
-      } catch (error) {
-        this.logger.error('Error getting user notifications:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Create notification
-    this.app.post('/notifications', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const notificationData = await this.validateNotificationData(req.body);
-
-        const notification = await this.createNotification(notificationData);
-
-        // Send real-time to connected users
-        await this.sendRealtimeNotification(notification);
-
-        res.status(201).json({
-          success: true,
-          data: { notification }
-        });
-      } catch (error) {
-        this.logger.error('Error creating notification:', error);
-        res.status(400).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Mark notification as read
-    this.app.put('/notifications/:notificationId/read', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { notificationId } = req.params;
-        const userId = req.user.id;
-
-        await this.markNotificationAsRead(notificationId, userId);
-
-        res.json({
-          success: true,
-          message: 'Notification marked as read'
-        });
-      } catch (error) {
-        this.logger.error('Error marking notification as read:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Mark all notifications as read
-    this.app.put('/notifications/read-all', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const userId = req.user.id;
-
-        await this.markAllNotificationsAsRead(userId);
-
-        res.json({
-          success: true,
-          message: 'All notifications marked as read'
-        });
-      } catch (error) {
-        this.logger.error('Error marking all notifications as read:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Get user preferences
-    this.app.get('/preferences/:userId', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { userId } = req.params;
-
-        const preferences = await this.getUserPreferences(userId);
-
-        res.json({
-          success: true,
-          data: preferences
-        });
-      } catch (error) {
-        this.logger.error('Error getting user preferences:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Update user preferences
-    this.app.put('/preferences/:userId', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { userId } = req.params;
-        const preferencesData = await this.validatePreferencesData(req.body);
-
-        await this.updateUserPreferences(userId, preferencesData);
-
-        res.json({
-          success: true,
-          message: 'Preferences updated successfully'
-        });
-      } catch (error) {
-        this.logger.error('Error updating user preferences:', error);
-        res.status(400).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Get notification subscriptions
-    this.app.get('/subscriptions/:userId', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { userId } = req.params;
-
-        const subscriptions = await this.getUserSubscriptions(userId);
-
-        res.json({
-          success: true,
-          data: subscriptions
-        });
-      } catch (error) {
-        this.logger.error('Error getting user subscriptions:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Subscribe to notifications
-    this.app.post('/subscriptions', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const subscriptionData = await this.validateSubscriptionData(req.body);
-        const userId = req.user.id;
-
-        await this.createSubscription(userId, subscriptionData);
-
-        res.status(201).json({
-          success: true,
-          message: 'Subscription created successfully'
-        });
-      } catch (error) {
-        this.logger.error('Error creating subscription:', error);
-        res.status(400).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Unsubscribe from notifications
-    this.app.delete('/subscriptions/:subscriptionId', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { subscriptionId } = req.params;
-        const userId = req.user.id;
-
-        await this.deleteSubscription(subscriptionId, userId);
-
-        res.json({
-          success: true,
-          message: 'Subscription removed successfully'
-        });
-      } catch (error) {
-        this.logger.error('Error removing subscription:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-
-    // Get notification analytics
-    this.app.get('/analytics/notifications', this.authenticate.bind(this), async (req, res) => {
-      try {
-        const { startDate, endDate, userId } = req.query;
-
-        const analytics = await this.getNotificationAnalytics(startDate, endDate, userId);
-
-        res.json({
-          success: true,
-          data: analytics
-        });
-      } catch (error) {
-        this.logger.error('Error getting notification analytics:', error);
-        res.status(500).json({
-          success: false,
-          error: error.message
-        });
-      }
-    });
-  }
-
-  /**
-   * Initialize WebSocket server for real-time notifications
-   */
-  initializeWebSocket() {
-    this.server = require('http').createServer(this.app);
-    this.io = new Server(this.server, {
-      cors: {
-        origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
-        credentials: true
-      }
-    });
-
-    // WebSocket authentication middleware
-    this.io.use(async (socket, next) => {
-      try {
-        const token = socket.handshake.auth.token;
-        if (!token) {
-          return next(new Error('Authentication token required'));
-        }
-
-        const user = await this.verifyWebSocketToken(token);
-        if (!user) {
-          return next(new Error('Invalid authentication token'));
-        }
-
-        socket.user = user;
-        socket.userId = user.id;
-        next();
-      } catch (error) {
-        this.logger.error('WebSocket authentication error:', error);
-        socket.disconnect(true);
-      }
-    });
-
-    // Handle WebSocket connections
-    this.io.on('connection', (socket) => {
-      this.logger.info(`User connected: ${socket.user.email} (${socket.userId})`);
-
-      // Add to connected users
-      this.connectedUsers.set(socket.userId, {
-        socket: socket,
-        user: socket.user,
-        connectedAt: new Date()
-      });
-
-      // Join user to their personal room
-      socket.join(`user_${socket.userId}`);
-
-      // Send pending notifications
-      this.sendPendingNotifications(socket);
-
-      // Handle events
-      socket.on('mark_read', async (data) => {
         try {
-          await this.markNotificationAsRead(data.notificationId, socket.userId);
-          socket.emit('notification_updated', { notificationId: data.notificationId, read: true });
-        } catch (error) {
-          this.logger.error('Error marking notification as read via WebSocket:', error);
-        }
-      });
+          await client.query('BEGIN');
 
-      socket.on('get_preferences', async () => {
-        try {
-          const preferences = await this.getUserPreferences(socket.userId);
-          socket.emit('preferences_updated', preferences);
-        } catch (error) {
-          this.logger.error('Error getting preferences via WebSocket:', error);
-        }
-      });
+          // Insert main notification
+          const notificationResult = await client.query(`
+            INSERT INTO notifications (
+              type, title, message, data, priority, 
+              scheduled_for, expires_at, delivery_status
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING *
+          `, [
+            notificationData.type,
+            notificationData.title,
+            notificationData.message,
+            JSON.stringify(notificationData.data || {}),
+            notificationData.priority || 'normal',
+            notificationData.scheduledFor,
+            notificationData.expiresAt,
+            'pending'
+          ]);
 
-      socket.on('disconnect', () => {
-        this.logger.info(`User disconnected: ${socket.user.email} (${socket.userId})`);
-        this.connectedUsers.delete(socket.userId);
-      });
-    });
-  }
+          const notification = notificationResult.rows[0];
 
-  /**
-   * Initialize scheduled tasks
-   */
-  initializeScheduledTasks() {
-    // Process notifications queue every minute
-    cron.schedule('* * * * *', async () => {
-      await this.processNotificationQueue();
-    });
+          // Insert recipients
+          const recipientPromises = notificationData.recipients.map(recipient =>
+            client.query(`
+              INSERT INTO notification_recipients (
+                notification_id, user_id, email, device_id, 
+                device_token, phone, delivery_status
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+              RETURNING *
+            `, [
+              notification.id,
+              recipient.userId,
+              recipient.email,
+              recipient.deviceId,
+              recipient.deviceToken,
+              recipient.phone,
+              'pending'
+            ])
+          );
 
-    // Clean up old notifications daily at 2 AM
-    cron.schedule('0 2 * * *', async () => {
-      await this.cleanupOldNotifications();
-    });
+          const recipientResults = await Promise.all(recipientPromises);
 
-    // Generate analytics report daily at 3 AM
-    cron.schedule('0 3 * * *', async () => {
-      await this.generateDailyAnalytics();
-    });
-  }
+          // Create notification history entries for each recipient
+          const historyPromises = notificationData.recipients.map(recipient =>
+            client.query(`
+              INSERT INTO notification_history (
+                user_id, notification_id, type, title, message, data, is_read
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+              RETURNING *
+            `, [
+              recipient.userId,
+              notification.id,
+              notificationData.type,
+              notificationData.title,
+              notificationData.message,
+              JSON.stringify(notificationData.data || {}),
+              false
+            ])
+          );
 
-  /**
-   * Authentication middleware
-   */
-  async authenticate(req, res, next) {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      const user = await this.verifyToken(token);
+          await Promise.all(historyPromises);
 
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'Invalid or missing authentication token'
-        });
-      }
+          // Log metrics
+          await client.query(`
+            INSERT INTO notification_metrics (
+              notification_id, user_id, event_type, metadata
+            ) VALUES ($1, $2, $3, $4)
+          `, [
+            notification.id,
+            null,
+            'created',
+            JSON.stringify({ recipientCount: notificationData.recipients.length })
+          ]);
 
-      req.user = user;
-      next();
-    } catch (error) {
-      this.logger.error('Authentication error:', error);
-      return res.status(401).json({
-        success: false,
-        error: 'Authentication failed'
-      });
-    }
-  }
+          await client.query('COMMIT');
 
-  /**
-   * Verify JWT token (aligned with rest of the system)
-   */
-  async verifyToken(token) {
-    if (!token) return null;
-    try {
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'talentsphere-secret-key');
-      return {
-        id: decoded.userId,
-        email: decoded.email,
-        role: decoded.role,
-        firstName: decoded.firstName,
-        lastName: decoded.lastName,
-      };
-    } catch (error) {
-      return null;
-    }
-  }
+          // Queue for background processing
+          this.queueNotificationForDelivery({
+            ...notification,
+            recipients: recipientResults.map(r => r.rows[0])
+          });
 
-  /**
-   * Verify WebSocket token (simplified version)
-   */
-  async verifyWebSocketToken(token) {
-    // For WebSocket, we'll accept the token without database validation for now
-    // In production, this should verify against the database
-    try {
-      const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'fallback-secret');
-      return decoded;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * Validate notification data
-   */
-  async validateNotificationData(data) {
-    const schema = Joi.object({
-      userId: Joi.string().uuid().required(),
-      type: Joi.string().valid('info', 'warning', 'error', 'success').required(),
-      title: Joi.string().max(200).required(),
-      message: Joi.string().max(2000).required(),
-      data: Joi.object().default({}),
-      metadata: Joi.object().default({}),
-      channels: Joi.array().items(Joi.string()).default(['in-app']),
-      scheduledFor: Joi.date().optional(),
-      priority: Joi.string().valid('low', 'normal', 'high').default('normal'),
-      expiresAt: Joi.date().optional()
-    });
-
-    const { error } = schema.validate(data);
-    if (error) {
-      throw new Error(`Validation error: ${error.details[0].message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * Validate preferences data
-   */
-  async validatePreferencesData(data) {
-    const schema = Joi.object({
-      emailNotifications: Joi.boolean().default(true),
-      smsNotifications: Joi.boolean().default(false),
-      pushNotifications: Joi.boolean().default(true),
-      digestEmail: Joi.boolean().default(true),
-      quietHours: Joi.object().default({
-        start: '22:00',
-        end: '08:00'
-      }),
-      categories: Joi.object().default({})
-    });
-
-    const { error } = schema.validate(data);
-    if (error) {
-      throw new Error(`Validation error: ${error.details[0].message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * Validate subscription data
-   */
-  async validateSubscriptionData(data) {
-    const schema = Joi.object({
-      category: Joi.string().required(),
-      channels: Joi.array().items(Joi.string()).min(1).required(),
-      criteria: Joi.object().default({})
-    });
-
-    const { error } = schema.validate(data);
-    if (error) {
-      throw new Error(`Validation error: ${error.details[0].message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * Database operations
-   */
-  async createNotification(notificationData) {
-    const client = await this.dbPool.getClient();
-
-    try {
-      await client.query('BEGIN');
-
-      const result = await client.query(`
-        INSERT INTO notifications (
-          id, user_id, type, title, message, data, metadata,
-          channels, scheduled_for, priority, expires_at, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
-        RETURNING *
-      `, [
-        uuidv4(),
-        notificationData.userId,
-        notificationData.type,
-        notificationData.title,
-        notificationData.message,
-        JSON.stringify(notificationData.data || {}),
-        JSON.stringify(notificationData.metadata || {}),
-        JSON.stringify(notificationData.channels || ['in-app']),
-        notificationData.scheduledFor,
-        notificationData.priority,
-        notificationData.expiresAt
-      ]);
-
-      await client.query('COMMIT');
-
-      return result.rows[0];
-    } finally {
-      client.release();
-    }
-  }
-
-  async getUserNotifications(userId, options = {}) {
-    const client = await this.dbPool.getClient();
-
-    try {
-      const { page = 1, limit = 20, unreadOnly = false } = options;
-      const offset = (page - 1) * limit;
-
-      let whereClause = 'WHERE user_id = $1';
-      const queryParams = [userId];
-
-      if (unreadOnly) {
-        whereClause += ' AND is_read = FALSE';
-      }
-
-      const result = await client.query(`
-        SELECT * FROM notifications 
-        ${whereClause}
-        ORDER BY created_at DESC 
-        LIMIT $2 OFFSET $3
-      `, [...queryParams, limit, offset]);
-
-      const countResult = await client.query(`
-        SELECT COUNT(*) as total 
-        FROM notifications 
-        ${whereClause}
-      `, queryParams);
-
-      return {
-        notifications: result.rows,
-        pagination: {
-          page,
-          limit,
-          total: parseInt(countResult.rows[0].total),
-          totalPages: Math.ceil(countResult.rows[0].total / limit)
-        }
-      };
-    } finally {
-      client.release();
-    }
-  }
-
-  async markNotificationAsRead(notificationId, userId) {
-    const client = await this.dbPool.getClient();
-
-    try {
-      await client.query('BEGIN');
-
-      await client.query(`
-        UPDATE notifications 
-        SET is_read = TRUE, read_at = NOW()
-        WHERE id = $1 AND user_id = $2
-      `, [notificationId, userId]);
-
-      await client.query('COMMIT');
-    } finally {
-      client.release();
-    }
-  }
-
-  async markAllNotificationsAsRead(userId) {
-    const client = await this.dbPool.getClient();
-
-    try {
-      await client.query('BEGIN');
-
-      await client.query(`
-        UPDATE notifications 
-        SET is_read = TRUE, read_at = NOW()
-        WHERE user_id = $1 AND is_read = FALSE
-      `, [userId]);
-
-      await client.query('COMMIT');
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Real-time notification methods
-   */
-  async sendRealtimeNotification(notification) {
-    const channels = notification.channels || ['in-app'];
-
-    for (const channel of channels) {
-      switch (channel) {
-        case 'in-app':
-          // Send to connected user via WebSocket
-          if (this.connectedUsers.has(notification.user_id)) {
-            const userConnection = this.connectedUsers.get(notification.user_id);
-            userConnection.socket.emit('notification', {
+          return {
+            success: true,
+            notification: {
+              id: notification.id,
               type: notification.type,
               title: notification.title,
-              message: notification.message,
-              data: notification.data,
-              id: notification.id,
-              timestamp: notification.created_at
-            });
+              createdAt: notification.created_at
+            }
+          };
+
+        } catch (error) {
+          await client.query('ROLLBACK');
+          throw error;
+        } finally {
+          client.release();
+        }
+      });
+    };
+
+    // Override user preferences with database
+    this.getUserPreferences = async (userId) => {
+      return this.executeWithTracing('notification.getPreferences.process', async () => {
+        const client = await this.dbPool.getClient();
+
+        try {
+          const result = await client.query(`
+            SELECT * FROM user_notification_preferences 
+            WHERE user_id = $1
+          `, [userId]);
+
+          if (result.rows.length === 0) {
+            // Create default preferences
+            await client.query(`
+              INSERT INTO user_notification_preferences (
+                user_id, email_notifications, push_notifications, 
+                sms_notifications, job_alerts, profile_visibility,
+                social_notifications, weekly_digest
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              RETURNING *
+            `, [
+              userId, true, true, false, true, 'public', true, true
+            ]);
+
+            const newResult = await client.query(`
+              SELECT * FROM user_notification_preferences 
+              WHERE user_id = $1
+            `, [userId]);
+
+            return { preferences: newResult.rows[0] };
           }
-          break;
 
-        case 'email':
-          await this.sendEmailNotification(notification);
-          break;
+          return { preferences: result.rows[0] };
 
-        case 'sms':
-          await this.sendSMSNotification(notification);
-          break;
+        } finally {
+          client.release();
+        }
+      });
+    };
 
-        case 'push':
-          await this.sendPushNotification(notification);
-          break;
-      }
-    }
-  }
+    // Override notification history with database
+    this.getNotificationHistory = async (userId, query = {}) => {
+      return this.executeWithTracing('notification.getNotificationHistory.process', async () => {
+        const { limit = 50, offset = 0, unread = false } = query;
 
-  async sendPendingNotifications(socket) {
-    try {
-      const pendingNotifications = await this.getUserNotifications(socket.userId, { unreadOnly: true, limit: 50 });
+        const client = await this.dbPool.getClient();
 
-      for (const notification of pendingNotifications.notifications) {
-        socket.emit('notification', {
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          data: notification.data,
-          id: notification.id,
-          timestamp: notification.created_at,
-          unread: true
-        });
-      }
-    } catch (error) {
-      this.logger.error('Error sending pending notifications:', error);
-    }
-  }
+        try {
+          let whereClause = 'WHERE nh.user_id = $1';
+          const queryParams = [userId, limit + 1, offset];
 
-  async sendEmailNotification(notification) {
-    // This would integrate with the email service
-    // For now, we'll just log it
-    this.logger.info(`Email notification: ${notification.title} to user ${notification.user_id}`);
-  }
+          if (unread === 'true' || unread === true) {
+            whereClause += ' AND nh.is_read = FALSE';
+          }
 
-  async sendSMSNotification(notification) {
-    // SMS sending implementation would go here
-    // For now, we'll just log it
-    this.logger.info(`SMS notification: ${notification.title} to user ${notification.user_id}`);
-  }
+          const result = await client.query(`
+            SELECT 
+              nh.id, nh.type, nh.title, nh.message, nh.data,
+              nh.is_read, nh.read_at, nh.created_at,
+              n.delivery_status, n.priority
+            FROM notification_history nh
+            LEFT JOIN notifications n ON nh.notification_id = n.id
+            ${whereClause}
+            ORDER BY nh.created_at DESC
+            LIMIT $2 OFFSET $3
+          `, queryParams);
 
-  async sendPushNotification(notification) {
-    // Push notification implementation would go here
-    // For now, we'll just log it
-    this.logger.info(`Push notification: ${notification.title} to user ${notification.user_id}`);
-  }
+          const hasMore = result.rows.length > limit;
+          if (hasMore) {
+            result.rows.pop(); // Remove the extra row used to check for more
+          }
 
-  /**
-   * User preferences management
-   */
-  async getUserPreferences(userId) {
-    const client = await this.dbPool.getClient();
+          // Get total count
+          const countResult = await client.query(`
+            SELECT COUNT(*) as total
+            FROM notification_history nh
+            ${whereClause}
+          `, [userId]);
 
-    try {
-      const result = await client.query(`
-        SELECT preferences FROM user_preferences WHERE user_id = $1
-      `, [userId]);
+          return {
+            notifications: result.rows,
+            pagination: {
+              limit,
+              offset,
+              total: parseInt(countResult.rows[0].total),
+              hasMore
+            }
+          };
 
-      if (result.rows.length === 0) {
-        return this.getDefaultPreferences();
-      }
+        } finally {
+          client.release();
+        }
+      });
+    };
 
-      return JSON.parse(result.rows[0].preferences || '{}');
-    } finally {
-      client.release();
-    }
-  }
+    // Enhanced mark as read with database
+    this.markNotificationsAsRead = async (notificationIds, userId) => {
+      return this.executeWithTracing('notification.markAsRead.process', async () => {
+        const client = await this.dbPool.getClient();
 
-  async updateUserPreferences(userId, preferencesData) {
-    const client = await this.dbPool.getClient();
+        try {
+          await client.query('BEGIN');
 
-    try {
-      await client.query('BEGIN');
+          const updateResult = await client.query(`
+            UPDATE notification_history 
+            SET is_read = TRUE, read_at = CURRENT_TIMESTAMP
+            WHERE id = ANY($1) AND user_id = $2
+            RETURNING id, user_id
+          `, [notificationIds, userId]);
 
-      await client.query(`
-        INSERT INTO user_preferences (user_id, preferences, updated_at)
-        VALUES ($1, $2, NOW())
-        ON CONFLICT (user_id) 
-        DO UPDATE SET preferences = $2, updated_at = NOW()
-      `, [userId, JSON.stringify(preferencesData)]);
+          // Log metrics for each notification
+          const metricPromises = updateResult.rows.map(row =>
+            client.query(`
+              INSERT INTO notification_metrics (
+                notification_id, user_id, event_type, metadata
+              ) VALUES (
+                (SELECT notification_id FROM notification_history WHERE id = $1), 
+                $2, $3, $4
+              )
+            `, [row.id, row.user_id, 'read', '{}'])
+          );
 
-      await client.query('COMMIT');
-    } finally {
-      client.release();
-    }
-  }
+          await Promise.all(metricPromises);
 
-  getDefaultPreferences() {
-    return {
-      emailNotifications: true,
-      smsNotifications: false,
-      pushNotifications: true,
-      digestEmail: true,
-      quietHours: {
-        start: '22:00',
-        end: '08:00'
-      },
-      categories: {
-        jobApplications: true,
-        networkUpdates: true,
-        systemUpdates: true,
-        marketing: false
-      }
+          await client.query('COMMIT');
+
+          return {
+            success: true,
+            markedReadCount: updateResult.rows.length
+          };
+
+        } catch (error) {
+          await client.query('ROLLBACK');
+          throw error;
+        } finally {
+          client.release();
+        }
+      });
+    };
+
+    // Enhanced real-time message delivery
+    this.sendRealTimeMessage = async (messageData) => {
+      return this.executeWithTracing('notification.sendRealTimeMessage.process', async () => {
+        const client = await this.dbPool.getClient();
+
+        try {
+          // Create in-app notification
+          const notification = await this.createNotification({
+            type: 'in-app',
+            recipients: messageData.recipients,
+            title: messageData.title,
+            message: messageData.message,
+            priority: 'high',
+            data: {
+              type: 'realtime',
+              conversationId: messageData.conversationId,
+              ...messageData.data
+            }
+          });
+
+          // Send to WebSocket clients
+          const notificationData = {
+            type: 'notification',
+            notification: notification.notification,
+            timestamp: new Date().toISOString()
+          };
+
+          let deliveredCount = 0;
+          const deliveryPromises = messageData.recipients.map(async (recipient) => {
+            const ws = this.webSocketClients.get(recipient.userId);
+
+            if (ws && ws.readyState === 1) { // WebSocket.OPEN
+              try {
+                ws.send(JSON.stringify(notificationData));
+                deliveredCount++;
+
+                // Update recipient delivery status
+                await client.query(`
+                  UPDATE notification_recipients 
+                  SET delivery_status = 'delivered', delivered_at = CURRENT_TIMESTAMP
+                  WHERE notification_id = $1 AND user_id = $2
+                `, [notification.notification.id, recipient.userId]);
+
+                return { success: true, userId: recipient.userId };
+              } catch (error) {
+                return { success: false, userId: recipient.userId, error: error.message };
+              }
+            } else {
+              return { success: false, userId: recipient.userId, reason: 'offline' };
+            }
+          });
+
+          const results = await Promise.all(deliveryPromises);
+
+          // Log delivery metrics
+          await client.query(`
+            INSERT INTO notification_metrics (
+              notification_id, user_id, event_type, metadata
+            ) VALUES 
+            ($1, $2, $3, $4)
+          `, [
+            notification.notification.id,
+            null,
+            'delivered',
+            JSON.stringify({
+              deliveredCount,
+              totalRecipients: messageData.recipients.length,
+              type: 'realtime'
+            })
+          ]);
+
+          return {
+            success: true,
+            notification: notification.notification,
+            delivery: {
+              delivered: deliveredCount,
+              total: messageData.recipients.length,
+              results
+            }
+          };
+
+        } finally {
+          client.release();
+        }
+      });
+    };
+
+    // Background worker enhancement
+    this.processNotificationDelivery = async (notification) => {
+      return this.executeWithTracing('notification.processDelivery.process', async () => {
+        const client = await this.dbPool.getClient();
+
+        try {
+          const startTime = Date.now();
+
+          // Update delivery attempts
+          await client.query(`
+            UPDATE notifications 
+            SET delivery_attempts = delivery_attempts + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+          `, [notification.id]);
+
+          // Get recipients with their preferences
+          const recipientsResult = await client.query(`
+            SELECT 
+              nr.*, 
+              unp.email_notifications,
+              unp.push_notifications,
+              unp.sms_notifications
+            FROM notification_recipients nr
+            LEFT JOIN user_notification_preferences unp ON nr.user_id = unp.user_id
+            WHERE nr.notification_id = $1 AND nr.delivery_status = 'pending'
+          `, [notification.id]);
+
+          let totalDelivered = 0;
+          let totalFailed = 0;
+
+          for (const recipient of recipientsResult.rows) {
+            try {
+              // Check user preferences
+              const canDeliver = await this.checkDeliveryPermissions(notification, recipient);
+
+              if (!canDeliver.allowed) {
+                await client.query(`
+                  UPDATE notification_recipients 
+                  SET delivery_status = 'skipped', 
+                      error_message = $2,
+                      updated_at = CURRENT_TIMESTAMP
+                  WHERE id = $1
+                `, [recipient.id, canDeliver.reason]);
+                continue;
+              }
+
+              // Deliver based on notification type and preferences
+              let delivered = false;
+
+              switch (notification.type) {
+                case 'email':
+                  if (recipient.email_notifications && recipient.email) {
+                    delivered = await this.deliverEmailNotification(notification, recipient);
+                  }
+                  break;
+
+                case 'sms':
+                  if (recipient.sms_notifications && recipient.phone) {
+                    delivered = await this.deliverSMSNotification(notification, recipient);
+                  }
+                  break;
+
+                case 'push':
+                  if (recipient.push_notifications && recipient.device_token) {
+                    delivered = await this.deliverPushNotification(notification, recipient);
+                  }
+                  break;
+
+                case 'in-app':
+                  delivered = await this.deliverInAppNotification(notification, recipient);
+                  break;
+              }
+
+              if (delivered) {
+                totalDelivered++;
+                await client.query(`
+                  UPDATE notification_recipients 
+                  SET delivery_status = 'delivered', 
+                      delivered_at = CURRENT_TIMESTAMP,
+                      updated_at = CURRENT_TIMESTAMP
+                  WHERE id = $1
+                `, [recipient.id]);
+              } else {
+                totalFailed++;
+                await client.query(`
+                  UPDATE notification_recipients 
+                  SET delivery_status = 'failed', 
+                      error_message = 'Delivery failed',
+                      updated_at = CURRENT_TIMESTAMP
+                  WHERE id = $1
+                `, [recipient.id]);
+              }
+
+            } catch (error) {
+              totalFailed++;
+              await client.query(`
+                UPDATE notification_recipients 
+                SET delivery_status = 'failed', 
+                    error_message = $2,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = $1
+              `, [recipient.id, error.message]);
+            }
+          }
+
+          const processingTime = Date.now() - startTime;
+
+          // Update overall notification status
+          const overallStatus = totalDelivered > 0 ? 'delivered' : 'failed';
+          await client.query(`
+            UPDATE notifications 
+            SET delivery_status = $1, 
+                delivered_at = CURRENT_TIMESTAMP,
+                processing_time = $2,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $3
+          `, [overallStatus, processingTime, notification.id]);
+
+          // Log metrics
+          await client.query(`
+            INSERT INTO notification_metrics (
+              notification_id, user_id, event_type, metadata, processing_time
+            ) VALUES 
+            ($1, $2, $3, $4, $5)
+          `, [
+            notification.id,
+            null,
+            'processed',
+            JSON.stringify({
+              delivered: totalDelivered,
+              failed: totalFailed,
+              total: recipientsResult.rows.length
+            }),
+            processingTime
+          ]);
+
+          return {
+            delivered: totalDelivered,
+            failed: totalFailed,
+            total: recipientsResult.rows.length,
+            processingTime
+          };
+
+        } finally {
+          client.release();
+        }
+      });
     };
   }
 
   /**
-   * Subscription management
+   * Check if notification can be delivered based on user preferences
    */
-  async getUserSubscriptions(userId) {
-    const client = await this.dbPool.getClient();
+  async checkDeliveryPermissions(notification, recipient) {
+    // Check time-based restrictions
+    const currentHour = new Date().getHours();
 
-    try {
-      const result = await client.query(`
-        SELECT * FROM notification_subscriptions WHERE user_id = $1 AND is_active = TRUE
-        ORDER BY created_at DESC
-      `, [userId]);
-
-      return result.rows;
-    } finally {
-      client.release();
+    // Don't send high-priority notifications during quiet hours (10 PM - 8 AM)
+    if (notification.priority !== 'urgent' && (currentHour >= 22 || currentHour <= 8)) {
+      return { allowed: false, reason: 'Quiet hours restriction' };
     }
-  }
 
-  async createSubscription(userId, subscriptionData) {
+    // Check frequency limits
     const client = await this.dbPool.getClient();
-
     try {
-      await client.query('BEGIN');
+      const recentNotificationsResult = await client.query(`
+        SELECT COUNT(*) as count
+        FROM notification_history nh
+        JOIN notifications n ON nh.notification_id = n.id
+        WHERE nh.user_id = $1 
+        AND nh.created_at > CURRENT_TIMESTAMP - INTERVAL '1 hour'
+        AND n.type = $2
+      `, [recipient.user_id, notification.type]);
 
-      await client.query(`
-        INSERT INTO notification_subscriptions (
-          id, user_id, category, channels, criteria, created_at, is_active
-        ) VALUES ($1, $2, $3, $4, $5, NOW(), TRUE)
-      `, [
-        uuidv4(),
-        userId,
-        subscriptionData.category,
-        JSON.stringify(subscriptionData.channels),
-        JSON.stringify(subscriptionData.criteria || {})
-      ]);
+      const recentCount = parseInt(recentNotificationsResult.rows[0].count);
 
-      await client.query('COMMIT');
-    } finally {
-      client.release();
-    }
-  }
+      // Limit to 10 notifications of the same type per hour
+      if (recentCount >= 10) {
+        return { allowed: false, reason: 'Frequency limit exceeded' };
+      }
 
-  async deleteSubscription(subscriptionId, userId) {
-    const client = await this.dbPool.getClient();
+      return { allowed: true };
 
-    try {
-      await client.query('BEGIN');
-
-      await client.query(`
-        UPDATE notification_subscriptions 
-        SET is_active = FALSE, updated_at = NOW()
-        WHERE id = $1 AND user_id = $2
-      `, [subscriptionId, userId]);
-
-      await client.query('COMMIT');
     } finally {
       client.release();
     }
   }
 
   /**
-   * Queue processing
+   * Enhanced service health check with database
    */
-  async processNotificationQueue() {
-    const client = await this.dbPool.getClient();
+  async getServiceHealth() {
+    const dbHealth = await this.dbPool.checkHealth();
+    const queueSize = this.notificationQueue.length;
+    const workerRunning = this.isWorkerRunning;
+    const webSocketConnections = this.webSocketClients.size;
 
+    // Get database metrics
+    const client = await this.dbPool.getClient();
     try {
-      // Get queued notifications
-      const result = await client.query(`
-        SELECT * FROM notifications 
-        WHERE status = 'queued' 
-        ORDER BY priority DESC, created_at ASC 
-        LIMIT 100
+      const metricsResult = await client.query(`
+        SELECT 
+          COUNT(*) as total_notifications,
+          COUNT(CASE WHEN delivery_status = 'delivered' THEN 1 END) as delivered,
+          COUNT(CASE WHEN delivery_status = 'failed' THEN 1 END) as failed,
+          COUNT(CASE WHEN delivery_status = 'pending' THEN 1 END) as pending
+        FROM notifications
+        WHERE created_at > CURRENT_DATE - INTERVAL '24 hours'
       `);
 
-      for (const notification of result.rows) {
-        try {
-          // Process each notification
-          await this.sendRealtimeNotification(notification);
+      const dbMetrics = metricsResult.rows[0];
 
-          // Update status
-          await client.query(`
-            UPDATE notifications 
-            SET status = 'sent', sent_at = NOW()
-            WHERE id = $1
-          `, [notification.id]);
+      return {
+        service: 'notification-service',
+        status: 'healthy',
+        database: {
+          connected: dbHealth,
+          metrics: dbMetrics
+        },
+        notificationQueue: queueSize,
+        workerRunning,
+        webSocketConnections,
+        timestamp: new Date().toISOString()
+      };
 
-        } catch (error) {
-          this.logger.error(`Error processing notification ${notification.id}:`, error);
-
-          // Mark as failed
-          await client.query(`
-            UPDATE notifications 
-            SET status = 'failed', error_message = $1, failed_at = NOW()
-            WHERE id = $1
-          `, [notification.id, error.message]);
-        }
-      }
+    } catch (error) {
+      return {
+        service: 'notification-service',
+        status: 'degraded',
+        database: {
+          connected: false,
+          error: error.message
+        },
+        notificationQueue: queueSize,
+        workerRunning,
+        webSocketConnections,
+        timestamp: new Date().toISOString()
+      };
     } finally {
       client.release();
     }
   }
 
   /**
-   * Cleanup operations
+   * Initialize database schema
    */
-  async cleanupOldNotifications() {
-    const client = await this.dbPool.getClient();
-
-    try {
-      // Delete notifications older than 30 days
-      const result = await client.query(`
-        DELETE FROM notifications 
-        WHERE created_at < NOW() - INTERVAL '30 days'
-      `, []);
-
-      this.logger.info(`Cleaned up ${result.rowCount || 0} old notifications`);
-    } finally {
-      client.release();
-    }
-  }
-
-  async generateDailyAnalytics() {
-    const client = await this.dbPool.getClient();
-
-    try {
-      // Generate daily analytics summary
-      const result = await client.query(`
-        INSERT INTO notification_analytics (
-          date, total_sent, total_delivered, total_opened, total_clicked, total_failed
-        )
-        SELECT 
-          DATE(NOW()) as date,
-          COUNT(*) as total_sent,
-          COUNT(CASE WHEN status = 'delivered' THEN 1 END) as total_delivered,
-          COUNT(CASE WHEN is_read = TRUE THEN 1 END) as total_opened,
-          COUNT(CASE WHEN metadata->>'type' = 'clicked' THEN 1 END) as total_clicked,
-          COUNT(CASE WHEN status = 'failed' THEN 1 END) as total_failed
-        FROM notifications 
-        WHERE DATE(created_at) = CURRENT_DATE
-      `, []);
-
-      this.logger.info(`Daily notification analytics generated: ${result.rowCount || 0} records`);
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Analytics methods
-   */
-  async getNotificationAnalytics(startDate, endDate, userId) {
-    const client = await this.dbPool.getClient();
-
-    try {
-      let whereClause = 'WHERE DATE(created_at) BETWEEN $1 AND $2';
-      const queryParams = [startDate, endDate];
-
-      if (userId) {
-        whereClause += ' AND user_id = $3';
-        queryParams.push(userId);
-      }
-
-      const result = await client.query(`
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(*) as total,
-          COUNT(CASE WHEN status = 'delivered' THEN 1 END) as delivered,
-          COUNT(CASE WHEN is_read = TRUE THEN 1 END) as opened,
-          COUNT(CASE WHEN metadata->>'type' = 'clicked' THEN 1 END) as clicked,
-          COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed
-        FROM notifications 
-        ${whereClause}
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `, queryParams);
-
-      return result.rows;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Health check and graceful shutdown
-   */
-  async start() {
-    const port = getServicePort('notification-service', 3005);
-    const url = getServiceUrl('notification-service');
-
-    // Initialize database
-    await this.initializeDatabase();
-
-    // Initialize Redis if available
-    if (process.env.REDIS_URL) {
-      this.redisClient = redis.createClient(process.env.REDIS_URL);
-      this.redisClient.on('connect', () => {
-        this.logger.info('Connected to Redis');
-      });
-    }
-
-    this.server.listen(port, () => {
-      this.logger.info(`🔔 Notification Service started successfully on port ${port}`);
-      this.logger.info(`📊 Health check available at: ${url}/health`);
-      this.logger.info(`🔌 WebSocket server running on same port`);
-    });
-  }
-
   async initializeDatabase() {
     const client = await this.dbPool.getClient();
-
     try {
-      // Create tables if they don't exist
+      // Run migration if needed
       await client.query(`
-        CREATE TABLE IF NOT EXISTS notifications (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          type VARCHAR(50) NOT NULL,
-          title VARCHAR(200) NOT NULL,
-          message TEXT NOT NULL,
-          data JSONB DEFAULT '{}',
-          metadata JSONB DEFAULT '{}',
-          channels TEXT[] DEFAULT ARRAY['in-app'],
-          status VARCHAR(20) DEFAULT 'pending',
-          is_read BOOLEAN DEFAULT FALSE,
-          priority VARCHAR(10) DEFAULT 'normal',
-          scheduled_for TIMESTAMP WITH TIME ZONE,
-          expires_at TIMESTAMP WITH TIME ZONE,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        CREATE TABLE IF NOT EXISTS user_preferences (
-          user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-          preferences JSONB NOT NULL DEFAULT '{}',
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        CREATE TABLE IF NOT EXISTS notification_subscriptions (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          category VARCHAR(50) NOT NULL,
-          channels TEXT[] NOT NULL,
-          criteria JSONB DEFAULT '{}',
-          is_active BOOLEAN DEFAULT TRUE,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        CREATE TABLE IF NOT EXISTS notification_analytics (
-          id SERIAL PRIMARY KEY,
-          date DATE NOT NULL,
-          total_sent INTEGER DEFAULT 0,
-          total_delivered INTEGER DEFAULT 0,
-          total_opened INTEGER DEFAULT 0,
-          total_clicked INTEGER DEFAULT 0,
-          total_failed INTEGER DEFAULT 0,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-        CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
-        CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status);
-        CREATE INDEX IF NOT EXISTS idx_notifications_user_status ON notifications(user_id, is_read);
-        
-        CREATE INDEX IF NOT EXISTS idx_notification_subscriptions_user_id ON notification_subscriptions(user_id);
-        CREATE INDEX IF NOT EXISTS idx_notification_subscriptions_active ON notification_subscriptions(is_active);
-        
-        CREATE INDEX IF NOT EXISTS idx_notification_analytics_date ON notification_analytics(date);
+        CREATE TABLE IF NOT EXISTS service_migrations (
+          service_name VARCHAR(100) PRIMARY KEY,
+          version VARCHAR(50) NOT NULL,
+          applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
       `);
 
+      // Check if migration has been applied
+      const migrationResult = await client.query(`
+        SELECT version FROM service_migrations 
+        WHERE service_name = 'notification-service'
+      `);
+
+      if (migrationResult.rows.length === 0) {
+        this.logger.info('Running database migration for notification service');
+        // Migration would be run here in production
+        await client.query(`
+          INSERT INTO service_migrations (service_name, version)
+          VALUES ('notification-service', '1.0.0')
+        `);
+      }
+
       this.logger.info('Database initialized successfully');
+
     } finally {
       client.release();
     }
-  }
-
-  async shutdown() {
-    this.logger.info('🛑 Shutting down Notification Service...');
-
-    if (this.server) {
-      this.server.close();
-    }
-
-    if (this.io) {
-      this.io.close();
-    }
-
-    if (this.redisClient) {
-      this.redisClient.quit();
-    }
-
-    if (this.dbPool) {
-      await this.dbPool.shutdown();
-    }
-
-    this.logger.info('Notification Service shut down complete');
   }
 }
 
-// Auto-start if this is the main module
-if (require.main === module) {
-  const notificationService = new NotificationService();
+module.exports = {
+  EnhancedNotificationService
+};
 
-  notificationService.start().then(() => {
-    notificationService.logger.info('🔔 Notification Service started successfully');
-  }).catch(error => {
-    notificationService.logger.error('Failed to start Notification Service:', error);
-    process.exit(1);
-  });
+// Auto-start if this is main module
+if (require.main === module) {
+  const enhancedService = new EnhancedNotificationService();
+
+  enhancedService.start().then(async () => {
+    await enhancedService.initializeDatabase();
+    logger.info('🚀 Enhanced Notification Service with PostgreSQL started successfully');
+  }).catch(console.error);
 
   // Graceful shutdown handlers
   process.on('SIGTERM', async () => {
-    notificationService.logger.info('SIGTERM received, shutting down gracefully...');
-    await notificationService.shutdown();
+    logger.info('🛑 SIGTERM received, shutting down gracefully...');
+    await enhancedService.shutdown();
     process.exit(0);
   });
 
   process.on('SIGINT', async () => {
-    notificationService.logger.info('SIGINT received, shutting down gracefully...');
-    await notificationService.shutdown();
+    logger.info('🛑 SIGINT received, shutting down gracefully...');
+    await enhancedService.shutdown();
     process.exit(0);
   });
 }
-
-module.exports = NotificationService;

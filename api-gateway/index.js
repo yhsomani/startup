@@ -299,7 +299,8 @@ Object.entries(serviceRoutes).forEach(([route, targetUrl]) => {
 });
 
 // WebSocket proxy for collaboration service
-const collaborationUrl = process.env.COLLABORATION_SERVICE_URL || "http://localhost:3030";
+const { getServiceUrl } = require("../shared/ports");
+const collaborationUrl = process.env.COLLABORATION_SERVICE_URL || getServiceUrl("collaboration-service");
 app.use(
     "/collaboration",
     createProxyMiddleware({
