@@ -203,27 +203,31 @@ talentsphere/
 │
 ├── backends/
 │   ├── backend-enhanced/          # PRIMARY - Active implementation ✅
-│   │   ├── auth-service/          # Auth service (port 3001) ✅
-│   │   ├── user-profile-service/  # User profiles (port 3009) ✅
-│   │   ├── job-listing-service/   # Job listings (port 3010) ✅
-│   │   ├── company-service/       # Company management ✅
-│   │   ├── notification-service/  # Notifications (port 4005) ✅
-│   │   ├── email-service/         # Email service ✅
-│   │   ├── job-service/          # Job service ✅
-│   │   ├── search-service/       # Search service ✅
-│   │   ├── gamification-service/ # Gamification ✅
-│   │   └── shared/              # Shared backend libraries
+│   │   ├── api-gateway/          # API Gateway (port 8000) ✅
+│   │   ├── auth-service/         # Auth service (port 3001) ✅
+│   │   ├── user-service/         # User service (port 3002) ✅
+│   │   ├── user-profile-service/ # User profiles (port 3009) ✅
+│   │   ├── job-listing-service/  # Job listings (port 3010) ✅
+│   │   ├── job-service/          # Job service (port 3010) ✅
+│   │   ├── network-service/      # Network service (port 3010) ✅
+│   │   ├── application-service/  # Application service (port 3008) ✅
+│   │   ├── company-service/      # Company management (port 4006) ✅
+│   │   ├── notification-service/ # Notifications (port 4005) ✅
+│   │   ├── email-service/        # Email service (port 4007) ✅
+│   │   ├── search-service/       # Search service (port 3007) ✅
+│   │   ├── video-service/        # Video streaming (port 3014) ✅
+│   │   ├── file-service/         # File service (port 3013) ✅
+│   │   ├── gamification-service/ # Gamification (port 5007) ✅
+│   │   ├── challenge-service/    # Challenges (port 5000) ✅
+│   │   └── shared/               # Shared backend libraries
 │   └── shared/                   # Backend shared utilities
 │
 ├── services/                      # Additional microservices
-│   ├── search-service/            # Elasticsearch wrapper ✅
-│   ├── video-service/             # Video streaming ✅
-│   ├── messaging-service/         # RabbitMQ integration ✅
-│   ├── file-service/              # File upload/download ✅
-│   ├── log-aggregator-service/   # Log aggregation ✅
-│   ├── recruitment-service/       # Recruitment features
-│   ├── analytics-service/        # Analytics
-│   ├── performance-monitoring/    # Performance monitoring
+│   ├── analytics-service/        # Analytics (port 3011) ✅
+│   ├── messaging-service/        # RabbitMQ integration (port 3008) ✅
+│   ├── log-aggregator-service/  # Log aggregation ✅
+│   ├── recruitment-service/      # Recruitment features (port 3006) ✅
+│   ├── performance-monitoring/   # Performance monitoring (port 3008) ✅
 │   └── shared/                   # Shared service libraries
 │
 ├── database/                      # Database layer
@@ -472,50 +476,52 @@ const cache = require('../shared/redis-cache');
 
 #### Company Management
 - **Service**: `company-service`
-- **Port**: - (Implemented) ✅
+- **Port**: 4006 (Running) ✅
 - **Location**: `backends/backend-enhanced/company-service/`
 - **Responsibility**: Company profiles, recruiter management, company data
 - **Database**: PostgreSQL (companies, recruiter_profiles)
 
 #### Notifications & Alerts
 - **Service**: `notification-service`
-- **Port**: 4005 (Implemented) ✅
+- **Port**: 4005 (Running) ✅
 - **Location**: `backends/backend-enhanced/notification-service/`
 - **Responsibility**: Real-time alerts, WebSocket messaging, notification management
 - **Database**: PostgreSQL (notifications, notification_preferences)
 
 #### Email Service
 - **Service**: `email-service`
-- **Port**: - (Implemented) ✅
+- **Port**: 4007 (Running) ✅
 - **Location**: `backends/backend-enhanced/email-service/`
 - **Responsibility**: Transactional email, email templates, delivery tracking
 - **Database**: PostgreSQL (email_templates, email_logs)
 
 #### Analytics & Metrics
 - **Service**: `analytics-service`
-- **Port**: 3008 (Implemented) ✅
-- **Location**: `backends/backend-enhanced/analytics-service/`
+- **Port**: 3011 (Running) ✅
+- **Location**: `services/analytics-service/`
 - **Responsibility**: Event tracking, user behavior analysis, analytics dashboards
 - **Database**: PostgreSQL (events, user_sessions, analytics_data)
 
 #### API Gateway
 - **Service**: `api-gateway`
-- **Port**: 3000 (Implemented) ✅
-- **Location**: `api-gateway/`
+- **Port**: 8000 (Running) ✅
+- **Location**: `backends/backend-enhanced/api-gateway/`
 - **Responsibility**: Request routing, rate limiting, authentication, circuit breaking
 - **Features**: Express.js middleware for all requests
 
-### ✅ Additional Ready Services (services/ folder)
+### ✅ Additional Services (services/ folder)
 
 #### Search & Discovery
 - **Service**: `search-service`
-- **Location**: `services/search-service/`
+- **Port**: 3007 (Running) ✅
+- **Location**: `backends/backend-enhanced/search-service/`
 - **Responsibility**: Elasticsearch integration, global search, indexing
 - **Connection**: Elasticsearch (9200)
 
 #### Video Streaming
 - **Service**: `video-service`
-- **Location**: `services/video-service/`
+- **Port**: 3014 (Running) ✅
+- **Location**: `backends/backend-enhanced/video-service/`
 - **Responsibility**: VOD streaming, HLS transcoding, WebRTC sessions
 - **Database**: PostgreSQL (videos, transcodes, webrtc_sessions)
 
@@ -601,42 +607,6 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 ```
-talentsphere_db/
-├── users/                      → User accounts, credentials
-├── user_profiles/              → Professional information
-├── skills/                     → Skill catalog
-├── job_listings/               → Job postings
-├── applications/               → Job applications
-├── companies/                  → Company information
-├── courses/                    → Course content
-├── enrollments/                → User enrollments
-├── challenges/                 → Code challenges
-├── submissions/                → Challenge submissions
-├── notifications/              → User notifications
-├── events/                     → Event logs
-├── refresh_tokens/             → Auth tokens
-└── analytics_data/             → User behavior data
-```
-
-**Advantages (Current)**:
-- ✅ Flexible schema for evolving product
-- ✅ Native document modeling (reduces ORM complexity)
-- ✅ Horizontal scaling via sharding
-- ✅ Real-time, geospatial queries
-- ✅ Transactions since PostgreSQL 4.0
-
-**Connection Pattern**:
-```javascript
-const mongoose = require('mongoose');
-const connStr = `mongodb://${host}:${port}/${database}`;
-await mongoose.connect(connStr, {
-  maxPoolSize: 10,
-  minPoolSize: 5,
-  serverSelectionTimeoutMS: 5000
-});
-```
-
-
 
 **Target Setup**:
 - **Coordinator Node**: Single write point, distributed query planner
@@ -1386,27 +1356,23 @@ class TokenBucket {
 | Service | Port | Status | Dependencies | External APIs |
 |---------|------|--------|--------------|---------------|
 | **auth-service** | 3001 | ✅ Running | PostgreSQL, Redis | Google OAuth, GitHub OAuth |
+| **user-service** | 3002 | ✅ Running | PostgreSQL, Redis | — |
 | **user-profile-service** | 3009 | ✅ Running | PostgreSQL, Redis | — |
 | **job-listing-service** | 3010 | ✅ Running | PostgreSQL | — |
-| **company-service** | — | ✅ Running | PostgreSQL | — |
+| **job-service** | 3010 | ✅ Running | PostgreSQL | — |
+| **network-service** | 3010 | ✅ Running | PostgreSQL | — |
+| **application-service** | 3008 | ✅ Running | PostgreSQL | — |
+| **company-service** | 4006 | ✅ Running | PostgreSQL | — |
 | **notification-service** | 4005 | ✅ Running | PostgreSQL, Redis, RabbitMQ | SendGrid (email), Firebase (push) |
-| **email-service** | — | ✅ Running | PostgreSQL, RabbitMQ | SendGrid, Mailgun |
-| **analytics-service** | 3008 | ✅ Running | PostgreSQL, Elasticsearch | — |
-| **search-service** | — | ✅ Running | Elasticsearch | — |
-| **video-service** | — | ✅ Running | PostgreSQL, S3 | AWS S3 (storage) |
-| **messaging-service** | — | ✅ Running | RabbitMQ | — |
-| **file-service** | — | ✅ Running | S3 | AWS S3 (storage) |
-| **api-gateway** | 3000 | ✅ Running | All services | — |
-
-
-
-| Service | Port | Status | Dependencies | External APIs |
-|---------|------|--------|--------------|---------------|
-| **lms-service** | 8080 | 🔄 Planned | PostgreSQL, Redis, S3 | Stripe (subscriptions) |
-| **challenge-service** | 5000 | 🔄 Planned | PostgreSQL, S3 | Judge0 (code execution) |
-| **gamification-service** | 5007 | 🔄 Planned | PostgreSQL, Redis | — |
-| **payment-service** | 5062 | 🔄 Planned | PostgreSQL, Stripe API | Stripe (payments) |
-| **ai-service** | 5005 | 🔄 Planned | PostgreSQL, Vector DB | OpenAI/LLM provider |
+| **email-service** | 4007 | ✅ Running | PostgreSQL, RabbitMQ | SendGrid, Mailgun |
+| **analytics-service** | 3011 | ✅ Running | PostgreSQL, Elasticsearch | — |
+| **search-service** | 3007 | ✅ Running | Elasticsearch | — |
+| **video-service** | 3014 | ✅ Running | PostgreSQL, S3 | AWS S3 (storage) |
+| **messaging-service** | 3008 | ✅ Running | RabbitMQ | — |
+| **file-service** | 3013 | ✅ Running | S3 | AWS S3 (storage) |
+| **gamification-service** | 5007 | ✅ Running | PostgreSQL, Redis | — |
+| **challenge-service** | 5000 | ✅ Running | PostgreSQL, S3 | Judge0 (code execution) |
+| **api-gateway** | 8000 | ✅ Running | All services | — |
 
 ### Internal Service Communication
 
