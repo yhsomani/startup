@@ -114,7 +114,7 @@ Democratize access to high-quality education and career advancement opportunitie
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Client Layer (Web/Mobile)                     │
-│  React SPAs (MFEs) + Mobile SDKs + Video Players + WebSockets   │
+│  React + TypeScript + Vite SPAs + Mobile SDKs + Video Players + WebSockets   │
 └──────────────────────┬──────────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────────┐
@@ -159,7 +159,7 @@ Democratize access to high-quality education and career advancement opportunitie
 
 | Layer | Technology | Status | Notes |
 |-------|-----------|--------|-------|
-| **Frontend** | React 18+, TypeScript, Vite | ✅ Implemented | Module Federation for MFEs |
+| **Frontend** | React 18+, TypeScript, Vite | ✅ Implemented | Single Page Application |
 | **API Gateway** | Express.js | ✅ Implemented | Request routing, auth, rate limiting |
 | **Backend Services** | Node.js + Express | ✅ Implemented | 10+ core services running |
 | **Database** | PostgreSQL 15+ | ✅ Active | Relational data store |
@@ -179,12 +179,21 @@ The project uses a monorepo structure with frontend and backend workspaces:
 
 ```
 talentsphere/
-├── frontend/                      # React Frontend (Module Federation MFEs)
-│   ├── ts-mfe-shell/              # Shell - Main app ✅
-│   ├── ts-mfe-lms/                # Learning MFE ✅
-│   ├── ts-mfe-challenge/          # Challenges MFE ✅
-│   ├── packages/                  # Shared UI components
-│   └── shared/                    # Shared utilities
+├── frontend/                      # React Frontend (Vite + TypeScript)
+│   ├── src/
+│   │   ├── components/            # React components
+│   │   ├── pages/                 # Page components
+│   │   ├── context/               # React contexts
+│   │   ├── layouts/               # Layout components
+│   │   ├── services/              # API services
+│   │   ├── utils/                 # Utility functions
+│   │   ├── assets/                # Static assets
+│   │   ├── App.tsx               # Main app component
+│   │   └── main.tsx              # Entry point
+│   ├── public/                   # Public assets
+│   ├── index.html                # HTML template
+│   ├── vite.config.ts            # Vite configuration
+│   └── package.json              # Dependencies
 │
 ├── api-gateway/                   # Express API Gateway
 │   ├── server.js - Main server
@@ -265,7 +274,7 @@ talentsphere/
 **Key Notes**:
 - Primary backend implementation: `backends/backend-enhanced/`
 - Monorepo entry point: `server.js` (spawns Node services)
-- Frontend MFEs: Use Module Federation for dynamic loading
+- Frontend: React + TypeScript + Vite SPA
 - All 106 unit tests passing
 
 ---
@@ -402,22 +411,21 @@ const cache = require('../shared/redis-cache');
 
 ## 5. Feature-to-Code Mapping (Current Status)
 
-| Feature | Frontend MFE | Backend Service(s) | Status | Location |
-|---------|--------------|-------------------|--------|----------|
-| **User Authentication** | ts-mfe-shell | auth-service (3001) | ✅ Complete | `backends/backend-enhanced/auth-service/` |
-| **Professional Profiles** | ts-mfe-shell | user-profile-service (3009) | ✅ Complete | `backends/backend-enhanced/user-profile-service/` |
-| **Job Search & Applications** | ts-mfe-shell | job-listing-service (3010) | ✅ Complete | `backends/backend-enhanced/job-listing-service/` |
-| **Company Management** | ts-mfe-shell | company-service | ✅ Complete | `backends/backend-enhanced/company-service/` |
-| **Real-time Notifications** | ts-mfe-shell | notification-service (4005) | ✅ Complete | `backends/backend-enhanced/notification-service/` |
-| **Email Delivery** | - | email-service | ✅ Complete | `backends/backend-enhanced/email-service/` |
-| **Analytics & Metrics** | ts-mfe-shell | analytics-service (3008) | ✅ Complete | `backends/backend-enhanced/analytics-service/` |
-| **Global Search** | ts-mfe-shell | search-service | ✅ Complete | `services/search-service/` |
-| **Learning Management (LMS)** | ts-mfe-lms | lms-service (8080) | ✅ Complete | `backends/backend-enhanced/lms-service/` |
-| **Coding Challenges** | ts-mfe-challenge | challenge-service (5000) | ✅ Complete | `backends/backend-enhanced/challenge-service/` |
-| **Gamification** | ts-mfe-shell | gamification-service (5007) | ✅ Complete | `backends/backend-enhanced/gamification-service/` |
-| **Video & Streaming** | ts-mfe-shell | video-service | ✅ Complete | `services/video-service/` |
-| **AI Assistant** | ts-mfe-lms | ai-service (5005) | ✅ Implemented | Python/FastAPI |
-| **Payments** | ts-mfe-shell | payment-service (5062) | ✅ Complete | `backends/backend-enhanced/payment-service/` |
+| Feature | Frontend | Backend Service(s) | Status | Location |
+| **User Authentication** | frontend | auth-service (3001) | ✅ Complete | `backends/backend-enhanced/auth-service/` |
+| **Professional Profiles** | frontend | user-profile-service (3009) | ✅ Complete | `backends/backend-enhanced/user-profile-service/` |
+| **Job Search & Applications** | frontend | job-listing-service (3010) | ✅ Complete | `backends/backend-enhanced/job-listing-service/` |
+| **Company Management** | frontend | company-service | ✅ Complete | `backends/backend-enhanced/company-service/` |
+| **Real-time Notifications** | frontend | notification-service (4005) | ✅ Complete | `backends/backend-enhanced/notification-service/` |
+| **Messaging** | frontend | messaging-service (3008) | ✅ Complete | `services/messaging-service/` |
+| **Analytics & Metrics** | frontend | analytics-service (3008) | ✅ Complete | `backends/backend-enhanced/analytics-service/` |
+| **Global Search** | frontend | search-service | ✅ Complete | `services/search-service/` |
+| **Learning Management (LMS)** | frontend | lms-service (8080) | ✅ Complete | `backends/backend-enhanced/lms-service/` |
+| **Coding Challenges** | frontend | challenge-service (5000) | ✅ Complete | `backends/backend-enhanced/challenge-service/` |
+| **Gamification** | frontend | gamification-service (5007) | ✅ Complete | `backends/backend-enhanced/gamification-service/` |
+| **Video & Streaming** | frontend | video-service | ✅ Complete | `services/video-service/` |
+| **AI Assistant** | frontend | ai-service (5005) | ✅ Implemented | Python/FastAPI |
+| **Payments** | frontend | payment-service (5062) | ✅ Complete | `backends/backend-enhanced/payment-service/` |
 
 ### Production Implementation Status
 
@@ -2141,7 +2149,7 @@ spec:
 - `k8s/auth-service.yaml` - Auth service (not yet created)
 - `k8s/user-profile-service.yaml` - User profiles
 - `k8s/job-listing-service.yaml` - Job listings
-- `k8s/frontend-deployments.yaml` - Frontend MFEs
+- `k8s/frontend-deployments.yaml` - Frontend SPA
 - `k8s/namespaces.yaml` - Namespace definitions
 - `k8s/ingress.yaml` - Ingress controller setup
 - `k8s/hpa.yaml` - Horizontal Pod Autoscaling
@@ -2754,7 +2762,7 @@ CEO
 
 ```bash
 # Local Development
-SHELL_MFE=http://localhost:3000
+FRONTEND=http://localhost:3000
 API_GATEWAY=http://localhost:3000/api/v1
 AUTH_SERVICE=http://localhost:3001
 USER_PROFILE=http://localhost:3009
