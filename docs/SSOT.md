@@ -422,7 +422,7 @@ const cache = require('../shared/redis-cache');
 | **Company Management** | frontend | company-service | ✅ Complete | `backends/backend-enhanced/company-service/` |
 | **Real-time Notifications** | frontend | notification-service (4005) | ✅ Complete | `backends/backend-enhanced/notification-service/` |
 | **Messaging** | frontend | messaging-service (3008) | ✅ Complete | `services/messaging-service/` |
-| **Analytics & Metrics** | frontend | analytics-service (3008) | ✅ Complete | `backends/backend-enhanced/analytics-service/` |
+| **Analytics & Metrics** | frontend | analytics-service (3011) | ✅ Complete | `services/analytics-service/` |
 | **Global Search** | frontend | search-service | ✅ Complete | `services/search-service/` |
 | **Learning Management (LMS)** | frontend | lms-service (8080) | ✅ Complete | `backends/backend-enhanced/lms-service/` |
 | **Coding Challenges** | frontend | challenge-service (5000) | ✅ Complete | `backends/backend-enhanced/challenge-service/` |
@@ -789,7 +789,7 @@ const routes = {
   '/challenges/*':     'challenge-service:5000',
   '/jobs/*':           'job-service:3010',
   '/search/*':         'search-service:3007',
-  '/videos/*':         'video-service:3011',
+  '/videos/*':         'video-service:3014',
   '/payments/*':       'payment-service:5062',
   '/notifications/*':  'notification-service:4005',
   '/graphql':          'graphql-service:4000',
@@ -2729,17 +2729,25 @@ CEO
 ```bash
 # Local Development
 FRONTEND=http://localhost:3000
-API_GATEWAY=http://localhost:3000/api/v1
+API_GATEWAY=http://localhost:8000
 AUTH_SERVICE=http://localhost:3001
+USER_SERVICE=http://localhost:3002
 USER_PROFILE=http://localhost:3009
-LMS_SERVICE=http://localhost:8080
-CHALLENGE_SERVICE=http://localhost:5000
 JOB_SERVICE=http://localhost:3010
+NETWORK_SERVICE=http://localhost:3010
+APPLICATION_SERVICE=http://localhost:3008
 SEARCH_SERVICE=http://localhost:3007
-ANALYTICS_SERVICE=http://localhost:3008
+ANALYTICS_SERVICE=http://localhost:3011
 NOTIFICATION_SERVICE=http://localhost:4005
+COMPANY_SERVICE=http://localhost:4006
+EMAIL_SERVICE=http://localhost:4007
+VIDEO_SERVICE=http://localhost:3014
+FILE_SERVICE=http://localhost:3013
+GAMIFICATION_SERVICE=http://localhost:5007
+CHALLENGE_SERVICE=http://localhost:5000
 PAYMENT_SERVICE=http://localhost:5062
 AI_SERVICE=http://localhost:5005
+LMS_SERVICE=http://localhost:8080
 
 # Database
 POSTGRES_DEV=postgresql://localhost:5432/talentsphere_dev
