@@ -26,6 +26,16 @@
         <module>api-gateway</module>
         <module>job-service</module>
         <module>notification-service</module>
+        <module>search-service</module>
+        <module>analytics-service</module>
+        <module>application-service</module>
+        <module>user-profile-service</module>
+        <module>file-service</module>
+        <module>video-service</module>
+        <module>company-service</module>
+        <module>email-service</module>
+        <module>challenge-service</module>
+        <module>gamification-service</module>
     </modules>
 
     <properties>
@@ -63,6 +73,13 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
