@@ -1,0 +1,7 @@
+com\talentsphere\notification\repository\NotificationRepository.class
+com\talentsphere\notification\NotificationServiceApplication.class
+com\talentsphere\notification\entity\Notification$NotificationType.class
+com\talentsphere\notification\controller\NotificationController.class
+com\talentsphere\notification\service\NotificationService.class
+com\talentsphere\notification\entity\Notification$NotificationChannel.class
+com\talentsphere\notification\entity\Notification.class

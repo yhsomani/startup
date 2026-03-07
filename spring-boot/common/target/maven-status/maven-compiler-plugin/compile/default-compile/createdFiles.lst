@@ -1,0 +1,10 @@
+com\talentsphere\common\dto\ApiResponse$ErrorDetail.class
+com\talentsphere\common\exception\GlobalExceptionHandler.class
+com\talentsphere\common\dto\ApiResponse$ApiResponseBuilder.class
+com\talentsphere\common\dto\ApiResponse$Metadata$MetadataBuilder.class
+com\talentsphere\common\dto\ApiResponse$Metadata.class
+com\talentsphere\common\dto\ApiResponse.class
+com\talentsphere\common\config\SecurityConfig.class
+com\talentsphere\common\dto\ApiResponse$ErrorDetail$ErrorDetailBuilder.class
+com\talentsphere\common\model\BaseEntity.class
+com\talentsphere\common\security\JwtTokenProvider.class

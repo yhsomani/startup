@@ -1,0 +1,10 @@
+com\talentsphere\user\dto\EducationDTO.class
+com\talentsphere\user\dto\ExperienceDTO.class
+com\talentsphere\user\controller\UserProfileController.class
+com\talentsphere\user\entity\UserProfile$Education.class
+com\talentsphere\user\service\UserProfileService.class
+com\talentsphere\user\entity\UserProfile.class
+com\talentsphere\user\entity\UserProfile$Experience.class
+com\talentsphere\user\repository\UserProfileRepository.class
+com\talentsphere\user\UserServiceApplication.class
+com\talentsphere\user\dto\UserProfileDTO.class

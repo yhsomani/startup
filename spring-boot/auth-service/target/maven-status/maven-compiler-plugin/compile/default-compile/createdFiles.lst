@@ -1,0 +1,10 @@
+com\talentsphere\auth\repository\UserRepository.class
+com\talentsphere\auth\service\AuthService.class
+com\talentsphere\auth\controller\AuthController.class
+com\talentsphere\auth\dto\AuthResponse$AuthResponseBuilder.class
+com\talentsphere\auth\dto\LoginRequest.class
+com\talentsphere\auth\exception\GlobalExceptionHandler.class
+com\talentsphere\auth\entity\User.class
+com\talentsphere\auth\dto\AuthResponse.class
+com\talentsphere\auth\dto\RegisterRequest.class
+com\talentsphere\auth\AuthServiceApplication.class

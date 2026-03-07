@@ -1,0 +1,3 @@
+com\talentsphere\search\service\SearchService.class
+com\talentsphere\search\controller\SearchController.class
+com\talentsphere\search\SearchServiceApplication.class

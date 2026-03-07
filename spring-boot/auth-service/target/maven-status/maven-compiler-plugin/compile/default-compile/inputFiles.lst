@@ -1,0 +1,9 @@
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\entity\User.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\dto\RegisterRequest.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\service\AuthService.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\AuthServiceApplication.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\dto\LoginRequest.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\controller\AuthController.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\dto\AuthResponse.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\exception\GlobalExceptionHandler.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\auth-service\src\main\java\com\talentsphere\auth\repository\UserRepository.java

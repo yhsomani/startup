@@ -1,0 +1,12 @@
+com\talentsphere\job\entity\JobListing$ExperienceLevel.class
+com\talentsphere\job\service\JobListingService.class
+com\talentsphere\job\entity\JobListing.class
+com\talentsphere\job\entity\JobListing$JobType.class
+com\talentsphere\job\controller\JobController.class
+com\talentsphere\job\entity\Application$ApplicationStatus.class
+com\talentsphere\job\JobServiceApplication.class
+com\talentsphere\job\repository\JobListingRepository.class
+com\talentsphere\job\entity\Application.class
+com\talentsphere\job\service\ApplicationService.class
+com\talentsphere\job\entity\JobListing$WorkMode.class
+com\talentsphere\job\repository\ApplicationRepository.class
