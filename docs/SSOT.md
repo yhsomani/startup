@@ -1,6 +1,6 @@
 # TalentSphere Single Source of Truth (SSOT)
 
-**Version 2.3 - Refactored & Enhanced**
+**Version 2.4 - Production Ready**
 **Last Updated: March 2026**
 
 **Implementation Status**: ✅ 106 tests passing | All core features operational
@@ -662,6 +662,35 @@ talentsphere_db/
 └── analytics_data            → User behavior data
 ```
 
+### Core Entity Relationships
+
+| Entity | Primary Key | Foreign Keys | Key Relationships |
+|--------|-------------|--------------|-------------------|
+| `users` | `id` (UUID) | — | Parent entity for profiles, applications |
+| `user_profiles` | `user_id` | → users(id) | 1:1 with users |
+| `skills` | `id` (UUID) | — | Lookup table |
+| `user_skills` | `user_id, skill_id` | → users(id), skills(id) | M:N with users |
+| `companies` | `id` (UUID) | — | Parent for job listings |
+| `job_listings` | `id` (UUID) | → companies(id), users(employer_id) | M:1 with companies |
+| `applications` | `id` (UUID) | → job_listings(id), users(candidate_id) | M:1 with jobs & users |
+| `notifications` | `id` (UUID) | → users(id) | M:1 with users |
+
+### Indexing Strategy
+
+| Table | Index Columns | Purpose |
+|-------|---------------|---------|
+| `users` | `email` (unique) | Fast lookup by email |
+| `job_listings` | `company_id`, `status`, `created_at` | Employer queries, filtering |
+| `applications` | `job_id`, `candidate_id`, `status` | Application tracking |
+| `user_profiles` | `user_id` (unique) | Profile lookups |
+
+### Constraints
+
+- All foreign keys enforce referential integrity
+- `applications.job_id` + `applications.candidate_id` unique constraint (one application per job per candidate)
+- `users.email` unique constraint
+- `job_listings.company_id` NOT NULL
+
 **Advantages**:
 - ✅ ACID compliance for transactions
 - ✅ Structured data with foreign key constraints
@@ -913,6 +942,54 @@ const limiter = rateLimit({
     ]
   },
   "metadata": { "request_id": "req-xyz789" }
+}
+```
+
+### Standardized Error Codes
+
+> **⚠️ All services MUST use these error codes. Do not invent new codes.**
+
+| Error Code | HTTP Status | Description | Example |
+|------------|-------------|-------------|---------|
+| `VALIDATION_ERROR` | 400 | Request body validation failed | Missing required field |
+| `INVALID_PARAMETER` | 400 | Query/path parameter invalid | Malformed UUID |
+| `RESOURCE_NOT_FOUND` | 404 | Requested resource doesn't exist | User ID not found |
+| `DUPLICATE_RESOURCE` | 409 | Resource already exists | Email already registered |
+| `AUTHENTICATION_REQUIRED` | 401 | No valid authentication token | Missing Bearer token |
+| `AUTHENTICATION_INVALID` | 401 | Token invalid or expired | Malformed JWT |
+| `AUTHORIZATION_DENIED` | 403 | User lacks required permissions | User not employer |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests | >100 req/min |
+| `INTERNAL_SERVER_ERROR` | 500 | Unexpected server error | Database connection failed |
+| `SERVICE_UNAVAILABLE` | 503 | Service temporarily unavailable | Maintenance mode |
+| `METHOD_NOT_ALLOWED` | 405 | HTTP method not supported | POST to GET-only endpoint |
+| `BAD_REQUEST` | 400 | Malformed request syntax | Invalid JSON |
+
+### Error Code Usage Examples
+
+```javascript
+// Validation error
+if (!email || !isValidEmail(email)) {
+  return res.status(400).json({
+    success: false,
+    error: { code: 'VALIDATION_ERROR', message: 'Invalid email format' }
+  });
+}
+
+// Resource not found
+const user = await User.findById(id);
+if (!user) {
+  return res.status(404).json({
+    success: false,
+    error: { code: 'RESOURCE_NOT_FOUND', message: 'User not found' }
+  });
+}
+
+// Authorization denied
+if (job.employerId !== currentUser.id) {
+  return res.status(403).json({
+    success: false,
+    error: { code: 'AUTHORIZATION_DENIED', message: 'Not authorized to modify this job' }
+  });
 }
 ```
 
@@ -1797,19 +1874,87 @@ app.get('/api/*',
 
 ### API Versioning
 
-Deprecation policy:
-- Current version: Full support
-- N-1 version: Supported, 6-month deprecation notice
-- N-2 version: Support ends, returned 410 GONE
+**Versioning Strategy**:
+- URL-based versioning: `/api/v1/`, `/api/v2/`
+- Default to latest stable version for new integrations
 
+**Deprecation Policy**:
+
+| Stage | Support Level | Duration | Response Headers |
+|-------|--------------|-----------|------------------|
+| **Current (v2)** | Full support | Active | — |
+| **N-1 (v1)** | Deprecated | 6 months | `Deprecation: true`, `Sunset: <date>` |
+| **N-2** | End-of-life | After 6 months | `410 Gone` |
+
+**Version Lifecycle Examples**:
 ```
-GET /api/v2/courses   → Modern API (current)
-GET /api/v1/courses   → Legacy API (deprecated in 2025-09)
+GET /api/v2/courses   → Modern API (current) ✅
+GET /api/v1/courses   → Legacy API (deprecated) ⚠️
+                      → Returns: 410 Gone (after EOL)
 ```
+
+**Deprecation Headers** (when version deprecated):
+```http
+Deprecation: true
+Sunset: Sat, 01 Jan 2027 00:00:00 GMT
+Link: <https://api.talentsphere.com/v2/courses>; rel="successor-version"
+```
+
+**Breaking vs Non-Breaking Changes**:
+
+| Change Type | Requires Version Bump |
+|-------------|----------------------|
+| New required field | Yes (breaking) |
+| New optional field | No |
+| New response field | No |
+| Removed field | Yes (breaking) |
+| Changed field type | Yes (breaking) |
+| New endpoint | No |
+| Changed error codes | Yes (breaking) |
 
 ---
 
 ## 25. Monitoring & Observability
+
+### Service Level Objectives (SLOs)
+
+> **📊 SLO Definition**: Target reliability levels for key platform services.
+
+| Service | Availability | Latency (p95) | Error Rate | Measurement Period |
+|---------|-------------|----------------|------------|-------------------|
+| API Gateway | 99.9% | < 500ms | < 0.1% | 30 days |
+| Auth Service | 99.9% | < 200ms | < 0.1% | 30 days |
+| User Service | 99.9% | < 300ms | < 0.1% | 30 days |
+| Job Service | 99.9% | < 500ms | < 0.1% | 30 days |
+| Search Service | 99.5% | < 1s | < 0.5% | 30 days |
+| Application Service | 99.9% | < 500ms | < 0.1% | 30 days |
+
+> **🎯 Error Budget**: Each service has a 0.1% error budget (43 min/month for 99.9% availability)
+
+### Distributed Tracing
+
+> **🔍 Tracing Strategy**: All cross-service requests are traced using OpenTelemetry/Jaeger.
+
+**Implementation**:
+- Every incoming request gets a unique `trace_id` 
+- All downstream service calls propagate the `trace_id` header
+- Jaeger UI available at: `http://jaeger:16686`
+
+**Trace Annotation Standards**:
+```javascript
+// Add trace context to logs
+logger.info('Job application submitted', {
+  trace_id: req.headers['x-trace-id'],
+  user_id: user.id,
+  job_id: job.id,
+  duration_ms: stopwatch.elapsed()
+});
+```
+
+**Trace Sampling**:
+- 10% of requests sampled for normal traffic
+- 100% of requests sampled for errors
+- All requests sampled in staging/dev
 
 ### Domain-Specific Alerting Rules
 
@@ -2896,16 +3041,151 @@ npm run format                      # Auto-format code
 
 # Testing
 npm run test                        # Run all tests
-npm run test:watch                  # Watch mode
-npm run test:coverage               # With coverage report
-npm run test:e2e                    # End-to-end tests
-npm run test:integration            # Integration tests
+npm run test:watch                 # Watch mode
+npm run test:coverage              # With coverage report
+npm run test:e2e                   # End-to-end tests
+npm run test:integration           # Integration tests
+```
 
-### Feature Flag Management
+### Docker & Container Commands
 
-> **⚠️ Feature Flag Governance**: All feature flags must follow the naming convention and cleanup policy below.
+```bash
+# Start all services
+docker-compose up -d
 
-#### Naming Convention
+# Start specific service with logs
+docker-compose up -d auth-service
+docker-compose logs -f auth-service
+
+# Stop all services
+docker-compose down
+
+# Rebuild images
+docker-compose build --no-cache
+
+# View container stats
+docker stats
+
+# Access container shell
+docker exec -it auth-service sh
+
+# View networks
+docker network ls
+```
+
+### Database Operations
+
+```bash
+# Connect to PostgreSQL
+psql $DATABASE_URL
+
+# Run SQL file
+psql $DATABASE_URL -f query.sql
+
+# View active connections
+SELECT datname, usename, state 
+FROM pg_stat_activity 
+WHERE state != 'idle';
+
+# Kill idle connections
+SELECT pg_terminate_backend(pid) 
+FROM pg_stat_activity 
+WHERE state = 'idle' 
+AND query_start < now() - interval '10 minutes';
+
+# Check table sizes
+SELECT tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) 
+FROM pg_tables 
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+
+# Run migrations
+npm run db:migrate
+npm run db:migrate:create add-user-role
+npm run db:migrate:rollback
+```
+
+### Redis Operations
+
+```bash
+# Connect to Redis
+redis-cli -h $REDIS_HOST -p 6379
+
+# Monitor commands in real-time
+MONITOR
+
+# View memory usage
+INFO memory
+
+# Find large keys
+redis-cli --bigkeys
+
+# Delete by pattern
+redis-cli KEYS "user:session:*" | xargs redis-cli DEL
+
+# Set TTL on key
+EXPIRE mykey 3600
+```
+
+### API Testing
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Login and get token
+TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password"}' | jq -r '.data.token')
+
+# Use token
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8000/api/users/me
+
+# Check rate limit headers
+curl -I http://localhost:8000/api/jobs \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Kubernetes Operations
+
+```bash
+# View pods
+kubectl get pods -n talentsphere
+
+# View logs
+kubectl logs -f deployment/auth-service -n talentsphere
+
+# Scale deployment
+kubectl scale deployment auth-service --replicas=5 -n talentsphere
+
+# Port forward
+kubectl port-forward svc/auth-service 3001:3001 -n talentsphere
+
+# Restart deployment
+kubectl rollout restart deployment/auth-service -n talentsphere
+
+# Check resource usage
+kubectl top pods -n talentsphere
+```
+
+### Troubleshooting Commands
+
+```bash
+# Check service logs
+docker-compose logs auth-service
+kubectl logs -l app=auth-service -n talentsphere
+
+# Check network connectivity
+curl -v http://auth-service:3001/health
+
+# View ingress status
+kubectl get ingress -n talentsphere
+
+# Check secrets
+kubectl get secrets -n talentsphere -o yaml | base64 -d
+
+# View events
+kubectl get events -n talentsphere --sort-by='.lastTimestamp'
 ```
 {feature-area}_{flag-name}_{variant}
 
@@ -3193,6 +3473,8 @@ For detailed specifications and checklists, refer to:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.4 | 2026-03-07 | Added database schema with entity relationships, standardized error codes, SLO definitions, distributed tracing, enhanced API versioning policy, expanded Quick Reference with Docker/K8s commands |
+| 2.3 | 2026-03-07 | Added architecture diagram, Master Port Map, dependency versions, shared library catalog, OWASP mappings, incident response, domain-specific alerting, feature flag governance |
 | 2.1 | 2026-03-03 | Added Quick Reference Guide with cheat sheets, troubleshooting, incident response |
 | 2.0 | 2026-03-15 | Complete consolidation, removed 177 duplicate sections |
 | 1.9 | 2026-01-10 | Added Disaster Recovery section |
