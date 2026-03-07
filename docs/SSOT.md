@@ -1,6 +1,6 @@
 # TalentSphere Single Source of Truth (SSOT)
 
-**Version 2.2 - Consolidated & Refactored**
+**Version 2.3 - Refactored & Enhanced**
 **Last Updated: March 2026**
 
 **Implementation Status**: ✅ 106 tests passing | All core features operational
@@ -116,12 +116,13 @@ Democratize access to high-quality education and career advancement opportunitie
 │                    Client Layer (Web/Mobile)                     │
 │  React + TypeScript + Vite SPAs + Mobile SDKs + Video Players + WebSockets   │
 └──────────────────────┬──────────────────────────────────────────┘
-                       │
+                        │
 ┌──────────────────────▼──────────────────────────────────────────┐
-│                  API Gateway & Load Balancer                    │
+│                  API Gateway & Load Balancer                      │
 │       (Routing, Auth, Rate Limiting, Request Validation)         │
+│                         Port: 8000                               │
 └──────────────────────┬──────────────────────────────────────────┘
-                       │
+                        │
         ┌──────────────┼──────────────┐
         │              │              │
    ┌────▼──┐  ┌───────▼────┐  ┌────▼────┐
@@ -129,47 +130,90 @@ Democratize access to high-quality education and career advancement opportunitie
    │ APIs  │  │   Service  │  │ Service │
    └────┬──┘  └───────┬────┘  └────┬────┘
         │              │            │
-┌─────────────────────────────────────────────────────────────┐
-│               Core Microservices                             │
-│                                                              │
-│  • auth-service (Identity)                                  │
-│  • user-profile (Professional profiles)                     │
-│  • lms-service (Learning content)                           │
-│  • challenge-service (Code execution)                       │
-│  • job-service (Job postings)                               │
-│  • video-service (VOD + WebRTC)                             │
-│  • search-service (Elasticsearch)                           │
-│  • gamification-service (Points/Badges)                     │
-│  • analytics-service (Event aggregation)                    │
-│  • notification-service (Real-time alerts)                  │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│               Core Microservices                                │
+│                                                               │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ auth-service    │  │ user-service    │  │ api-gateway │ │
+│  │ Port: 3001     │  │ Port: 3002     │  │ Port: 8000  │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ user-profile   │  │ application     │  │ job-service  │ │
+│  │ Port: 3009     │  │ Port: 3008     │  │ Port: 3010  │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ search-service │  │ analytics      │  │ file-service │ │
+│  │ Port: 3007    │  │ Port: 3011    │  │ Port: 3013  │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ video-service  │  │ notification   │  │ company      │ │
+│  │ Port: 3014    │  │ Port: 4005    │  │ Port: 4006  │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ email-service  │  │ challenge      │  │ gamification │ │
+│  │ Port: 4007    │  │ Port: 5000    │  │ Port: 5007  │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+└───────────────────────────────────────────────────────────────┘
         │
-┌─────────────────────────────────────────────────────────────┐
-│            Data & Message Layer                              │
-│                                                              │
-│  • PostgreSQL + Citus (Distributed DB)                      │
-│  • Redis (Caching + Sessions)                               │
-│  • RabbitMQ (Message Queue)                                 │
-│  • Elasticsearch (Full-text search)                         │
-│  • S3 (File storage)                                        │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│            Data & Message Layer                                │
+│                                                               │
+│  • PostgreSQL + Citus (Port: 5432) - Primary Database        │
+│  • PostgreSQL Replica (Port: 5433) - Read Replica            │
+│  • Redis (Port: 6379) - Caching + Sessions                   │
+│  • RabbitMQ (Port: 5672) - Message Queue                      │
+│  • Elasticsearch (Port: 9200) - Full-text search              │
+│  • S3 - File storage                                         │
+│                                                               │
+│  📊 Monitoring:                                               │
+│  • Prometheus (Port: 9090) - Metrics Collection               │
+│  • Grafana (Port: 3020) - Dashboards                         │
+└───────────────────────────────────────────────────────────────┘
 ```
+
+### Master Service Port Map
+
+| Service | Production Port | Test Port | Protocol | Status |
+|---------|----------------|-----------|----------|--------|
+| API Gateway | 8000 | 9000 | HTTP/HTTPS | ✅ Active |
+| Auth Service | 3001 | 9001 | HTTP | ✅ Active |
+| User Service | 3002 | 9002 | HTTP | ✅ Active |
+| Application Service | 3008 | 9008 | HTTP | ✅ Active |
+| User Profile Service | 3009 | 9009 | HTTP | ✅ Active |
+| Search Service | 3007 | 9007 | HTTP | ✅ Active |
+| Job Service | 3010 | 9010 | HTTP | ✅ Active |
+| Analytics Service | 3011 | 9011 | HTTP | ✅ Active |
+| File Service | 3013 | 9013 | HTTP | ✅ Active |
+| Video Service | 3014 | 9014 | HTTP | ✅ Active |
+| Notification Service | 4005 | 9005 | HTTP | ✅ Active |
+| Company Service | 4006 | 9006 | HTTP | ✅ Active |
+| Email Service | 4007 | 9007 | HTTP | ✅ Active |
+| Challenge Service | 5000 | 9500 | HTTP | ✅ Active |
+| Gamification Service | 5007 | 9507 | HTTP | ✅ Active |
+| Frontend Shell | 3100 | 9100 | HTTP | ✅ Active |
+| Frontend LMS | 3101 | 9101 | HTTP | ✅ Active |
+| Frontend Challenge | 3102 | 9102 | HTTP | ✅ Active |
+| Prometheus | 9090 | 9900 | HTTP | ✅ Active |
+| Grafana | 3020 | 9110 | HTTP | ✅ Active |
+
+> **⚠️ Port Consistency Rule**: All port references in code must align with this table. Hardcoded ports in source code are forbidden. Use environment variables for port configuration.
 
 ### Technology Stack (Current Implementation)
 
 | Layer | Technology | Status | Notes |
 |-------|-----------|--------|-------|
-| **Frontend** | React 18+, TypeScript, Vite | ✅ Implemented | Single Page Application |
-| **API Gateway** | Express.js | ✅ Implemented | Request routing, auth, rate limiting |
-| **Backend Services** | Node.js + Express | ✅ Implemented | 10+ core services running |
-| **Database** | PostgreSQL 15+ | ✅ Active | Relational data store |
-| **Cache** | Redis 7+ (ioredis) | ✅ Implemented | Session & response caching |
+| **Frontend** | React 18.2+, TypeScript 5.x, Vite 5.x | ✅ Implemented | Single Page Application |
+| **API Gateway** | Express.js 4.18+ | ✅ Implemented | Request routing, auth, rate limiting |
+| **Backend Services** | Node.js 20.x + Express 4.18+ | ✅ Implemented | 15+ core services running |
+| **Spring Boot Services** | Java 25 + Spring Boot 3.5.0 | ✅ Migrating | Microservices framework |
+| **Database** | PostgreSQL 15.x | ✅ Active | Relational data store |
+| **Cache** | Redis 7.x (ioredis 5.x) | ✅ Implemented | Session & response caching |
 | **Message Queue** | RabbitMQ 3.12+ | ✅ Implemented | Event streaming & pub/sub |
-| **Search** | Elasticsearch 8+ | ✅ Implemented | Full-text search |
+| **Search** | Elasticsearch 8.x | ✅ Implemented | Full-text search |
 | **Video** | HLS + WebRTC | ✅ Implemented | Media streaming (video-service) |
-| **Monitoring** | Winston/Pino + ELK | ✅ Implemented | Structured logging configured |
+| **Monitoring** | Winston/Pino + ELK + Prometheus | ✅ Implemented | Structured logging configured |
 | **CI/CD** | GitHub Actions | ✅ Configured | Automated testing & deployment |
-| **Containerization** | Docker | ✅ Ready | docker-compose for local dev |
+| **Containerization** | Docker 24+, Docker Compose | ✅ Ready | docker-compose for local dev |
 
 ---
 
@@ -286,6 +330,33 @@ talentsphere/
 ## 4. Shared Libraries & Utilities
 
 Reusable libraries and utilities shared across services. Located in `shared/` and `shared-contracts/`.
+
+> **⚠️ Governance Rule**: All shared libraries must follow semantic versioning. Breaking changes require major version bump and deprecation notice.
+
+### Shared Library Catalog
+
+| Module | Purpose | Version | Owner | Dependencies |
+|--------|---------|---------|-------|--------------|
+| `logger.js` | Winston structured logging | 2.x | Platform Team | winston, pino |
+| `enhanced-logger.js` | Advanced logging with correlation IDs | 1.x | Platform Team | winston |
+| `metrics.js` | Prometheus metrics collection | 3.x | Platform Team | prom-client |
+| `audit-logger.js` | Compliance event tracking | 2.x | Security Team | logger |
+| `health-checks.js` | Service health endpoints | 1.x | Platform Team | — |
+| `database.js` | PostgreSQL connection management | 4.x | Platform Team | pg, node-postgres |
+| `database-pool.js` | Connection pooling | 2.x | Platform Team | pg |
+| `redis-cache.js` | Redis caching with TTL | 3.x | Platform Team | ioredis |
+| `auth-middleware.js` | JWT validation middleware | 4.x | Security Team | jsonwebtoken |
+| `security-middleware.js` | CORS, Helmet, CSRF | 3.x | Security Team | helmet, cors |
+| `encryption-service.js` | AES-256 data encryption | 2.x | Security Team | crypto |
+| `api-response.js` | Standard response format | 2.x | Platform Team | — |
+| `rate-limiter.js` | Per-IP/user rate limiting | 3.x | Platform Team | express-rate-limit |
+| `circuit-breaker.js` | Fault tolerance | 2.x | Platform Team | opossum |
+| `retry-handler.js` | Exponential backoff | 1.x | Platform Team | — |
+| `validation.js` | Request validation (Joi/Zod) | 3.x | Platform Team | joi, zod |
+| `error-handler.js` | Centralized error handling | 2.x | Platform Team | — |
+| `idempotency.js` | Duplicate request prevention | 1.x | Platform Team | redis |
+| `webhook-handler.js` | Webhook processing | 2.x | Integration Team | axios |
+| `config-manager.js` | Dynamic configuration | 1.x | Platform Team | dotenv |
 
 ### Core Infrastructure
 
@@ -1351,28 +1422,30 @@ class TokenBucket {
 
 ## 20. Backend Services Detail
 
+> **📋 Port Reference**: All service ports are defined in the [Master Service Port Map](#2-architecture-overview). Individual services below link to their port definitions.
+
 ### Service Dependencies (Currently Operational)
 
-| Service | Port | Status | Dependencies | External APIs |
-|---------|------|--------|--------------|---------------|
-| **auth-service** | 3001 | ✅ Running | PostgreSQL, Redis | Google OAuth, GitHub OAuth |
-| **user-service** | 3002 | ✅ Running | PostgreSQL, Redis | — |
-| **user-profile-service** | 3009 | ✅ Running | PostgreSQL, Redis | — |
-| **job-listing-service** | 3010 | ✅ Running | PostgreSQL | — |
-| **job-service** | 3010 | ✅ Running | PostgreSQL | — |
-| **network-service** | 3010 | ✅ Running | PostgreSQL | — |
-| **application-service** | 3008 | ✅ Running | PostgreSQL | — |
-| **company-service** | 4006 | ✅ Running | PostgreSQL | — |
-| **notification-service** | 4005 | ✅ Running | PostgreSQL, Redis, RabbitMQ | SendGrid (email), Firebase (push) |
-| **email-service** | 4007 | ✅ Running | PostgreSQL, RabbitMQ | SendGrid, Mailgun |
-| **analytics-service** | 3011 | ✅ Running | PostgreSQL, Elasticsearch | — |
-| **search-service** | 3007 | ✅ Running | Elasticsearch | — |
-| **video-service** | 3014 | ✅ Running | PostgreSQL, S3 | AWS S3 (storage) |
-| **messaging-service** | 3008 | ✅ Running | RabbitMQ | — |
-| **file-service** | 3013 | ✅ Running | S3 | AWS S3 (storage) |
-| **gamification-service** | 5007 | ✅ Running | PostgreSQL, Redis | — |
-| **challenge-service** | 5000 | ✅ Running | PostgreSQL, S3 | Judge0 (code execution) |
-| **api-gateway** | 8000 | ✅ Running | All services | — |
+| Service | Status | Dependencies | External APIs |
+|---------|--------|--------------|---------------|
+| **auth-service** | ✅ Running | PostgreSQL, Redis | [Port: 3001](#2-architecture-overview) |
+| **user-service** | ✅ Running | PostgreSQL, Redis | [Port: 3002](#2-architecture-overview) |
+| **user-profile-service** | ✅ Running | PostgreSQL, Redis | [Port: 3009](#2-architecture-overview) |
+| **job-listing-service** | ✅ Running | PostgreSQL | [Port: 3010](#2-architecture-overview) |
+| **job-service** | ✅ Running | PostgreSQL | [Port: 3010](#2-architecture-overview) |
+| **network-service** | ✅ Running | PostgreSQL | [Port: 3010](#2-architecture-overview) |
+| **application-service** | ✅ Running | PostgreSQL | [Port: 3008](#2-architecture-overview) |
+| **company-service** | ✅ Running | PostgreSQL | [Port: 4006](#2-architecture-overview) |
+| **notification-service** | ✅ Running | PostgreSQL, Redis, RabbitMQ | [Port: 4005](#2-architecture-overview) |
+| **email-service** | ✅ Running | PostgreSQL, RabbitMQ | [Port: 4007](#2-architecture-overview) |
+| **analytics-service** | ✅ Running | PostgreSQL, Elasticsearch | [Port: 3011](#2-architecture-overview) |
+| **search-service** | ✅ Running | Elasticsearch | [Port: 3007](#2-architecture-overview) |
+| **video-service** | ✅ Running | PostgreSQL, S3 | [Port: 3014](#2-architecture-overview) |
+| **messaging-service** | ✅ Running | RabbitMQ | [Port: 3008](#2-architecture-overview) |
+| **file-service** | ✅ Running | S3 | [Port: 3013](#2-architecture-overview) |
+| **gamification-service** | ✅ Running | PostgreSQL, Redis | [Port: 5007](#2-architecture-overview) |
+| **challenge-service** | ✅ Running | PostgreSQL, S3 | [Port: 5000](#2-architecture-overview) |
+| **api-gateway** | ✅ Running | All services | [Port: 8000](#2-architecture-overview) |
 
 ### Internal Service Communication
 
@@ -1515,6 +1588,38 @@ router.post('/courses', authorize('write:courses'), courseController.create);
 ---
 
 ## 22. Security Infrastructure
+
+### OWASP Top 10 Mitigation Mapping
+
+| Vulnerability | TalentSphere Control | Implementation |
+|--------------|---------------------|-----------------|
+| A01: Broken Access Control | Role-based middleware, JWT validation | `auth-middleware.js`, RBAC policies |
+| A02: Cryptographic Failures | AES-256 encryption at rest, TLS 1.3 in transit | `encryption-service.js`, TLS config |
+| A03: Injection | Input validation (Joi/Zod), parameterized queries | `validation.js`, pg parameterized queries |
+| A04: Insecure Design | Threat modeling, secure coding practices | Code review, architectural review |
+| A05: Security Misconfiguration | Helmet.js, CORS, rate limiting | `security-middleware.js` |
+| A06: Vulnerable Components | Dependency scanning, Snyk/Trivy | CI/CD pipeline security scan |
+| A07: Auth Failures | JWT with short expiry, 2FA support | `auth-service.js`, session management |
+| A08: Software/Data Integrity Failures | Immutable deployment, code signing | CI/CD pipeline integrity checks |
+| A09: Security Logging Failures | Structured audit logging | `audit-logger.js`, correlation IDs |
+| A10: SSRF Protection | URL validation, allowlist | Input sanitization, proxy restrictions |
+
+### Incident Response Procedure
+
+| Incident Type | Initial Action | Escalation | Contact |
+|--------------|-----------------|-------------|----------|
+| **Production Outage** | Check Kubernetes pods, review logs | Page on-call engineer | `oncall@talentsphere.io` |
+| **Security Incident (Suspected Breach)** | Isolate affected systems, preserve evidence | Notify Security Lead + Legal | `security@talentsphere.io`, `legal@talentsphere.io` |
+| **Data Breach** | Contain breach, document timeline | Immediate Legal + DPO notification | `legal@talentsphere.io`, `dpo@talentsphere.io` |
+| **Service Down** | Check health endpoints, restart pods | Escalate to Platform Team lead | `platform@talentsphere.io` |
+| **High Latency/Performance** | Check metrics, identify bottlenecks | Performance Team | `performance@talentsphere.io` |
+
+> **📋 Incident Response Steps**:
+> 1. **Detect** - Monitor alerts, user reports, or system notifications
+> 2. **Contain** - Isolate affected systems to prevent spread
+> 3. **Eradicate** - Remove threat/root cause
+> 4. **Recover** - Restore services to normal operation
+> 5. **Post-Mortem** - Document lessons learned within 48 hours
 
 ### Request Validation & Sanitization
 
@@ -1705,6 +1810,20 @@ GET /api/v1/courses   → Legacy API (deprecated in 2025-09)
 ---
 
 ## 25. Monitoring & Observability
+
+### Domain-Specific Alerting Rules
+
+| Alert Name | Condition | Severity | Escalation | Dashboard Link |
+|-----------|-----------|----------|------------|----------------|
+| **High Error Rate** | Error rate > 5% over 5min | 🔴 Critical | Page on-call | [Error Dashboard](http://grafana:3020/d/errors) |
+| **High Latency (p95)** | p95 response time > 2s | 🟡 Warning | Team lead | [Performance Dashboard](http://grafana:3020/d/performance) |
+| **Service Down** | Health check failed | 🔴 Critical | Page on-call | [Service Health](http://grafana:3020/d/health) |
+| **Low Disk Space** | Disk < 10% | 🟡 Warning | DevOps | [Infrastructure](http://grafana:3020/d/infra) |
+| **DB Connection Pool Exhausted** | Active connections > 80% max | 🔴 Critical | Page DBA | [Database Metrics](http://grafana:3020/d/database) |
+| **Job Application Spike** | Applications > 10x normal rate | 🟡 Warning | Product Team | [Business Metrics](http://grafana:3020/d/business) |
+| **Profile Deletion Spike** | Deletions > 10x normal rate | 🟡 Warning | Product/Security | [User Activity](http://grafana:3020/d/users) |
+| **High Queue Depth** | RabbitMQ queue > 10,000 messages | 🟡 Warning | Platform Team | [Queue Metrics](http://grafana:3020/d/queues) |
+| **Cache Hit Ratio Low** | Redis hit ratio < 80% | 🟡 Warning | Platform Team | [Cache Metrics](http://grafana:3020/d/cache) |
 
 ### Metrics Collection
 
@@ -2781,6 +2900,64 @@ npm run test:watch                  # Watch mode
 npm run test:coverage               # With coverage report
 npm run test:e2e                    # End-to-end tests
 npm run test:integration            # Integration tests
+
+### Feature Flag Management
+
+> **⚠️ Feature Flag Governance**: All feature flags must follow the naming convention and cleanup policy below.
+
+#### Naming Convention
+```
+{feature-area}_{flag-name}_{variant}
+
+Examples:
+- onboarding_new-flow_enabled
+- payments_stripe-test-mode
+- search_elasticsearch-v2
+```
+
+#### Flag Lifecycle
+
+| Phase | Description | Duration |
+|-------|------------|----------|
+| **Development** | Flag created, default off | Until code complete |
+| **Testing** | Can be toggled in staging | 1-2 weeks |
+| **Release** | Gradually enabled (10% → 50% → 100%) | 1-2 weeks |
+| **Cleanup** | Remove flag after full rollout | Within 2 weeks |
+
+#### Required Properties
+
+Every feature flag must include:
+- `name`: Unique identifier
+- `description`: Purpose of the flag
+- `owner`: Team responsible
+- `rollbackPlan`: Steps to disable if issues arise
+- `cleanupDate`: Target date for removal
+
+#### Example Flag Configuration
+
+```javascript
+const featureFlags = {
+  'onboarding_new-flow_enabled': {
+    description: 'New user onboarding flow',
+    owner: 'Product Team',
+    defaultValue: false,
+    rollbackPlan: 'Set defaultValue to true',
+    cleanupDate: '2026-04-01'
+  }
+};
+```
+
+#### Implementation Example
+
+```javascript
+import { isFeatureEnabled } from '@shared/feature-flags';
+
+// In code
+if (await isFeatureEnabled('onboarding_new-flow_enabled')) {
+  return renderNewOnboarding();
+}
+return renderLegacyOnboarding();
+```
 
 # Deployment
 npm run build                       # Build for production
