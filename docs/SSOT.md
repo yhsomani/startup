@@ -1,6 +1,6 @@
 # TalentSphere Single Source of Truth (SSOT)
 
-**Version 2.4 - Production Ready**
+**Version 2.5 - Production Ready**
 **Last Updated: March 2026**
 
 **Implementation Status**: ✅ 106 tests passing | All core features operational
@@ -993,6 +993,44 @@ if (job.employerId !== currentUser.id) {
 }
 ```
 
+### OpenAPI Schema Strategy
+
+> **📘 API Contracts**: All services MUST generate and maintain OpenAPI 3.0 specifications.
+
+**Schema Storage**:
+```
+services/
+├── auth-service/
+│   ├── openapi.yaml        # Generated API spec
+│   └── openapi.json        # JSON format
+├── user-service/
+│   └── openapi.yaml
+```
+
+**OpenAPI Requirements**:
+- Every endpoint must have: `operationId`, `summary`, `description`
+- All request/response bodies must have JSON Schema definitions
+- All errors must reference standardized error codes (see above)
+- Security schemes defined in `components/securitySchemes`
+
+**Automation**:
+```yaml
+# In ci.yml
+- name: Generate OpenAPI Spec
+  run: npm run api:generate-openapi
+  
+- name: Validate API Contract
+  run: npm run api:validate-contract
+  
+- name: Upload to API Gateway
+  run: npm run api:publish-spec
+```
+
+**Tools Integration**:
+- **Documentation**: Auto-generate from OpenAPI at `api-docs.talentsphere.com`
+- **Client SDKs**: Generate TypeScript/React clients automatically
+- **Contract Testing**: Verify server implementation matches spec
+
 ---
 
 ## 10. Service Mesh (Istio)
@@ -1662,6 +1700,46 @@ function authorize(...requiredPermissions) {
 router.post('/courses', authorize('write:courses'), courseController.create);
 ```
 
+### Business Logic Authorization
+
+> **🔐 Resource-Level Authorization**: Beyond RBAC, services must enforce ownership and relationship checks.
+
+**Common Authorization Rules**:
+
+| Resource | Rule | Implementation |
+|----------|------|----------------|
+| Job Listing | Employer can only modify their own jobs | `job.employerId === user.id` |
+| Application | Candidate can only view own applications | `application.candidateId === user.id` |
+| Company | Recruiter must belong to company | `user.companyIds.includes(company.id)` |
+| Profile | User can only edit own profile | `profile.userId === user.id` |
+| Challenge | Creator can modify challenge | `challenge.creatorId === user.id` |
+
+**Authorization Helper Example**:
+```javascript
+// Middleware for resource ownership check
+function requireOwnership(getOwnerId) {
+  return async (req, res, next) => {
+    const resource = await getOwnerId(req.params.id);
+    if (resource.ownerId !== req.user.id) {
+      return res.status(403).json({
+        error: { 
+          code: 'AUTHORIZATION_DENIED', 
+          message: 'You do not own this resource' 
+        }
+      });
+    }
+    next();
+  };
+}
+
+// Usage: Employer can only update their jobs
+router.put('/jobs/:id', 
+  authenticate,
+  requireOwnership(async (id) => await Job.findById(id)),
+  jobController.update
+);
+```
+
 ---
 
 ## 22. Security Infrastructure
@@ -1780,6 +1858,31 @@ async function getSecret(secretPath) {
 
 ## 23. Audit Logging & Compliance
 
+### Complete Audit Event Triggers
+
+> **📋 All services MUST log these events for compliance and security.**
+
+| Event Category | Action | Logged Fields | Retention |
+|--------------|--------|---------------|-----------|
+| **Authentication** | `LOGIN_SUCCESS` | userId, IP, timestamp | 1 year |
+| | `LOGIN_FAILURE` | email, IP, reason, timestamp | 1 year |
+| | `LOGOUT` | userId, timestamp | 1 year |
+| | `PASSWORD_CHANGE` | userId, IP, timestamp | 3 years |
+| | `PASSWORD_RESET_REQUEST` | email, IP, timestamp | 1 year |
+| **User Management** | `USER_CREATED` | userId, adminId, IP | 7 years |
+| | `USER_ROLE_CHANGE` | userId, oldRole, newRole, adminId | 7 years |
+| | `USER_DELETION` | userId, deletedBy, reason | 7 years |
+| | `USER_PROFILE_UPDATE` | userId, fieldsChanged, IP | 3 years |
+| **Job Applications** | `JOB_CREATED` | jobId, employerId | 3 years |
+| | `APPLICATION_SUBMITTED` | applicationId, candidateId, jobId | 3 years |
+| | `APPLICATION_STATUS_CHANGE` | applicationId, oldStatus, newStatus | 3 years |
+| **Data Access** | `DATA_EXPORT_REQUEST` | userId, requesterId, dataTypes | 3 years |
+| | `DATA_EXPORT_COMPLETE` | userId, exportId, recordCount | 3 years |
+| | `BULK_DATA_ACCESS` | adminId, query, recordCount, IP | 7 years |
+| **Security** | `SUSPICIOUS_ACTIVITY` | userId, activity, IP, timestamp | 7 years |
+| | `RATE_LIMIT_EXCEEDED, endpoint, count | 1 year |
+| |` | IP `UNAUTHORIZED_ACCESS_ATTEMPT` | userId, resource, IP | 7 years |
+
 ### Event Log Schema
 
 ```javascript
@@ -1834,6 +1937,27 @@ async function logAuditEvent(event) {
 - Deleted user data: Purged after 90 days
 - Session logs: Kept for 6 months
 - Audit logs: Kept for 7 years
+
+### Data Processing & Sub-Processor Management
+
+> **📋 GDPR Compliance**: All third-party processors must have Data Processing Agreements (DPAs) in place.
+
+**Approved Sub-Processors**:
+
+| Service | Purpose | Data Processed | DPA Status |
+|---------|---------|----------------|------------|
+| AWS (S3, RDS, EC2) | Infrastructure hosting | All user data | ✅ Active |
+| SendGrid | Email delivery | Email addresses, names | ✅ Active |
+| Firebase | Push notifications | Device tokens | ✅ Active |
+| Stripe | Payment processing | Payment data (tokenized) | ✅ Active |
+| AWS CloudWatch | Log aggregation | Application logs | ✅ Active |
+| PagerDuty | Incident management | On-call schedules | ✅ Active |
+
+**Sub-Processor Onboarding Process**:
+1. Legal reviews vendor DPA
+2. Security team conducts vendor assessment
+3. Update sub-processor list in privacy policy
+4. Notify users if required (within 72 hours for material changes)
 
 ---
 
@@ -3473,6 +3597,7 @@ For detailed specifications and checklists, refer to:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.5 | 2026-03-07 | Added GDPR sub-processor management, OpenAPI schema strategy, business logic authorization rules, comprehensive audit event triggers |
 | 2.4 | 2026-03-07 | Added database schema with entity relationships, standardized error codes, SLO definitions, distributed tracing, enhanced API versioning policy, expanded Quick Reference with Docker/K8s commands |
 | 2.3 | 2026-03-07 | Added architecture diagram, Master Port Map, dependency versions, shared library catalog, OWASP mappings, incident response, domain-specific alerting, feature flag governance |
 | 2.1 | 2026-03-03 | Added Quick Reference Guide with cheat sheets, troubleshooting, incident response |
