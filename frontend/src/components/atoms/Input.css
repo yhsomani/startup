@@ -1,0 +1,115 @@
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+}
+
+.input-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-style: italic;
+    margin-left: var(--space-2);
+}
+
+.input-field-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-field {
+    width: 100%;
+    height: 4.5rem;
+    padding: 0 var(--space-6);
+    font-family: var(--font-family-base);
+    font-size: 1.125rem;
+    font-weight: 700;
+    font-style: italic;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: var(--glass-blur);
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-xl);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    box-shadow: var(--shadow-neural);
+}
+
+.input-field::placeholder {
+    color: rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.input-field:focus {
+    border-color: var(--color-secondary);
+    background-color: rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-glow-accent);
+}
+
+.input-field:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.input-field.has-error {
+    border-color: var(--color-error);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+.input-field.has-left-icon {
+    padding-left: 4.5rem;
+}
+
+.input-field.has-right-icon {
+    padding-right: 4.5rem;
+}
+
+.input-icon {
+    position: absolute;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+.input-field:focus + .input-icon,
+.input-field:focus ~ .input-icon {
+    color: var(--color-secondary);
+}
+
+.input-icon-left {
+    left: 0;
+}
+
+.input-icon-right {
+    right: 0;
+}
+
+.input-error-msg {
+    font-size: 0.75rem;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-error);
+    margin-top: var(--space-2);
+    margin-left: var(--space-2);
+}
+
+.input-helper-msg {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-2);
+    margin-left: var(--space-2);
+}

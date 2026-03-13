@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Global Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#258cf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0f14",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-modal {
+            background: rgba(16, 25, 34, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(37, 140, 244, 0.1);
+        }
+        .search-focus:focus-within {
+            box-shadow: 0 0 0 2px rgba(37, 140, 244, 0.5), 0 0 15px rgba(37, 140, 244, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Blurred Background Mockup of the Platform -->
+<div class="fixed inset-0 z-0 overflow-hidden opacity-40 grayscale blur-sm">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1">
+<header class="flex items-center justify-between border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">hub</span>
+<h2 class="text-lg font-bold">TalentSphere</h2>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-3 gap-6 py-10">
+<div class="h-64 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+<div class="h-64 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+<div class="h-64 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Command Palette Overlay -->
+<div class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-background-dark/60 backdrop-blur-md px-4">
+<!-- Search Modal -->
+<div class="glass-modal w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col">
+<!-- Search Header -->
+<div class="search-focus flex items-center gap-4 px-6 py-5 border-b border-slate-100/10 transition-all duration-200">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input autofocus="" class="bg-transparent border-none focus:ring-0 w-full text-lg placeholder:text-slate-500 font-normal" placeholder="Search talent, jobs, or companies..." type="text"/>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 border border-slate-700">
+<span class="text-[10px] font-bold text-slate-400">⌘</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase">K</span>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="custom-scrollbar overflow-y-auto max-h-[60vh]">
+<!-- Filters -->
+<div class="flex gap-2 p-4 overflow-x-auto no-scrollbar">
+<button class="px-4 py-1.5 rounded-full bg-primary text-white text-sm font-medium whitespace-nowrap">All</button>
+<button class="px-4 py-1.5 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 text-sm font-medium border border-slate-700/50 whitespace-nowrap">Talent</button>
+<button class="px-4 py-1.5 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 text-sm font-medium border border-slate-700/50 whitespace-nowrap">Jobs</button>
+<button class="px-4 py-1.5 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 text-sm font-medium border border-slate-700/50 whitespace-nowrap">Companies</button>
+<button class="px-4 py-1.5 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 text-sm font-medium border border-slate-700/50 whitespace-nowrap">Challenges</button>
+</div>
+<!-- Recent Searches Section -->
+<div class="px-2 pb-4">
+<h3 class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Recent Searches</h3>
+<div class="flex items-center justify-between px-4 py-3 mx-2 rounded-xl hover:bg-primary/10 group cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500 text-xl group-hover:text-primary">history</span>
+<span class="text-sm text-slate-300 group-hover:text-slate-100">React Developer</span>
+</div>
+<span class="material-symbols-outlined text-slate-600 text-sm opacity-0 group-hover:opacity-100">north_west</span>
+</div>
+<div class="flex items-center justify-between px-4 py-3 mx-2 rounded-xl hover:bg-primary/10 group cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500 text-xl group-hover:text-primary">history</span>
+<span class="text-sm text-slate-300 group-hover:text-slate-100">Stripe</span>
+</div>
+<span class="material-symbols-outlined text-slate-600 text-sm opacity-0 group-hover:opacity-100">north_west</span>
+</div>
+</div>
+<!-- Suggested Results Section -->
+<div class="px-2 pb-6 border-t border-slate-800/50">
+<h3 class="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Suggested Results</h3>
+<!-- Talent Result -->
+<div class="flex items-center justify-between px-4 py-3 mx-2 rounded-xl hover:bg-primary/10 group cursor-pointer transition-colors">
+<div class="flex items-center gap-4">
+<div class="relative size-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex shrink-0">
+<img alt="David Chen" class="w-full h-full object-cover" data-alt="Professional portrait of a male developer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaDv5nanw6qs3dAyz3ijCMMPLeTAUm94apOeL2mStuQSSwxNrjhQMncgu_fiCZtHFDvp7nDHb1SluztTDwEoTscNW07Qg9RantZ6_4vlpxo3o8x2SrA0a4vg2C42AUy8w4_oGRytSF7cb53KneNCCuOzJUBikwlcNpGDtNLL8MRj-XmO7mtN7wNJEH_L_aj1F0rsF8wAvWEZYVV63v23y6Nloet3tgyR32wkCIfPotGZ7Ae7C_QkPGpchmu-hWKmvHS8BHi7CrLhk"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-200 group-hover:text-primary">David Chen</span>
+<span class="text-xs text-slate-500">Senior Frontend Engineer • SF, CA</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-medium text-slate-400 uppercase tracking-tight">Talent</span>
+</div>
+</div>
+<!-- Job Result -->
+<div class="flex items-center justify-between px-4 py-3 mx-2 rounded-xl hover:bg-primary/10 group cursor-pointer transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">diversity_3</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-200 group-hover:text-primary">Meta</span>
+<span class="text-xs text-slate-500">Lead Product Designer • Remote</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-medium text-slate-400 uppercase tracking-tight">Job</span>
+</div>
+</div>
+<!-- Company Result -->
+<div class="flex items-center justify-between px-4 py-3 mx-2 rounded-xl hover:bg-primary/10 group cursor-pointer transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-emerald-500">token</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-200 group-hover:text-primary">Vercel</span>
+<span class="text-xs text-slate-500">Frontend Cloud &amp; Developer Experience</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-medium text-slate-400 uppercase tracking-tight">Company</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Command Footer -->
+<div class="px-6 py-3 border-t border-slate-800/50 bg-slate-900/30 flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+<span class="material-symbols-outlined text-base">keyboard_arrow_up</span>
+<span class="material-symbols-outlined text-base">keyboard_arrow_down</span>
+<span>to navigate</span>
+</div>
+<div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+<div class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">enter</div>
+<span>to select</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+<div class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">esc</div>
+<span>to close</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

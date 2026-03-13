@@ -1,1 +1,14 @@
+com\talentsphere\challenge\entity\Challenge$ChallengeBuilder.class
+com\talentsphere\challenge\service\ChallengeService.class
+com\talentsphere\challenge\exception\ResourceNotFoundException.class
+com\talentsphere\challenge\repository\ChallengeRepository.class
+com\talentsphere\challenge\service\ChallengeService$LeaderboardEntry.class
+com\talentsphere\challenge\entity\ChallengeSubmission$ChallengeSubmissionBuilder.class
+com\talentsphere\challenge\controller\ChallengeController.class
+com\talentsphere\challenge\entity\Challenge.class
+com\talentsphere\challenge\entity\Challenge$Difficulty.class
+com\talentsphere\challenge\entity\Challenge$Category.class
 com\talentsphere\challenge\ChallengeServiceApplication.class
+com\talentsphere\challenge\repository\ChallengeSubmissionRepository.class
+com\talentsphere\challenge\entity\ChallengeSubmission.class
+com\talentsphere\challenge\exception\GlobalExceptionHandler.class

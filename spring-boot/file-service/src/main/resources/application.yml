@@ -24,6 +24,11 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
+file:
+  upload:
+    directory: ${FILE_UPLOAD_DIR:./uploads}
+  base-url: ${FILE_BASE_URL:http://localhost:3013}
+
 logging:
   level:
     com.talentsphere: DEBUG

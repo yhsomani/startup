@@ -8,7 +8,7 @@ echo ""
 
 # Test 1: Backend Feature Flags
 echo "Test 1: Backend Feature Flags"
-cd backends/backend-flask
+cd backends/ai-service
 python3 -c "
 from app.feature_flags import FeatureFlags
 flags = FeatureFlags._flags

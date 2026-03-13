@@ -13,7 +13,7 @@ const net = require("net");
 
 const services = [
     { name: "API Gateway", path: "api-gateway/server.js", port: 3000 },
-    { name: "Auth Service", path: "backends/backend-enhanced/auth-service/index.js", port: 3001 },
+    { name: "Auth Service", path: "backends/auth-service/index.js", port: 3001 },
     { name: "User Profile Service", path: "backends/backend-enhanced/user-profile-service/index.js", port: 3009 },
     { name: "Job Listing Service", path: "backends/backend-enhanced/job-listing-service/index.js", port: 3010 },
     { name: "Company Service", path: "backends/backend-enhanced/company-service/index.js", port: 4006 },

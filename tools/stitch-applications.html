@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere - My Applications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#0f0814",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(140, 37, 244, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(140, 37, 244, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        .glow-primary {
+            box-shadow: 0 0 15px rgba(140, 37, 244, 0.4);
+        }
+        .status-dot-active {
+            box-shadow: 0 0 8px #8c25f4;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden bg-gradient-to-b from-[#1a1023] via-[#0f0814] to-black">
+<!-- Header -->
+<header class="flex items-center p-6 justify-between sticky top-0 z-50 backdrop-blur-md bg-background-dark/80">
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-800/40 border border-slate-700/50">
+<span class="material-symbols-outlined text-slate-100">chevron_left</span>
+</button>
+<h2 class="text-slate-100 text-lg font-bold leading-tight tracking-tight">My Applications</h2>
+<div class="flex items-center gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-800/40 border border-slate-700/50">
+<span class="material-symbols-outlined text-slate-100">notifications</span>
+</button>
+</div>
+</header>
+<!-- Stats Grid -->
+<div class="flex flex-row gap-3 p-4 overflow-x-auto no-scrollbar">
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-4 glass-card border-primary/30 relative overflow-hidden group">
+<div class="absolute -right-2 -top-2 size-16 bg-primary/10 rounded-full blur-2xl"></div>
+<p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Active</p>
+<p class="text-slate-100 text-3xl font-bold">12</p>
+<div class="h-1 w-8 bg-primary rounded-full"></div>
+</div>
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-4 glass-card border-primary/20 relative overflow-hidden">
+<p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Interviews</p>
+<p class="text-slate-100 text-3xl font-bold">4</p>
+<div class="h-1 w-8 bg-primary/40 rounded-full"></div>
+</div>
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-4 glass-card border-primary/20 relative overflow-hidden">
+<p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Offers</p>
+<p class="text-slate-100 text-3xl font-bold text-primary">2</p>
+<div class="h-1 w-8 bg-primary/40 rounded-full"></div>
+</div>
+</div>
+<!-- Section Title -->
+<div class="flex items-center justify-between px-6 pt-6 pb-2">
+<h3 class="text-slate-100 text-xl font-bold">Recent Activity</h3>
+<button class="text-primary text-sm font-semibold">Filter</button>
+</div>
+<!-- Application Cards List -->
+<div class="flex flex-col gap-4 p-4 pb-32">
+<!-- Card 1: AWS -->
+<div class="flex flex-col rounded-2xl glass-card p-5 border-slate-700/30">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4">
+<div class="size-12 rounded-xl bg-white flex items-center justify-center p-2">
+<img class="w-full h-auto" data-alt="AWS company logo corporate branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC720kNKKUdlDouzthTHC-QtTP4dM3X_yjdN5fTZrMQnf_LJbZsgBcrhFq1CVzSlq_xOQBUXXGiLS5IK09rsZgDbbhFUjCR4DA1PEXk36irck45VIW4SOdHuclEbCVWfHCofBKGtrVlpIeiXhxTUZ-4vKGTw_DyyBH2nhNCVXmmVDW1sfAcJekGue5NNpyBaFC2ojNYwfxpnBv9hGO1mN6ofzpZZmNBnALlbXC_Wt1Y5x2T9KiGKKuTooUGJqWegclHbnSO5IfresU"/>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-100 text-base font-bold">Cloud Architect</h4>
+<p class="text-slate-400 text-sm">Amazon Web Services • Applied 2d ago</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest border border-primary/30">In Progress</span>
+</div>
+<!-- Progress Timeline -->
+<div class="relative flex items-center justify-between pt-4 pb-2">
+<div class="absolute top-[26px] left-0 w-full h-[2px] bg-slate-800"></div>
+<div class="absolute top-[26px] left-0 w-2/3 h-[2px] bg-primary glow-primary"></div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-primary status-dot-active"></div>
+<span class="text-[10px] text-slate-300 font-medium">Applied</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-primary status-dot-active"></div>
+<span class="text-[10px] text-slate-300 font-medium">Screening</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-5 rounded-full bg-primary border-4 border-slate-900 status-dot-active flex items-center justify-center ring-4 ring-primary/20"></div>
+<span class="text-[10px] text-primary font-bold">Interview</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-slate-800 border-2 border-slate-700"></div>
+<span class="text-[10px] text-slate-500 font-medium">Offer</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Google -->
+<div class="flex flex-col rounded-2xl glass-card p-5 border-slate-700/30">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4">
+<div class="size-12 rounded-xl bg-white flex items-center justify-center p-2">
+<img class="w-full h-auto" data-alt="Google company logo colorful G" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGQ-oN8l9l5BZfF3udaGp21UBmhfcZhuqOxdLKhE5fFWfS6yAsZzE4Jd4EEyjGI362AYt-C35l_dJwl68KkCWPDxAY-H851N5oAf1L--4WmCfv8qnq_-Kcyv0vU2kZwmTOUplfnwBrw2hiV_imAyw4SJGQIuguS26WNJZ3__PqIVeaSUU8Ul_RBrTYR0IoPyv6Ok3XKH2b5-DMuHM3ta_-zIkK1p9lJTppdwACbMPfW4zdlfj1H4WqY1ohnggeHv9zgF0FeKjBg7w"/>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-100 text-base font-bold">Staff Software Engineer</h4>
+<p class="text-slate-400 text-sm">Google Cloud • Applied 5d ago</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/30">Screening</span>
+</div>
+<!-- Progress Timeline -->
+<div class="relative flex items-center justify-between pt-4 pb-2">
+<div class="absolute top-[26px] left-0 w-full h-[2px] bg-slate-800"></div>
+<div class="absolute top-[26px] left-0 w-1/3 h-[2px] bg-primary"></div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-primary"></div>
+<span class="text-[10px] text-slate-300 font-medium">Applied</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-5 rounded-full bg-primary border-4 border-slate-900 flex items-center justify-center ring-4 ring-primary/20"></div>
+<span class="text-[10px] text-primary font-bold">Screening</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-slate-800 border-2 border-slate-700"></div>
+<span class="text-[10px] text-slate-500 font-medium">Interview</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-slate-800 border-2 border-slate-700"></div>
+<span class="text-[10px] text-slate-500 font-medium">Offer</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Tesla -->
+<div class="flex flex-col rounded-2xl glass-card p-5 border-slate-700/30">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4">
+<div class="size-12 rounded-xl bg-slate-100 flex items-center justify-center p-2">
+<img class="w-full h-auto" data-alt="Tesla company logo minimal red T" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRM3R6enUJ1fdjl-Hh2igSbGL9XHpF2bV4-JRBID43dp0GtXIA-JqcTo6k-mthHhPl98rMs9vZcLNn9YJvuybpDsd0u46bC-5byw_DTlgICEogmSs-e_bRxhqcaRBceN3zAKvrLxPEcQnznw_LS62wOJ6htQvKKS0fAsIawUwwUjwe4QMTgUJy-76J-7zOZLzBiq4FeeYeTM-mD0kllFI3EIKdZCiT4ciJ3mSuMM1V4ZDU8EFQoTKhGmRQs81i5zpOszK90Fdt7nc"/>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-100 text-base font-bold">Senior AI Researcher</h4>
+<p class="text-slate-400 text-sm">Tesla Autopilot • Applied 1w ago</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest border border-primary/30">Interviewing</span>
+</div>
+<!-- Progress Timeline -->
+<div class="relative flex items-center justify-between pt-4 pb-2">
+<div class="absolute top-[26px] left-0 w-full h-[2px] bg-slate-800"></div>
+<div class="absolute top-[26px] left-0 w-2/3 h-[2px] bg-primary glow-primary"></div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-primary"></div>
+<span class="text-[10px] text-slate-300 font-medium">Applied</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-primary"></div>
+<span class="text-[10px] text-slate-300 font-medium">Screening</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-5 rounded-full bg-primary border-4 border-slate-900 flex items-center justify-center ring-4 ring-primary/20"></div>
+<span class="text-[10px] text-primary font-bold">Interview</span>
+</div>
+<div class="relative flex flex-col items-center gap-2 z-10">
+<div class="size-4 rounded-full bg-slate-800 border-2 border-slate-700"></div>
+<span class="text-[10px] text-slate-500 font-medium">Offer</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 border-t border-white/5 bg-background-dark/90 backdrop-blur-xl px-4 pb-6 pt-3 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">work</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Jobs</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined filled">description</span>
+<p class="text-[10px] font-bold uppercase tracking-tighter">Applied</p>
+</a>
+<div class="relative -top-6">
+<div class="size-14 rounded-full bg-primary glow-primary flex items-center justify-center border-4 border-background-dark shadow-2xl">
+<span class="material-symbols-outlined text-white text-3xl">add</span>
+</div>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">hub</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Network</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Profile</p>
+</a>
+</nav>
+</div>
+</body></html>

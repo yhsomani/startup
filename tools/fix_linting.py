@@ -55,7 +55,7 @@ def fix_whitespace_issues(file_path):
 
 def main():
     """Main script to fix Python files"""
-    backend_path = Path(__file__).parent / "backends" / "backend-flask" / "app"
+    backend_path = Path(__file__).parent / "backends" / "ai-service" / "app"
     
     python_files = list(backend_path.rglob("*.py"))
     

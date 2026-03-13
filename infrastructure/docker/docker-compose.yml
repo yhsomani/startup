@@ -52,8 +52,8 @@ services:
 
     # 4. Flask Backend (Auth/Core Service)
     flask:
-        build: ./backends/backend-flask
-        container_name: ts-backend-flask
+        build: ./backends/ai-service
+        container_name: ts-ai-service
         ports:
             - "5000:5000"
         environment:
@@ -86,8 +86,8 @@ services:
 
     # 5. .NET Backend (Courses Service)
     dotnet:
-        build: ./backends/backend-dotnet
-        container_name: ts-backend-dotnet
+        build: ./backends/challenge-service
+        container_name: ts-challenge-service
         ports:
             - "5062:8080"
         environment:
@@ -109,8 +109,8 @@ services:
 
     # 6. Spring Boot Backend (Progress Service)
     springboot:
-        build: ./backends/backend-springboot
-        container_name: ts-backend-springboot
+        build: ./backends/lms-service
+        container_name: ts-lms-service
         ports:
             - "8081:8080"
         environment:
@@ -154,7 +154,7 @@ services:
             - backend-gamification
             - backend-job
             - backend-network
-            - backend-analytics
+            - analytics-service
             - job-listing-service
             - user-profile-service
         extra_hosts:
@@ -391,9 +391,9 @@ services:
                     memory: 256M
 
     # 15. Analytics Service
-    backend-analytics:
-        build: ./backends/backend-analytics
-        container_name: ts-backend-analytics
+    analytics-service:
+        build: ./backends/analytics-service
+        container_name: ts-analytics-service
         ports:
             - "3006:3006"
         environment:

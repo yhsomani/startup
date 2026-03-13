@@ -1,1 +1,15 @@
+com\talentsphere\video\dto\VideoUploadRequest$VideoUploadRequestBuilder.class
+com\talentsphere\video\exception\GlobalExceptionHandler.class
+com\talentsphere\video\dto\VideoMetadataResponse.class
+com\talentsphere\video\dto\VideoUploadResponse.class
+com\talentsphere\video\entity\VideoMetadata$VideoMetadataBuilder.class
+com\talentsphere\video\entity\VideoMetadata$VideoCategory.class
+com\talentsphere\video\service\VideoService.class
+com\talentsphere\video\entity\VideoMetadata.class
 com\talentsphere\video\VideoServiceApplication.class
+com\talentsphere\video\repository\VideoMetadataRepository.class
+com\talentsphere\video\exception\VideoNotFoundException.class
+com\talentsphere\video\dto\VideoUploadResponse$VideoUploadResponseBuilder.class
+com\talentsphere\video\dto\VideoMetadataResponse$VideoMetadataResponseBuilder.class
+com\talentsphere\video\dto\VideoUploadRequest.class
+com\talentsphere\video\controller\VideoController.class

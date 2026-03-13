@@ -1,0 +1,99 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-radius: var(--radius-2xl);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid transparent;
+    outline: none;
+    font-family: var(--font-family-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-secondary);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+/* Variants */
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: var(--shadow-glow-primary);
+}
+
+.btn-primary:not(:disabled):hover {
+    background-color: white;
+    color: black;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px var(--color-border-glow);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: black;
+    box-shadow: var(--shadow-glow-accent);
+}
+
+.btn-secondary:not(:disabled):hover {
+    background-color: white;
+    color: black;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(19, 236, 236, 0.3);
+}
+
+.btn-outline {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.btn-outline:not(:disabled):hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+}
+
+.btn-ghost {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:not(:disabled):hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+/* Sizes */
+.btn-sm {
+    padding: var(--space-3) var(--space-6);
+    font-size: 0.75rem;
+}
+
+.btn-md {
+    padding: var(--space-4) var(--space-8);
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: var(--space-5) var(--space-12);
+    font-size: 1rem;
+}
+
+/* Icon */
+.btn-icon-only {
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+}

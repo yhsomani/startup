@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import { api } from '@talentsphere/api';
 
 export interface Course {
     id: string;
@@ -29,7 +29,6 @@ interface CoursesState {
     enrollCourse: (courseId: string) => Promise<void>;
 }
 
-const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || 'http://localhost:8000/api/v1';
 
 // Fallback mock data shown when the LMS backend is unreachable
 const MOCK_COURSES: Course[] = [
@@ -87,10 +86,7 @@ export const useCourses = create<CoursesState>((set) => ({
     fetchCourses: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get(`${API_BASE}/courses`, {
-                headers: getAuthHeaders(),
-                timeout: 8000,
-            });
+            const response = await api.get('/courses');
             const data = response.data;
             // Normalize: handle array, { courses: [] }, or { data: [] } response shapes
             const courses: Course[] = Array.isArray(data)
@@ -105,10 +101,6 @@ export const useCourses = create<CoursesState>((set) => ({
 
     enrollCourse: async (courseId: string) => {
         const userId = typeof localStorage !== 'undefined' ? localStorage.getItem('userId') : null;
-        await axios.post(
-            `${API_BASE}/enrollments`,
-            { courseId, userId },
-            { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' }, timeout: 8000 }
-        );
+        await api.post('/enrollments', { courseId, userId });
     },
 }));

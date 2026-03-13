@@ -1,1 +1,12 @@
+com\talentsphere\file\repository\FileMetadataRepository.class
+com\talentsphere\file\entity\FileMetadata$FileCategory.class
+com\talentsphere\file\dto\FileUploadRequest$FileUploadRequestBuilder.class
+com\talentsphere\file\dto\FileUploadResponse$FileUploadResponseBuilder.class
+com\talentsphere\file\dto\FileUploadResponse.class
+com\talentsphere\file\controller\FileController.class
+com\talentsphere\file\service\FileService.class
+com\talentsphere\file\exception\GlobalExceptionHandler.class
+com\talentsphere\file\entity\FileMetadata.class
 com\talentsphere\file\FileServiceApplication.class
+com\talentsphere\file\dto\FileUploadRequest.class
+com\talentsphere\file\exception\FileNotFoundException.class

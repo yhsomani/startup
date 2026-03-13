@@ -33,7 +33,7 @@ async function startAnalyticsService() {
 
     // Create and start API server
     const analyticsAPI = new AnalyticsAPI(analyticsService);
-    const apiPort = process.env.ANALYTICS_API_PORT || 3009;
+    const apiPort = process.env.ANALYTICS_API_PORT || 3011;
     await analyticsAPI.start(apiPort);
 
     logger.info("Analytics Service started successfully", {

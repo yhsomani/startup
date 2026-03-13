@@ -33,7 +33,10 @@ async function runWithPiston(code, language, input) {
         language: langConfig.language,
         version: langConfig.version,
         files: [{ content: code }],
-        stdin: input
+        stdin: input,
+        // TS-2024-008 Workaround: Allow 10s execution for complex problems
+        compile_timeout: 10000,
+        run_timeout: 10000
     };
 
     try {
@@ -78,6 +81,27 @@ console.log(JSON.stringify({ passed, total: tests.length, results }));
 }
 
 // --- API Routes ---
+
+app.post('/api/v1/challenges/execute', async (req, res) => {
+    try {
+        const { code, language } = req.body;
+        
+        if (!code || !language) {
+            return res.status(400).json({ error: 'Code and language are required.' });
+        }
+
+        const execution = await runWithPiston(code, language, "");
+        
+        res.json({
+            output: execution.stdout || execution.stderr,
+            error: execution.stderr ? true : false,
+            code: execution.code
+        });
+    } catch (err) {
+        console.error('Execution Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 app.get('/api/v1/challenges', async (req, res) => {
     try {

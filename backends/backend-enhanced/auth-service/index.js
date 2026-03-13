@@ -31,6 +31,40 @@ const {
 } = require("../../../shared/security-middleware");
 const { getDatabaseManager } = require("../../../shared/database-connection");
 
+/**
+ * Response formatting middleware per SSOT Section 5.2
+ * Adds timestamp and correlationId to all API responses
+ */
+const formatResponse = (req, res, next) => {
+    const originalJson = res.json.bind(res);
+    const correlationId = req.headers['x-correlation-id'] || uuidv4();
+    
+    // Store correlationId for downstream use
+    req.correlationId = correlationId;
+    
+    res.json = function(data) {
+        // Skip formatting for non-2xx responses (errors handled by error middleware)
+        const statusCode = res.statusCode;
+        if (statusCode < 200 || statusCode >= 300) {
+            return originalJson(data);
+        }
+        
+        // Skip formatting for health and metrics endpoints
+        if (req.path === '/health' || req.path === '/metrics') {
+            return originalJson(data);
+        }
+        
+        const formattedResponse = {
+            ...data,
+            timestamp: new Date().toISOString(),
+            correlationId
+        };
+        return originalJson(formattedResponse);
+    };
+    
+    next();
+};
+
 class AuthService extends EnhancedServiceWithTracing {
     constructor() {
         super({
@@ -62,10 +96,10 @@ class AuthService extends EnhancedServiceWithTracing {
         this.logger = createLogger("AuthService");
 
         // Get JWT secret from secure storage
-        this.jwtSecret =
-            getSecret("JWT_SECRET") ||
-            process.env.JWT_SECRET ||
-            "fallback-secret-change-in-production";
+        this.jwtSecret = getSecret("JWT_SECRET") || process.env.JWT_SECRET;
+        if (!this.jwtSecret) {
+            throw new Error("JWT_SECRET must be configured - set JWT_SECRET environment variable");
+        }
 
         // Initialize database connection
         this.database = getDatabaseManager();
@@ -111,6 +145,9 @@ class AuthService extends EnhancedServiceWithTracing {
             res.setHeader("x-service", this.config.serviceName);
             next();
         });
+        
+        // Response formatting middleware (per SSOT Section 5.2)
+        this.app.use(formatResponse);
     }
 
     initializeErrorHandling() {
@@ -179,7 +216,7 @@ class AuthService extends EnhancedServiceWithTracing {
 
         // Register endpoint (with stricter rate limiting)
         this.app.post(
-            "/register",
+            "/api/v1/auth/register",
             getSensitiveRateLimitMiddleware("/api/v1/auth/register"),
             (req, res) =>
                 this.handleRequestWithTracing(req, res, "auth.register", {
@@ -192,7 +229,7 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Login endpoint (with stricter rate limiting)
-        this.app.post("/login", getSensitiveRateLimitMiddleware("/api/v1/auth/login"), (req, res) =>
+        this.app.post("/api/v1/auth/login", getSensitiveRateLimitMiddleware("/api/v1/auth/login"), (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.login", {
                 inputSchema: this.serviceContract?.getOperationSchema("login")?.inputSchema,
                 outputSchema: this.serviceContract?.getOperationSchema("login")?.outputSchema,
@@ -202,7 +239,7 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Logout endpoint
-        this.app.post("/logout", (req, res) =>
+        this.app.post("/api/v1/auth/logout", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.logout", {
                 validateInput: false,
                 validateOutput: false,
@@ -210,7 +247,7 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Verify token endpoint
-        this.app.get("/verify", (req, res) =>
+        this.app.get("/api/v1/auth/verify", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.verify", {
                 validateInput: false,
                 validateOutput: false,
@@ -218,7 +255,7 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Refresh token endpoint
-        this.app.post("/refresh-token", (req, res) =>
+        this.app.post("/api/v1/auth/refresh-token", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.refresh", {
                 validateInput: false,
                 validateOutput: false,
@@ -226,21 +263,21 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Profile endpoints
-        this.app.get("/profile", (req, res) =>
+        this.app.get("/api/v1/auth/profile", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.profile", {
                 validateInput: false,
                 validateOutput: false,
             })
         );
 
-        this.app.put("/profile", (req, res) =>
+        this.app.put("/api/v1/auth/profile", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.profile.update", {
                 validateInput: false,
                 validateOutput: false,
             })
         );
 
-        this.app.post("/profile/picture", (req, res) =>
+        this.app.post("/api/v1/auth/profile/picture", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.profile.picture", {
                 validateInput: false,
                 validateOutput: false,
@@ -248,14 +285,14 @@ class AuthService extends EnhancedServiceWithTracing {
         );
 
         // Preferences endpoints (notifications + UI settings)
-        this.app.get("/preferences", (req, res) =>
+        this.app.get("/api/v1/auth/preferences", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.preferences.get", {
                 validateInput: false,
                 validateOutput: false,
             })
         );
 
-        this.app.put("/preferences", (req, res) =>
+        this.app.put("/api/v1/auth/preferences", (req, res) =>
             this.handleRequestWithTracing(req, res, "auth.preferences.update", {
                 validateInput: false,
                 validateOutput: false,
@@ -407,14 +444,14 @@ class AuthService extends EnhancedServiceWithTracing {
                     lastName: user.last_name,
                 },
                 this.jwtSecret,
-                { expiresIn: "24h" }
+                { expiresIn: "1h", algorithm: "HS256" }
             );
 
             // Generate refresh token (longer-lived, used only to get new access tokens)
             const refreshToken = jwt.sign(
                 { userId: user.id },
                 this.jwtSecret,
-                { expiresIn: "7d" }
+                { expiresIn: "7d", algorithm: "HS256" }
             );
 
             // Create session (still in memory for now, could move to database)
@@ -586,7 +623,7 @@ class AuthService extends EnhancedServiceWithTracing {
                     lastName: user.last_name,
                 },
                 this.jwtSecret,
-                { expiresIn: "24h" }
+                { expiresIn: "1h", algorithm: "HS256" }
             );
 
             return {

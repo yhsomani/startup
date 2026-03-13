@@ -1,0 +1,103 @@
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-background);
+}
+
+.topbar {
+    height: 64px;
+    background: var(--color-surface);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+    z-index: 40;
+    flex-shrink: 0;
+}
+
+.topbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 var(--space-6);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    color: var(--color-text-primary);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 15px var(--color-primary-hover);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background: var(--color-surface);
+    backdrop-filter: var(--glass-blur);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    gap: var(--space-2);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-style: italic;
+    border-radius: var(--radius-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-primary);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(140, 37, 244, 0.15), transparent);
+    color: var(--color-secondary);
+    border-left: 3px solid var(--color-primary);
+}
+
+.nav-item.active svg {
+    color: var(--color-secondary);
+    filter: drop-shadow(0 0 5px var(--color-secondary-hover));
+}
+
+.page-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6) var(--space-8);
+    background: radial-gradient(circle at 0% 0%, rgba(140, 37, 244, 0.03) 0%, transparent 50%);
+}

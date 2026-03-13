@@ -1,1 +1,14 @@
+com\talentsphere\email\entity\EmailTemplate.class
 com\talentsphere\email\EmailServiceApplication.class
+com\talentsphere\email\controller\EmailController.class
+com\talentsphere\email\controller\EmailController$SendEmailRequest.class
+com\talentsphere\email\entity\EmailTemplate$EventType.class
+com\talentsphere\email\entity\EmailTemplate$EmailTemplateBuilder.class
+com\talentsphere\email\repository\EmailTemplateRepository.class
+com\talentsphere\email\controller\EmailController$SendTemplatedEmailRequest.class
+com\talentsphere\email\entity\EmailLog$EmailStatus.class
+com\talentsphere\email\service\EmailService.class
+com\talentsphere\email\repository\EmailLogRepository.class
+com\talentsphere\email\exception\GlobalExceptionHandler.class
+com\talentsphere\email\entity\EmailLog.class
+com\talentsphere\email\entity\EmailLog$EmailLogBuilder.class

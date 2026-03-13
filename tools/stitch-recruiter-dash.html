@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Recruiter Dashboard Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ecec",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#102222",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav {
+            background-color: #13ecec20;
+            border-right: 4px solid #13ecec;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Persistent Side Navigation -->
+<aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+<div class="flex flex-col gap-8 py-6">
+<!-- Logo -->
+<div class="px-6 flex items-center gap-3">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-slate-900 text-2xl">hub</span>
+</div>
+<div>
+<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">TalentSphere</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">Recruiter Portal</p>
+</div>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-6 py-3 active-nav text-slate-900 dark:text-white" href="#">
+<span class="material-symbols-outlined text-[24px]">grid_view</span>
+<span class="text-sm font-semibold tracking-tight">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">work</span>
+<span class="text-sm font-semibold tracking-tight">Manage Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">groups</span>
+<span class="text-sm font-semibold tracking-tight">Talent Pool</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+<span class="text-sm font-semibold tracking-tight">Messages</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">analytics</span>
+<span class="text-sm font-semibold tracking-tight">Analytics</span>
+</a>
+</nav>
+</div>
+<!-- Settings & Profile -->
+<div class="pb-6">
+<a class="flex items-center gap-3 px-6 py-3 text-slate-500 hover:text-primary transition-colors mb-4" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="text-sm font-semibold tracking-tight">Settings</span>
+</a>
+<div class="px-6">
+<div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+<img alt="" class="size-8 rounded-full object-cover" data-alt="Recruiter profile photo portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtFm9gZbP6Lcw6ampSzhh8NY6Vkmshg_sOue8B2t1BTMgOtpEuq9hMe7n9WyI7dwnx4eQhnk_6Bz9NCLR3gAEmD5ieDh0MBxAyHbodmHj_FtLbvsIac5nH7Dpq3DTIsTnRPaast2qBsrJF5DrgqTxXDN6YPuJDsJ93jTj6IE7hvyUNtDxOZGM-Zmknghw-hF-kZEaDTbHGRKkhNQvV3KKBf4bgt21yE502G0p-nNJs0Mt_S0x6nSf7XJrkE20JjVKpEjE-rBg_BW0"/>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold text-slate-900 dark:text-white truncate">Marcus Miller</p>
+<p class="text-[10px] text-slate-500 truncate">Senior Lead</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-lg">unfold_more</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="flex items-center justify-between px-10 py-6 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10 border-b border-slate-200 dark:border-slate-800">
+<div>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h2>
+<p class="text-slate-500 text-sm">Welcome back, Marcus! Here's what's happening today.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 text-xl">search</span>
+</div>
+<input class="pl-10 pr-4 py-2 rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary text-sm w-64 transition-all" placeholder="Search applications..." type="text"/>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-slate-900 font-bold text-sm px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg font-bold">add</span>
+                        Post New Job
+                    </button>
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</div>
+</header>
+<!-- Quick Stats Section -->
+<section class="px-10 py-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stat Card 1 -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 right-0 h-12 opacity-10 bg-gradient-to-t from-primary to-transparent" style="mask-image: linear-gradient(to right, transparent, black, transparent);"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">work</span>
+</div>
+<span class="text-emerald-500 text-xs font-bold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-xs">trending_up</span> +2.4%
+                            </span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium mb-1">Active Jobs</h3>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">24</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 right-0 h-12 opacity-10 bg-gradient-to-t from-primary to-transparent" style="mask-image: linear-gradient(to right, transparent, black, transparent);"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">person_add</span>
+</div>
+<span class="text-emerald-500 text-xs font-bold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-xs">trending_up</span> +15.2%
+                            </span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium mb-1">New Applicants</h3>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">156</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 right-0 h-12 opacity-10 bg-gradient-to-t from-red-500 to-transparent" style="mask-image: linear-gradient(to right, transparent, black, transparent);"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+</div>
+<span class="text-red-500 text-xs font-bold flex items-center gap-1 bg-red-50 dark:bg-red-950/30 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-xs">trending_down</span> -5.1%
+                            </span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium mb-1">Interviews Scheduled</h3>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">12</p>
+</div>
+</div>
+</section>
+<!-- Recent Applications Table Section -->
+<section class="px-10 pb-10">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+<div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Recent Applications</h3>
+<button class="text-primary text-sm font-bold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-800/50">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Candidate</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applied Role</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date Applied</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<img alt="" class="size-9 rounded-full object-cover" data-alt="Candidate profile headshot Alex Rivera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqljp1ZRnJ6eM7WsAhMUOJd0p-N0GJL2FE7A6gOecLE-PvTihFFozDhVizCfwYuoY2wKh0fkMzqCwBEv5QtfyMvs7Zkn0_a2SMK2jJmt2ErurIPy6uqV2Cg7bc1kkVE_vzcSgMZPpYb_N01_f-5qZsuZDYpJFjs1LVcVSXxeZ5WNnF_ajNnJB0107iQ3saN598a2Ez5Sbhhx2Gnw0Etzw4ZgWMd53bz67k1c_mtGC0bdPjPDH7SLGruHKJCH8NT4kZePoi4tXaINI"/>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Alex Rivera</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Senior Product Designer</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Oct 24, 2023</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Shortlisted
+                                        </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<img alt="" class="size-9 rounded-full object-cover" data-alt="Candidate profile headshot Sarah Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx_dGuZHYECgqZ-Xt1D1ebozs8LVdsqj7BycG6cn3-uEcQurWJSrKJribsWIeNugNpVQ8SqbVWsyjNw_VO_U6T__0gbFY4LqbqnxnK1bret0tEmvcqW5i_SN7-KdZv9MsiomcCN3Fc9VuBG2SDrmD609sFV5rPUBsWgjwAojRs2A0xVZ2Xwgjsc2nSlJcMkjungV3RquN2vb6agTLX5OEuBOjxLHZFD4uU2Tu4Fh3zOOf2wZEJVo8AHzRhEBi27ZNANLOGrm8BSdY"/>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Sarah Chen</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Frontend Engineer</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Oct 23, 2023</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                            In Review
+                                        </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<img alt="" class="size-9 rounded-full object-cover" data-alt="Candidate profile headshot Marcus Johnson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0yFhBkpPORpFW2B0ZQBm877xbjOOexRd6o1En4pZ2X0PUVvvPFwT3iX3YrkDn4Fd3h6RGBEtaAyMFrzP9Z5w1eaRnlkhPLB3IoV7PEYdvrk3sWgBS7eYw6eS_SwvS7baKVCpVzJJuhvAneSvRyXiDG0Wd2ZKbwgOlYirp_u-ETdQG2r8A5nxy_aAx9Q2p9Apj83lMeqW3zBWdSX4q01YyEsqXUwiO-e6yrULGjeljXuwsu7F4jyguUtFNtxdB8r-WdW4s1H8Igoo"/>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Marcus Johnson</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Marketing Lead</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Oct 22, 2023</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                            Rejected
+                                        </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<img alt="" class="size-9 rounded-full object-cover" data-alt="Candidate profile headshot Elena Gupta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwnWaOv2zU8gCPmGHImJfzBoNwRLgiR10eCdWmAOnfWvkZgJoVOvxnPgdEo5ihOFJoQKnm_8B9zVNDRtHSdUWDEQaQ4sJ4DA5Jl-pfsDerjOrijzjwA1UMKk-PhZik7nNkLJG8xnjy1e4Cv1i4EaZXxvIfgbpInDnq2vSiprMtWhujg1JcZle6lZJ5ozfiVJUAVnV3ooTsHpz-O0rG_zsMbsl9r6vsaJRYbuB-ouQLBt74n-LRS4_6eNwzyU-jFeo-YV1tScPOP3U"/>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Elena Gupta</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Data Scientist</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm text-slate-600 dark:text-slate-400">Oct 21, 2023</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                            In Review
+                                        </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

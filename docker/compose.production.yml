@@ -97,7 +97,7 @@ services:
     # Backend Services
     auth_service:
         build:
-            context: ../backends/backend-flask
+            context: ../backends/ai-service
             dockerfile: Dockerfile.auth
         container_name: talentsphere-auth
         environment:
@@ -116,7 +116,7 @@ services:
 
     courses_service:
         build:
-            context: ../backends/backend-dotnet
+            context: ../backends/challenge-service
             dockerfile: Dockerfile.courses
         container_name: talentsphere-courses
         environment:
@@ -132,7 +132,7 @@ services:
 
     challenges_service:
         build:
-            context: ../backends/backend-flask
+            context: ../backends/ai-service
             dockerfile: Dockerfile.challenges
         container_name: talentsphere-challenges
         environment:
@@ -148,7 +148,7 @@ services:
 
     progress_service:
         build:
-            context: ../backends/backend-springboot
+            context: ../backends/lms-service
             dockerfile: Dockerfile.progress
         container_name: talentsphere-progress
         environment:

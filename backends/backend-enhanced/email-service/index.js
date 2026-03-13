@@ -313,8 +313,8 @@ class EnhancedEmailService extends EmailService {
 
           await client.query('COMMIT');
 
-          // Process recipients with rate limiting
-          const sendRate = settings.sendRate || 100; // emails per minute
+          // Process recipients with rate limiting (TS-2024-009 Workaround: Domain warm-up, reduced sending rate)
+          const sendRate = settings.sendRate || 10; // reduced from 100 to 10 emails per minute
           const delayMs = Math.floor(60000 / sendRate); // delay between emails
 
           for (let i = 0; i < recipients.length; i++) {

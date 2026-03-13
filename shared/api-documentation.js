@@ -537,7 +537,7 @@ class APIDocumentation {
         }
       },
       apis: [
-        './backends/backend-enhanced/auth-service/index.js',
+        './backends/auth-service/index.js',
         './backends/backend-enhanced/company-service/index.js',
         './backends/backend-enhanced/user-profile-service/index.js',
         './backends/backend-enhanced/job-listing-service/index.js',

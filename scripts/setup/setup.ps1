@@ -37,11 +37,11 @@ $MIGRATION_FILE = Join-Path $PROJECT_ROOT "migrations\001_init_schema.sql"
 # Service health check endpoints
 $HEALTH_CHECKS = @{
     "API Gateway" = @{ Url = "http://localhost:8000/health"; Container = "ts-api-gateway" }
-    "Flask" = @{ Url = "http://localhost:5000/health"; Container = "ts-backend-flask" }
+    "Flask" = @{ Url = "http://localhost:5000/health"; Container = "ts-ai-service" }
     "Assistant" = @{ Url = "http://localhost:5005/health"; Container = "ts-backend-assistant" }
     "Recruitment" = @{ Url = "http://localhost:5006/health"; Container = "ts-backend-recruitment" }
     "Gamification" = @{ Url = "http://localhost:5007/health"; Container = "ts-backend-gamification" }
-    "Spring Boot" = @{ Url = "http://localhost:8080/actuator/health"; Container = "ts-backend-springboot" }
+    "Spring Boot" = @{ Url = "http://localhost:8080/actuator/health"; Container = "ts-lms-service" }
 }
 
 # ==============================================

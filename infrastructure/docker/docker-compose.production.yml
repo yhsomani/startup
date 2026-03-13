@@ -65,7 +65,7 @@ services:
 
     auth-service:
         build:
-            context: ./backends/backend-enhanced/auth-service
+            context: ./backends/auth-service
             dockerfile: Dockerfile
         container_name: talentsphere-auth
         environment:

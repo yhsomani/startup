@@ -1,0 +1,15 @@
+{
+  "name": "talentsphere-mock-api",
+  "version": "1.0.0",
+  "description": "TalentSphere Mock API Server for frontend testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "playwright": "^1.58.2"
+  }
+}

@@ -1,1 +1,9 @@
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\repository\AnalyticsEventRepository.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\controller\AnalyticsController.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\entity\DailyMetrics.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\exception\GlobalExceptionHandler.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\entity\AnalyticsEvent.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\service\AnalyticsService.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\repository\DailyMetricsRepository.java
 C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\AnalyticsServiceApplication.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\analytics-service\src\main\java\com\talentsphere\analytics\exception\ResourceNotFoundException.java

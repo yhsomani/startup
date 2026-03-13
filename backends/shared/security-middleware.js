@@ -24,10 +24,10 @@ const rateLimitConfigs = {
     legacyHeaders: false,
   },
 
-  // Sensitive operations (auth, password reset)
+  // Sensitive operations (auth, password reset) - per SSOT Section 5.4
   sensitive: {
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 requests per windowMs
+    windowMs: 60 * 1000, // 1 minute (per SSOT: 10 requests per minute)
+    max: 10, // limit each IP to 10 requests per minute
     message: 'Too many sensitive operations from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,

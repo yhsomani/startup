@@ -202,9 +202,13 @@ const serviceRoutes = {
     "/api/v1/companies": getServiceUrl("company-service"),
     "/companies": getServiceUrl("company-service"), // Legacy support
 
-    // Notification routes
-    "/api/v1/notifications": getServiceUrl("notification-service"),
-    "/notifications": getServiceUrl("notification-service"), // Legacy support
+    // System Settings routes (delegated to auth-service for now)
+    "/api/v1/settings": getServiceUrl("auth-service"),
+    "/settings": getServiceUrl("auth-service"),
+    
+    // Notification routes (temporarily pointing to Auth for MVP)
+    "/api/v1/notifications": getServiceUrl("auth-service"),
+    "/notifications": getServiceUrl("auth-service"), // Legacy support
 
     // Email routes
     "/api/v1/email": getServiceUrl("email-service"),

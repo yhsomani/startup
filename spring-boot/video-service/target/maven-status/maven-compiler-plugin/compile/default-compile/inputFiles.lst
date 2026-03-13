@@ -1,1 +1,10 @@
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\service\VideoService.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\exception\GlobalExceptionHandler.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\repository\VideoMetadataRepository.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\dto\VideoMetadataResponse.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\dto\VideoUploadResponse.java
 C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\VideoServiceApplication.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\dto\VideoUploadRequest.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\exception\VideoNotFoundException.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\controller\VideoController.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\video-service\src\main\java\com\talentsphere\video\entity\VideoMetadata.java

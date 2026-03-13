@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Course Catalog Browser</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#191022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(41, 26, 58, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(140, 37, 244, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #8c25f4;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Sticky Header with Glassmorphism -->
+<header class="sticky top-0 z-50 glass-panel px-4 py-3 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight">TalentSphere</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full border-2 border-primary/40 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar smiling professional man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyO0uPBI626Suo3bFzkbd8t737r_ryGx1KWOtn8MmFOIx6LoBTcqcpAbTGJgZbizbgu44vF66cZN0EsFazgR0Ry8DINZpW7E98j7BEp7XBnGemhyNNO-wJ4DcqCPWYNucxbA61-b0KdNmlcKUa4oMoR_047r4Af3DSsLsOwHZ2_gtiCP0F20WlYkHIVxmqD-Ds364A1PEAXa7LYCNd2-NjgcZ7ipINsGyTp37FYAbl5zdUOcvd82nLfklJCMXcGvqNPLhKFtRmuOE"/>
+</div>
+</div>
+</header>
+<!-- Main Layout Container -->
+<div class="flex flex-1 flex-col pb-20">
+<!-- Hero Search Section -->
+<div class="px-4 pt-6 pb-2">
+<h2 class="text-2xl font-bold mb-4">Find your next skill</h2>
+<div class="glass-panel rounded-xl flex items-center px-4 py-1">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-400 w-full text-base py-3" placeholder="Search premium courses..." type="text"/>
+<span class="material-symbols-outlined text-slate-400">tune</span>
+</div>
+</div>
+<!-- Categories Horizontal Scroll -->
+<div class="flex gap-3 px-4 py-4 overflow-x-auto no-scrollbar">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-primary px-4 text-white">
+<span class="text-sm font-semibold">All</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl glass-panel px-4 text-slate-300">
+<span class="material-symbols-outlined text-[18px]">code</span>
+<span class="text-sm font-medium">Development</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl glass-panel px-4 text-slate-300">
+<span class="material-symbols-outlined text-[18px]">palette</span>
+<span class="text-sm font-medium">Design</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl glass-panel px-4 text-slate-300">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="text-sm font-medium">Business</span>
+</button>
+</div>
+<!-- Main Content Area: Course Grid -->
+<main class="flex-1 px-4 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold">Featured Courses</h3>
+<button class="text-primary text-sm font-semibold">View All</button>
+</div>
+<!-- Course Cards -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Course Card 1 -->
+<div class="glass-panel rounded-xl overflow-hidden flex flex-col group hover:ring-2 hover:ring-primary/60 transition-all duration-300 shadow-xl shadow-primary/5">
+<div class="relative aspect-video w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Modern abstract digital coding interface visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbEjMQJfsXI93gUEw2Xto38oyW8Zl5ITLm8-Oef6wZGAGHNOXqCb2gDx6NBXA9jnVu0n6ggJVzqyetancQFV7JkxDFVLo2YS-Tjn4QpRqYGRjKrtgggR5qp0lssG0ZXuEtMfFcljQ3ZCXGjrNtF-GIYhrsas7DH6dEuQ-0vKnISqL_tILJED-a2WGOmQNIPdUXW2uUjnCTLB7T20DLzp1goj3NDyRFMlTnSF0UE-hz_unEedP1ULfBvckgnGUtiur5pHXEyKWCPcY"/>
+<div class="absolute top-3 right-3 bg-background-dark/80 backdrop-blur-md px-2 py-1 rounded-lg text-primary text-xs font-bold">
+                                BEST SELLER
+                            </div>
+</div>
+<div class="p-4 space-y-3">
+<h4 class="font-bold text-lg leading-tight line-clamp-2">Mastering Full-Stack Next.js 14 with Prisma</h4>
+<div class="flex items-center gap-2">
+<img class="size-6 rounded-full" data-alt="Professional instructor headshot portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQULrEs-Wh6ipTT19UKE-wpF6YhBteRUjjXEdoqAdktPPq9dI-T5PBuC0F6QyfEdikhdEuKBs6WPJ8QgLgiiqrojw950nQd38Zh0A_C4TbTKY5Xis_EZ3Pyegc5LUrG7TbUudK6NYb_MxPmvQwZcPoLoKGJiPbT39Zz75_iSbu5NNTHQGZcylexoxGfokPgCtPZc1gG1ILSIy8daDhvQIT5PlvT05qMK1iyY-fn-7P1XLT0vaelk2t49VhTiqSS-mPDIyO6jxlf28"/>
+<span class="text-xs text-slate-400">by Alex Rivera</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-1">star</span>
+<span class="text-sm font-bold">4.9</span>
+<span class="text-xs text-slate-500">(2.4k)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-xs">24h total</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-primary/10">
+<span class="text-xl font-black text-primary">$89.99</span>
+<button class="bg-primary/20 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                    Enroll Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="glass-panel rounded-xl overflow-hidden flex flex-col group hover:ring-2 hover:ring-primary/60 transition-all duration-300 shadow-xl shadow-primary/5">
+<div class="relative aspect-video w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="High-end UI design software interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeR44racsDDKUh-p3bqdse5THWjPxhjs0U4p0P7M2A8BV_IIhT8Gz0mz0eLaVZTMnGw8wbaaz1p-mdgZAmMGWEa1v2C-XhidXGERHdOJXrzYYLJu7RMqQn4HfMy499dfJTLWt6b38KWW8eYQv573ulsuEBT-oceHNWxMrwnaKsqiCTaolhHzKmHYQH5RwMczAZpXBDWFux2KXUyznTlxnxfp8lnl4xOmY9XfOlRAYPkjjnGbFtmV13HIdObgQY4wAV1_yoWjnPk00"/>
+</div>
+<div class="p-4 space-y-3">
+<h4 class="font-bold text-lg leading-tight line-clamp-2">UI/UX Advanced Systems Design</h4>
+<div class="flex items-center gap-2">
+<img class="size-6 rounded-full" data-alt="Female design instructor headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZGBM759Cl6-zv6XNWzS6D1K0EUIg4eNgNZZ3MaEBBKEYui-5TA2c_sSAxmVqXMNCx86MG-k36BWuOFf8FcoJ5F4srG892L_dmX5aH_6N9LOnipjGWtImXZZoAmoarUvwiRGIzmDY0VFaVX6rN5FHQD1R02ab45-8DaSI-BGaD7q8_9bV9r0Y0a-R4HAms9VEKWiUlxlqSehKU7PF6WrUd3jXZDkm-px0WgIhHajP-AEybKL98oggO3U0G_MbOVmo427zCOUwiWq0"/>
+<span class="text-xs text-slate-400">by Sarah Jenkins</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-1">star</span>
+<span class="text-sm font-bold">4.8</span>
+<span class="text-xs text-slate-500">(1.8k)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-xs">15h total</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-primary/10">
+<span class="text-xl font-black text-primary">$124.00</span>
+<button class="bg-primary/20 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                    Enroll Now
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- IOS Style Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full glass-panel border-t border-primary/20 px-6 pb-6 pt-3 flex justify-between items-center z-[100]">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">explore</span>
+<span class="text-[10px] font-bold">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-[10px] font-medium">Learning</span>
+</a>
+<div class="relative -top-8">
+<button class="size-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 ring-4 ring-background-dark">
+<span class="material-symbols-outlined text-white text-3xl">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-medium">Wishlist</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person_outline</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+<!-- Sidebar Filter Overlay (Hidden by default, shown conceptually as per instructions) -->
+<!-- In a real app this would slide in -->
+<div class="hidden fixed inset-0 bg-background-dark/80 backdrop-blur-sm z-[110]">
+<div class="absolute right-0 top-0 h-full w-4/5 glass-panel p-6 animate-slide-left">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-xl font-bold">Filters</h2>
+<span class="material-symbols-outlined">close</span>
+</div>
+<div class="space-y-8">
+<div>
+<h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Category</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3">
+<input checked="" class="rounded bg-primary/20 border-primary text-primary focus:ring-primary" type="checkbox"/>
+<span>Development</span>
+</label>
+<label class="flex items-center gap-3">
+<input class="rounded bg-primary/20 border-primary text-primary focus:ring-primary" type="checkbox"/>
+<span>Design</span>
+</label>
+<label class="flex items-center gap-3">
+<input class="rounded bg-primary/20 border-primary text-primary focus:ring-primary" type="checkbox"/>
+<span>Business</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Level</h3>
+<div class="grid grid-cols-2 gap-2">
+<button class="px-4 py-2 rounded-lg border border-primary/40 text-xs font-bold">Beginner</button>
+<button class="px-4 py-2 rounded-lg bg-primary text-xs font-bold">Intermediate</button>
+<button class="px-4 py-2 rounded-lg border border-primary/40 text-xs font-bold">Expert</button>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Price Range</h3>
+<input class="w-full accent-primary" type="range"/>
+<div class="flex justify-between mt-2 text-xs text-slate-400 font-medium">
+<span>$0</span>
+<span>$500+</span>
+</div>
+</div>
+</div>
+<div class="absolute bottom-8 left-6 right-6">
+<button class="w-full bg-primary py-4 rounded-xl font-bold shadow-lg shadow-primary/20">Apply Filters</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

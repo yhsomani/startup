@@ -26,7 +26,7 @@ dotenv.config();
 
 // Configuration
 const config = {
-    port: process.env.FILE_SERVICE_PORT || 3009, // Use 3009 to avoid conflicts
+    port: process.env.FILE_SERVICE_PORT || 3009,
     environment: process.env.NODE_ENV || 'development',
     maxFileSize: 10 * 1024 * 1024, // 10MB
     uploadDir: process.env.UPLOAD_DIR || 'uploads',

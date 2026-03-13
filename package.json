@@ -27,7 +27,8 @@
     "prepare": "husky install",
     "docs:validate": "node tools/validate-docs.js",
     "docs:check-ports": "node tools/check-ports.js",
-    "docs:verify": "node tools/verify-references.js"
+    "docs:verify": "node tools/verify-references.js",
+    "docs:validate-coverage": "node tools/validate-coverage.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

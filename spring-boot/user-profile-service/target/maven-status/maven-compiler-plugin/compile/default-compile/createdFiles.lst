@@ -1,1 +1,16 @@
+com\talentsphere\userprofile\repository\UserProfileRepository.class
 com\talentsphere\userprofile\UserProfileServiceApplication.class
+com\talentsphere\userprofile\controller\UserProfileController.class
+com\talentsphere\userprofile\repository\EducationRepository.class
+com\talentsphere\userprofile\entity\WorkExperience$WorkExperienceBuilder.class
+com\talentsphere\userprofile\entity\UserProfile$UserProfileBuilder.class
+com\talentsphere\userprofile\repository\WorkExperienceRepository.class
+com\talentsphere\userprofile\entity\UserProfile$JobType.class
+com\talentsphere\userprofile\entity\WorkExperience.class
+com\talentsphere\userprofile\entity\Education.class
+com\talentsphere\userprofile\exception\GlobalExceptionHandler.class
+com\talentsphere\userprofile\entity\Education$EducationBuilder.class
+com\talentsphere\userprofile\entity\UserProfile$WorkMode.class
+com\talentsphere\userprofile\entity\UserProfile.class
+com\talentsphere\userprofile\exception\ProfileNotFoundException.class
+com\talentsphere\userprofile\service\UserProfileService.class

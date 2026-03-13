@@ -53,6 +53,8 @@ export interface AuthResponse {
     role: UserRole;
     accessToken: string;
     expiresIn: number;
+    timestamp?: string;
+    correlationId?: string;
 }
 
 // ============================================

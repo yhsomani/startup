@@ -8,6 +8,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const ElasticsearchService = require('./elasticsearch-service');
+const { dbManager } = require('../../shared/database-pool');
 
 class SearchServiceAPI {
     constructor(elasticsearchService) {
@@ -67,6 +68,32 @@ class SearchServiceAPI {
                 };
 
                 const result = await this.elasticsearchService.searchJobs(criteria);
+
+                // TS-2024-002 Workaround: Fallback to PostgreSQL during search indexing lag
+                if (result.success && result.hits && result.hits.length === 0 && criteria.query) {
+                    try {
+                        let pool;
+                        try {
+                            pool = dbManager.getPostgresPool('search-service');
+                        } catch (e) {
+                            pool = await dbManager.initPostgresPool('search-service');
+                        }
+                        
+                        const pgResult = await pool.query(
+                            'SELECT id, title, location, description FROM job_listings WHERE title ILIKE $1 OR description ILIKE $1 LIMIT $2',
+                            [`%${criteria.query}%`, criteria.limit]
+                        );
+                        
+                        if (pgResult.rows.length > 0) {
+                            console.log(`TS-2024-002 Fallback: Found ${pgResult.rows.length} jobs in PostgreSQL`);
+                            result.hits = pgResult.rows;
+                            result.total = pgResult.rows.length;
+                            result.fallbackUsed = true;
+                        }
+                    } catch (pgError) {
+                        console.error('PostgreSQL fallback search failed:', pgError.message);
+                    }
+                }
 
                 res.json({
                     success: result.success,

@@ -17,7 +17,7 @@ END;
 $$ language 'plpgsql';
 
 -- Run all migration files
-\i backends/backend-enhanced/auth-service/migrations/001_create_users_table.sql
+\i backends/auth-service/migrations/001_create_users_table.sql
 \i backends/backend-enhanced/user-service/migrations/001_create_user_tables.sql
 
 -- Jobs tables

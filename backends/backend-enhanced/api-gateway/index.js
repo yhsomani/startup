@@ -181,7 +181,7 @@ const serviceConfig = {
         healthPath: "/health",
     },
     company: {
-        port: 3007,
+        port: 3006,
         path: "/api/v1/companies",
         serviceName: "company-service",
         healthPath: "/health",
@@ -198,16 +198,52 @@ const serviceConfig = {
         serviceName: "file-service",
         healthPath: "/health",
     },
+    application: {
+        port: 3005,
+        path: "/api/v1/applications",
+        serviceName: "application-service",
+        healthPath: "/health",
+    },
+    jobListing: {
+        port: 3007,
+        path: "/api/v1/job-listings",
+        serviceName: "job-listing-service",
+        healthPath: "/health",
+    },
+    userProfile: {
+        port: 3010,
+        path: "/api/v1/profiles",
+        serviceName: "user-profile-service",
+        healthPath: "/health",
+    },
     assistant: {
         port: 5005,
         path: "/api/v1/assistant",
-        serviceName: "assistant-service",
+        serviceName: "ai-service",
         healthPath: "/health",
     },
     collaboration: {
         port: 1234,
         path: "/api/v1/collaboration",
         serviceName: "collaboration-service",
+        healthPath: "/health",
+    },
+    lms: {
+        port: 8080,
+        path: "/api/v1/courses",
+        serviceName: "lms-service",
+        healthPath: "/health",
+    },
+    challenge: {
+        port: 3008,
+        path: "/api/v1/challenges",
+        serviceName: "challenge-service",
+        healthPath: "/health",
+    },
+    payment: {
+        port: 5062,
+        path: "/api/v1/payments",
+        serviceName: "payment-service",
         healthPath: "/health",
     },
 };

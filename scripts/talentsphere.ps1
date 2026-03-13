@@ -63,7 +63,7 @@ function Start-Services {
     docker-compose up -d flask springboot notification-service backend-assistant backend-recruitment backend-gamification
     
     # .NET (Local)
-    Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd backends/backend-dotnet; dotnet run --urls "http://localhost:5062"'
+    Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd backends/challenge-service; dotnet run --urls "http://localhost:5062"'
     
     # Gateway
     if (-not $NoGateway) {
@@ -91,7 +91,7 @@ function Invoke-Tests {
     
     # Backend
     Write-Host "Backend API Tests..." -ForegroundColor Yellow
-    Push-Location backends/backend-flask
+    Push-Location backends/ai-service
     $env:PYTHONPATH = "."
     python -m pytest tests/ -q --tb=short
     if ($LASTEXITCODE -ne 0) { Write-Host "Backend Tests Failed" -ForegroundColor Red }

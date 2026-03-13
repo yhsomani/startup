@@ -19,6 +19,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+video:
+  storage:
+    path: ${VIDEO_STORAGE_PATH:./uploads/videos}
+
 logging:
   level:
     com.talentsphere: DEBUG

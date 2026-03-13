@@ -1,1 +1,11 @@
+com\talentsphere\company\controller\CompanyController.class
+com\talentsphere\company\entity\Company$CompanyBuilder.class
+com\talentsphere\company\dto\CompanyRequest$CompanyRequestBuilder.class
+com\talentsphere\company\dto\CompanyResponse.class
 com\talentsphere\company\CompanyServiceApplication.class
+com\talentsphere\company\entity\Company.class
+com\talentsphere\company\repository\CompanyRepository.class
+com\talentsphere\company\entity\Company$CompanySize.class
+com\talentsphere\company\service\CompanyService.class
+com\talentsphere\company\dto\CompanyResponse$CompanyResponseBuilder.class
+com\talentsphere\company\dto\CompanyRequest.class

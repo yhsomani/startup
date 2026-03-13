@@ -4,19 +4,19 @@ global:
 
 scrape_configs:
   # Flask Backend
-  - job_name: 'backend-flask'
+  - job_name: 'ai-service'
     static_configs:
       - targets: ['flask:5000']
     metrics_path: '/metrics'
 
   # .NET Backend
-  - job_name: 'backend-dotnet'
+  - job_name: 'challenge-service'
     static_configs:
       - targets: ['dotnet:8080']
     metrics_path: '/metrics'
 
   # Spring Boot Backend
-  - job_name: 'backend-springboot'
+  - job_name: 'lms-service'
     static_configs:
       - targets: ['springboot:8080']
     metrics_path: '/actuator/prometheus'

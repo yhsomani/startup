@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Job Search Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1152d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full max-w-[430px] mx-auto flex-col bg-background-light dark:bg-background-dark overflow-x-hidden shadow-2xl shadow-primary/10">
+<header class="sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-2">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-white text-xl">hub</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">TalentSphere</h1>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div class="flex gap-2">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-slate-900 border-none rounded-xl pl-10 pr-4 py-3 text-sm focus:ring-2 focus:ring-primary shadow-sm placeholder:text-slate-400" placeholder="Search roles, skills, or companies" type="text"/>
+</div>
+<button class="bg-primary/10 text-primary p-3 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<div class="flex gap-2 py-4 overflow-x-auto hide-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-primary text-white px-4 text-sm font-medium">
+<span>Remote</span>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium">
+<span>Full-time</span>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium">
+<span>Senior-level</span>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium">
+<span>Frontend</span>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+</header>
+<main class="flex-1 px-4 space-y-4 pb-24">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-3">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-lg overflow-hidden shrink-0">
+<img alt="Company logo" class="w-full h-full object-cover" data-alt="TechFlow minimalist company logo symbol" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc_GsMMK7J0EI0BElXrJW-ip-NyYyhyD_xtlBS5-AgP-RTxqN1PhxLZWorA4cAppvq4LKAHAy46M2ppF5SqochMZ34BWbwu9tjjiZ3Vqp5aFll4aeGFgjhXWtH2EBWiZvKl0LbcMlFURJ2ew9mx5wYqV_AASj_58gsXhIaG8pExPxAXzgxGKkKV-C1aYxUZUs8PJAKdRPozb3aWVRDT9AXqgIQQZdBVeCzIW501HZFY6XHnq5spIm5wtZX9mns6ZZJqy_qE71o"/>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">Senior React Developer</h3>
+<p class="text-sm text-primary font-medium">TechFlow</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="space-y-2 mb-4">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Remote / New York</span>
+<span class="mx-1 opacity-20">•</span>
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="font-semibold text-slate-700 dark:text-slate-300">$140k - $180k</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        Building the future of developer tools with cutting-edge React patterns and high-performance architectures. Join our elite engineering team.
+                    </p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20">Apply</button>
+<button class="px-4 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-3">
+<div class="size-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-lg overflow-hidden shrink-0">
+<img alt="Company logo" class="w-full h-full object-cover" data-alt="Nova Systems modern corporate logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtdCazw1XoJfly5KBs7hYOFGAJu0RVg2OBBBur6mqXiQ82TLB6YsLTosE97fO9wda5NlDVms4dihIlwP-brZmBRpfz4rbYT_MAqxgdtC-4fzkJAjh-QHtC0OmjXJCsNYECvRagY0y1oLauy8IscnGs_No5NVcaEOrGnoi_7XOqFN5Bz7r1QgCI0ytzkOIzF3zjy56dc9x6p-5tVYuNp7MEaZLLCN56WsfGytOdPKmcT0q-C-MIpld3U8kR_BqSPvnOSG9-2EfF"/>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">Frontend Architect</h3>
+<p class="text-sm text-emerald-600 font-medium">Nova Systems</p>
+</div>
+</div>
+<button class="text-primary fill-current">
+<span class="material-symbols-outlined font-fill-1">bookmark</span>
+</button>
+</div>
+<div class="space-y-2 mb-4">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Remote / London</span>
+<span class="mx-1 opacity-20">•</span>
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="font-semibold text-slate-700 dark:text-slate-300">$160k - $210k</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        Scale our design system and define the future of our web ecosystem. Expert knowledge of Next.js and Tailwind is required.
+                    </p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20">Apply</button>
+<button class="px-4 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+<div class="flex justify-between items-start mb-3">
+<div class="flex gap-3">
+<div class="size-12 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-lg overflow-hidden shrink-0">
+<img alt="Company logo" class="w-full h-full object-cover" data-alt="Lumina Studio creative agency logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAL_dR72MAou27bXgkqL52I95VsyFO2cALF87NDFwIso6Xc9n3cOGyxz3xt3JmEGzAoPlyZYoBEvmW9j8VYcs_kY1qfgjDlWciHhYciTR_HWn2WAjeS8yRquuHh1i8VLEGVpMZ7uOL1w5-IUZRZ8dtvuIRYmqiSpYTank3s7p4V2YmY5l6_92a65do_743YZ4U_m4dBshBPtOdTNW5thXQfwPJPQWOhUxJocaGlDYVYMqVOuWJtZnHBQaRtVCFD2_8hNVnSvH5O"/>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">Product UI Lead</h3>
+<p class="text-sm text-amber-600 font-medium">Lumina Studio</p>
+</div>
+</div>
+<button class="text-slate-400">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="space-y-2 mb-4">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>San Francisco, CA</span>
+<span class="mx-1 opacity-20">•</span>
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="font-semibold text-slate-700 dark:text-slate-300">$130k - $170k</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        We're looking for a design-obsessed frontend developer to lead our UI efforts. Focus on craft, motion, and accessibility.
+                    </p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20">Apply</button>
+<button class="px-4 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 flex items-center justify-around border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-4 py-3">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined font-fill-1">work</span>
+<span class="text-[10px] font-bold">Jobs</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[10px] font-medium">Messages</span>
+</a>
+<div class="bg-primary size-12 -mt-10 rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/40 border-4 border-background-light dark:border-background-dark">
+<span class="material-symbols-outlined text-3xl">add</span>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-[10px] font-medium">Learning</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,10 @@
+com\talentsphere\analytics\AnalyticsServiceApplication.class
+com\talentsphere\analytics\entity\DailyMetrics.class
+com\talentsphere\analytics\repository\DailyMetricsRepository.class
+com\talentsphere\analytics\service\AnalyticsService.class
+com\talentsphere\analytics\entity\AnalyticsEvent.class
+com\talentsphere\analytics\exception\ResourceNotFoundException.class
+com\talentsphere\analytics\exception\GlobalExceptionHandler.class
+com\talentsphere\analytics\repository\AnalyticsEventRepository.class
+com\talentsphere\analytics\entity\AnalyticsEvent$EventType.class
+com\talentsphere\analytics\controller\AnalyticsController.class

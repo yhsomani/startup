@@ -10,7 +10,7 @@ const path = require("path");
 // Configuration for all services to start
 const services = [
     { name: "API Gateway", path: "api-gateway/server.js" },
-    { name: "Auth Service", path: "backends/backend-enhanced/auth-service/index.js" },
+    { name: "Auth Service", path: "backends/auth-service/index.js" },
     { name: "User Profile Service", path: "backends/backend-enhanced/user-profile-service/index.js" },
     { name: "Job Listing Service", path: "backends/backend-enhanced/job-listing-service/index.js" },
     { name: "Company Service", path: "backends/backend-enhanced/company-service/index.js" },

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Jobs Exploration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#0a070d",
+                        "accent-purple": "#261834",
+                        "border-purple": "#362249",
+                        "glass": "rgba(26, 16, 35, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-morphism {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(26, 16, 35, 0.8);
+            border-bottom: 1px solid rgba(140, 37, 244, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #362249;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 glass-morphism px-4 pt-4 pb-2">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-xl bg-gradient-to-br from-primary to-purple-800 flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined font-bold">hub</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">TalentSphere</h1>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-accent-purple/50 border border-border-purple text-slate-300">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<div class="size-10 rounded-full border-2 border-primary/30 p-0.5">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="User profile avatar of a tech professional" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBobZkMdH8541J3LGmshpMT8TInOF_7DDrFCvwsPGyu75A9ojW1dyjjII6Nx6LAfm9V45Fx3EzqKHcg75jtFvUlQnD8FWSWstCHk8prIpIjXV57NDR5kWra6ewTEk-kZAdfJtk8I-YUYf6yp4mjZNRLtsTTZ6mtjIDgnGdwGhTxKas-CskFNPiHprJfpVbYlAb6_QhmjsbZaT6NoRsTIApKUmnewr4zxXG0lHdDSrplN5sA_aEhy_Uh627qwyUyuY1R-EqLL6wbOLI')"></div>
+</div>
+</div>
+</div>
+<div class="space-y-3 pb-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-accent-purple border border-border-purple rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-sm placeholder:text-slate-500" placeholder="Search Roles (e.g. Staff Engineer)" type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+<button class="flex items-center gap-1 px-4 py-2 bg-accent-purple border border-border-purple rounded-full whitespace-nowrap text-xs font-medium text-slate-300">
+                        Location <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex items-center gap-1 px-4 py-2 bg-accent-purple border border-border-purple rounded-full whitespace-nowrap text-xs font-medium text-slate-300">
+                        Salary <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex items-center gap-1 px-4 py-2 bg-accent-purple border border-border-purple rounded-full whitespace-nowrap text-xs font-medium text-slate-300">
+                        Remote <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex items-center gap-1 px-4 py-2 bg-accent-purple border border-border-purple rounded-full whitespace-nowrap text-xs font-medium text-slate-300">
+                        Level <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 px-4 py-6 space-y-6 pb-24">
+<div class="flex items-center justify-between">
+<h2 class="text-lg font-bold">Recommended for You</h2>
+<span class="text-xs text-primary font-semibold">124 matches</span>
+</div>
+<div class="space-y-4">
+<div class="group p-4 bg-accent-purple/40 border-2 border-primary rounded-2xl relative overflow-hidden transition-all">
+<div class="absolute top-0 right-0 p-3">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-wider">Match 95%</span>
+</div>
+<div class="flex gap-4">
+<div class="size-14 rounded-xl bg-slate-800 flex items-center justify-center p-2 border border-border-purple">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="Microsoft company logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC8M8GW4XbMPGWbW0nGPJHLdEm4UEiPXDsx3qb0yFytHmuYM6OWMyTDlYoDqAuR0772DecGKR4u_7vRbWfOM6tPdhQBJ4yF-NVj1pERdAiByYlQkmMiq-hEDSXqsr7f0EDbtlDUKUW-Y-J7Z5MemVUxwAh_hkSknW0VOKuxJuSLbPiMZj9pFdmkNBgYFbCl9PghX_hU7XQW0eyVHf4r2QWtwpoAuqQapENwemA38VuRYfEx-kf9u9zQa1k8rQ7IU-ItCvq0ICjC-4k')"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-100 group-hover:text-primary transition-colors">Senior Product Designer</h3>
+<p class="text-sm text-slate-400 mb-2">Microsoft · Design</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">Remote</span>
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">$140k - $180k</span>
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">Full-time</span>
+</div>
+</div>
+</div>
+</div>
+<div class="group p-4 bg-accent-purple/20 border border-border-purple rounded-2xl hover:border-primary/50 transition-all">
+<div class="absolute top-0 right-0 p-3">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-wider">Match 88%</span>
+</div>
+<div class="flex gap-4 relative">
+<div class="size-14 rounded-xl bg-slate-800 flex items-center justify-center p-2 border border-border-purple">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="Amazon company logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBakhw0Wr9q7DA27vZIUqT_H6RFl6BNut2vrlDUQkOenTBCQJRr5_xCPnLuo67kINFnKq6lEyqaHOUm-pfh-Wy22Ik4rB4WUDBAAk7SGajT0F7bja3wXq8ucLqMEA9Sft848PPAhp2SgXwEG5-eDm5nYUicMs-VUW7aAn2WpyOBnl9NZ1Y7ZxnyFASkZZjD4Qttoz1Mp4LQey48654UGmV4ZA14Giy-EBRTvSG0os2WZGCpRmBrXOVn2XQKKhIEhyVf-zQHWGxu7eQ')"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-100 group-hover:text-primary transition-colors">Lead UI Engineer</h3>
+<p class="text-sm text-slate-400 mb-2">Amazon · Engineering</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">Seattle, WA</span>
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">$160k - $210k</span>
+</div>
+</div>
+</div>
+</div>
+<div class="group p-4 bg-accent-purple/20 border border-border-purple rounded-2xl hover:border-primary/50 transition-all">
+<div class="absolute top-0 right-0 p-3">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-wider">Match 82%</span>
+</div>
+<div class="flex gap-4 relative">
+<div class="size-14 rounded-xl bg-slate-800 flex items-center justify-center p-2 border border-border-purple">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="Airbnb company logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDnrhCzai4DuZypc9eeNeuNW-CcTWNEr7ZNlFXzIZa4FypC0JNnCCF1xdYTfleCRgRYoXF4NlXUfqNxbjGVmBw3blVAbJGg8IdjMiiglKkx23SnTp_itxBxnSorqqNKqwcbJ-w8s4X1UTKJ8WdTt_dc0XT-IvGIne4V6nYNvDMMt2QfTptbVwvDyTmCYMrW_-tfuDEyZXEUFdm22T333jHw7LJmguALyEuSvnQ7v2WAIVre6dP7hdC7c6sa7fvlDQtfX7BxJAj8-w')"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-100 group-hover:text-primary transition-colors">Staff Data Scientist</h3>
+<p class="text-sm text-slate-400 mb-2">Airbnb · Analytics</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">San Francisco</span>
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">$190k - $240k</span>
+</div>
+</div>
+</div>
+</div>
+<div class="group p-4 bg-accent-purple/20 border border-border-purple rounded-2xl hover:border-primary/50 transition-all">
+<div class="absolute top-0 right-0 p-3">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-wider">Match 79%</span>
+</div>
+<div class="flex gap-4 relative">
+<div class="size-14 rounded-xl bg-slate-800 flex items-center justify-center p-2 border border-border-purple">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="Google company logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXOnLTAsQarazJixvbvrU97jrGlci_xVOqW1D7rpc0-1CoH0lekyUynHNlIZn8xPt7fZAA62rSaamNLrTsvvwuVwycPLGdezeOxO6RgNMdh7CAnrumBnTabd0I1FcgTiXOSLP9DYoH48sfs0eZH2lcJJYX9vL82j9fJF39boJdmH2rbntYpMHNYXYbMeGIV5UVtAdG8bu9mEGDLX4NtJqCRpWhqtpU6JYBqN34d9EvvYNeJ6uxV8vzpl0YSoXu_nbFyBoDDGfe9f0')"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-100 group-hover:text-primary transition-colors">Product Lead, Cloud</h3>
+<p class="text-sm text-slate-400 mb-2">Google · Product</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">Hybrid</span>
+<span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">$200k+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 p-6 bg-gradient-to-br from-primary/20 to-accent-purple rounded-3xl border border-primary/30 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="text-xl font-bold mb-2">Resume Score: 84/100</h3>
+<p class="text-sm text-slate-300 mb-4 leading-relaxed">Boost your matching accuracy by adding your latest projects and skills.</p>
+<button class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-colors">Optimize Profile</button>
+</div>
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[120px]">auto_awesome</span>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 glass-morphism border-t border-border-purple/50 px-6 py-3 flex justify-between items-center z-[100]">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-2xl fill-1">work</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Jobs</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">group</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Network</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 relative" href="#">
+<span class="material-symbols-outlined text-2xl">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Messages</span>
+<div class="absolute top-0 -right-1 size-2 bg-primary rounded-full border-2 border-background-dark"></div>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+<div class="hidden lg:flex fixed top-0 right-0 w-[450px] h-screen bg-accent-purple/30 border-l border-border-purple flex-col pt-24 px-8 overflow-y-auto custom-scrollbar">
+<div class="flex items-start justify-between mb-8">
+<div class="size-20 rounded-2xl bg-slate-800 p-4 border border-border-purple shadow-2xl">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="Microsoft detailed logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAQP7md9lI2cmitYiMJ0AtXZGaSDLUveI1rcAGszubRm26X5isajACFYaxJh94-hjBGf0oNZ6RnMU_pbmL91-W5RjCvp0Z0SYdigXosKSm1sYlMcWBM8KfO6_rPxrKiRu0iVCw1es-AmECaqbLPvCfW7bzWLwX5ykF7LNFN_xN9VgNWz26Corl90GKsOjueYOetv9pE1iXZ4j09BQJAJAg7DiRKxZv5k8ev65VImq48H5IYCe3ejqU8_aMbRWc75gDRwP_T35m6Fcg')"></div>
+</div>
+<button class="size-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-300">bookmark</span>
+</button>
+</div>
+<div class="mb-8">
+<h2 class="text-2xl font-bold mb-1">Senior Product Designer</h2>
+<p class="text-primary font-medium mb-4">Microsoft · Windows Design Team</p>
+<div class="flex gap-4">
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-primary text-base">location_on</span>
+                        Remote, USA
+                    </div>
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-primary text-base">payments</span>
+                        $140k - $180k
+                    </div>
+</div>
+</div>
+<div class="space-y-6 pb-24">
+<section>
+<h3 class="text-lg font-bold mb-3 text-slate-200">About the Role</h3>
+<p class="text-slate-400 leading-relaxed text-sm">
+                        We are looking for a Senior Product Designer to help shape the future of Windows. You'll work closely with engineering and product management to design seamless experiences used by billions of people worldwide.
+                    </p>
+</section>
+<section>
+<h3 class="text-lg font-bold mb-3 text-slate-200">Requirements</h3>
+<ul class="space-y-3">
+<li class="flex gap-3 text-sm text-slate-400">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                            5+ years experience in product design
+                        </li>
+<li class="flex gap-3 text-sm text-slate-400">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                            Expert proficiency in Figma and prototyping
+                        </li>
+<li class="flex gap-3 text-sm text-slate-400">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                            Strong portfolio of shipped complex products
+                        </li>
+</ul>
+</section>
+<section>
+<h3 class="text-lg font-bold mb-3 text-slate-200">Benefits</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-accent-purple/40 rounded-xl border border-border-purple text-xs text-slate-300">Premium Health Insurance</div>
+<div class="p-3 bg-accent-purple/40 rounded-xl border border-border-purple text-xs text-slate-300">Annual Learning Budget</div>
+<div class="p-3 bg-accent-purple/40 rounded-xl border border-border-purple text-xs text-slate-300">401(k) Matching</div>
+<div class="p-3 bg-accent-purple/40 rounded-xl border border-border-purple text-xs text-slate-300">Flexible Time Off</div>
+</div>
+</section>
+<button class="w-full bg-primary py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all flex items-center justify-center gap-2">
+                    Apply Now <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

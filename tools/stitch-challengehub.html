@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Developer Challenge Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#0a070d",
+                        "editor-bg": "#120d1a",
+                        "glass": "rgba(255, 255, 255, 0.03)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glassmorphism {
+            background: rgba(26, 16, 35, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(140, 37, 244, 0.2);
+        }
+        .code-syntax-keyword { color: #c678dd; }
+        .code-syntax-string { color: #98c379; }
+        .code-syntax-func { color: #61afef; }
+        .code-syntax-comment { color: #5c6370; font-style: italic; }
+        .code-syntax-const { color: #d19a66; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #362249; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation Header -->
+<header class="flex items-center bg-background-dark/80 backdrop-blur-md p-4 border-b border-primary/20 justify-between shrink-0">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 cursor-pointer">arrow_back_ios</span>
+<h1 class="text-white text-lg font-bold leading-tight tracking-tight">Challenge Hub</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">emoji_events</span>
+<span class="material-symbols-outlined text-slate-400">share</span>
+</div>
+</header>
+<!-- Main Content Split Pane (For Mobile: Column layout with scroll) -->
+<main class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Tabbed Interface Section (Left Pane equivalent) -->
+<section class="p-4 space-y-4">
+<div class="flex border-b border-primary/20 gap-8">
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-white pb-3 pt-2" href="#">
+<p class="text-sm font-bold tracking-wide">Challenge</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 pb-3 pt-2 hover:text-primary/70 transition-colors" href="#">
+<p class="text-sm font-bold tracking-wide">Hub</p>
+</a>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold text-white">Dynamic User List</h2>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/30">Medium</span>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed">
+                    Build a React component that fetches a list of users from a mock API and renders them in a searchable grid. Implement loading states and error handling.
+                </p>
+<div class="glassmorphism rounded-xl p-4 space-y-3">
+<h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Requirements</h4>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 text-sm text-slate-300">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                            Use React Hooks (useState, useEffect)
+                        </li>
+<li class="flex items-start gap-2 text-sm text-slate-300">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                            Implement client-side filtering
+                        </li>
+</ul>
+</div>
+<div class="space-y-2">
+<h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Test Cases</h4>
+<div class="flex items-center justify-between p-3 bg-editor-bg border border-slate-800 rounded-lg">
+<span class="text-sm text-slate-300">Initial data fetch</span>
+<span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-editor-bg border border-slate-800 rounded-lg">
+<span class="text-sm text-slate-300">Search input debounce</span>
+<span class="material-symbols-outlined text-rose-500 text-lg">cancel</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Code Editor Section (Right Pane equivalent) -->
+<section class="bg-editor-bg mt-4 border-t border-primary/20 min-h-[400px]">
+<div class="flex items-center justify-between bg-black/40 px-4 py-2 border-b border-white/5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-400 text-xs">javascript</span>
+<span class="text-xs font-mono text-slate-400">UserList.jsx</span>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">settings</span>
+</div>
+<div class="p-4 font-mono text-xs leading-6 overflow-x-auto">
+<div class="flex gap-4">
+<div class="text-slate-600 text-right select-none w-4">
+                        1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12
+                    </div>
+<div class="whitespace-pre text-slate-300">
+<span class="code-syntax-keyword">import</span> React, { useState } <span class="code-syntax-keyword">from</span> <span class="code-syntax-string">'react'</span>;
+
+<span class="code-syntax-keyword">const</span> <span class="code-syntax-func">UserList</span> = () =&gt; {
+  <span class="code-syntax-keyword">const</span> [query, setQuery] = <span class="code-syntax-func">useState</span>(<span class="code-syntax-string">''</span>);
+  
+  <span class="code-syntax-comment">// TODO: Implement search logic</span>
+<span class="code-syntax-keyword">return</span> (
+    &lt;<span class="code-syntax-func">div</span> className=<span class="code-syntax-string">"container"</span>&gt;
+      &lt;<span class="code-syntax-func">input</span> 
+        value={query} 
+        onChange={e =&gt; <span class="code-syntax-func">setQuery</span>(e.target.value)} 
+      /&gt;
+    &lt;/<span class="code-syntax-func">div</span>&gt;
+  );
+};</div>
+</div>
+</div>
+</section>
+<div class="h-32"></div> <!-- Spacer for floating buttons -->
+</main>
+<!-- Floating Action Bar -->
+<div class="fixed bottom-24 right-4 flex flex-col gap-3">
+<button class="glassmorphism flex items-center justify-center p-4 rounded-full shadow-lg shadow-black/50 hover:bg-white/10 transition-all border border-white/10 active:scale-95">
+<span class="material-symbols-outlined text-emerald-400">play_arrow</span>
+</button>
+</div>
+<div class="fixed bottom-20 left-4 right-4 glassmorphism p-3 rounded-2xl flex items-center justify-between shadow-2xl border border-primary/30">
+<div class="flex items-center gap-3 ml-2">
+<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+<span class="text-xs text-slate-300 font-medium">Ready to submit</span>
+</div>
+<div class="flex gap-2">
+<button class="bg-primary/20 text-primary font-bold text-sm py-2 px-5 rounded-xl border border-primary/20">Run</button>
+<button class="bg-primary text-white font-bold text-sm py-2 px-5 rounded-xl shadow-[0_0_20px_rgba(140,37,244,0.4)]">Submit</button>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full border-t border-primary/20 bg-background-dark/95 backdrop-blur-xl px-6 py-2 pb-6 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">explore</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Explore</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Code</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Network</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Profile</p>
+</a>
+</nav>
+</body></html>

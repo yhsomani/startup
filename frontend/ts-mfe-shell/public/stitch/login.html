@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Premium Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .floating-label-input:focus-within label,
+        .floating-label-input input:not(:placeholder-shown) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #136dec;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header / Logo Section -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pt-8 justify-center">
+<div class="flex flex-col items-center gap-2">
+<div class="text-primary flex size-12 items-center justify-center bg-primary/10 rounded-xl">
+<span class="material-symbols-outlined text-3xl">work</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-2xl font-extrabold leading-tight tracking-tight">TalentSphere</h2>
+</div>
+</div>
+<!-- Hero / Tagline Section -->
+<div class="@container px-4 py-6">
+<div class="bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-xl min-h-[180px] shadow-sm relative group" data-alt="Modern minimalist office workspace with laptop" style='background-image: linear-gradient(180deg, rgba(19, 109, 236, 0.1) 0%, rgba(16, 24, 34, 0.8) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbzmnyWSbn3kslZ_FtSvwa9aOn8AoBEOb7HVC7gcH_K0kVAFWA57Wr4XPTXVO9CraZUtQmmZ4U5WrhHFK0CqNuhyL4OnhkZodF6FYty3oymcx-g3THNBNosiUZIJj3hW_Z0gFL3WCBfFKrb2tz98NIqZyEkT0DmClxCJ2Jr_Rts-5eGnv6WLMUWzXSdtrkpXNgZw_eA_MNgIQ71JQD6Dm6icaWac7OehiDPR7Nh-FimwGVqt6bVm8TCeJ1HG7PggvC3CwGV8kL");'>
+<div class="p-6">
+<p class="text-white text-2xl font-bold leading-tight">Welcome back to your career hub.</p>
+<p class="text-slate-300 text-sm mt-1">Connect with the world's top tech talent.</p>
+</div>
+</div>
+</div>
+<!-- Login Form Section -->
+<div class="flex flex-col gap-6 px-4 py-2">
+<!-- Email Input -->
+<div class="relative flex flex-col">
+<label class="text-slate-600 dark:text-slate-400 text-sm font-semibold pb-1.5 ml-1">Email Address</label>
+<input class="form-input w-full rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 h-14 px-4 text-base transition-all" placeholder="name@company.com" type="email"/>
+</div>
+<!-- Password Input -->
+<div class="relative flex flex-col">
+<div class="flex justify-between items-end pb-1.5 ml-1">
+<label class="text-slate-600 dark:text-slate-400 text-sm font-semibold">Password</label>
+<a class="text-primary text-xs font-bold hover:underline" href="#">Forgot Password?</a>
+</div>
+<div class="relative">
+<input class="form-input w-full rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 h-14 px-4 pr-12 text-base transition-all" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
+                Log In
+            </button>
+<!-- Divider -->
+<div class="flex items-center gap-4 py-2">
+<div class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+<span class="text-slate-400 dark:text-slate-500 text-xs font-medium uppercase tracking-widest">Or continue with</span>
+<div class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+</div>
+<!-- Social Logins -->
+<div class="flex flex-col gap-3">
+<button class="flex items-center justify-center gap-3 w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold py-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                    Google
+                </button>
+<button class="flex items-center justify-center gap-3 w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold py-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<svg class="w-5 h-5" fill="#0077B5" viewbox="0 0 24 24">
+<path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
+</svg>
+                    LinkedIn
+                </button>
+</div>
+</div>
+<!-- Footer Signup Link -->
+<div class="mt-auto p-8 text-center">
+<p class="text-slate-500 dark:text-slate-400 text-sm">
+                New to TalentSphere? 
+                <a class="text-primary font-bold hover:underline ml-1" href="#">Create an account</a>
+</p>
+</div>
+<!-- iOS Style Bottom Navigation -->
+<div class="flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 pb-8 pt-3 sticky bottom-0">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">search</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
+</a>
+</div>
+</div>
+</body></html>

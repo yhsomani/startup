@@ -35,7 +35,7 @@ class SystemValidator:
         # Test 1: Security middleware files exist
         security_files = [
             "services/shared/security-middleware.js",
-            "backends/backend-flask/app/utils/security.py"
+            "backends/ai-service/app/utils/security.py"
         ]
         
         security_files_found = 0

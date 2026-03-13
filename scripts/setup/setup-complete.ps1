@@ -97,14 +97,14 @@ if (-not $flaskReady) {
 # Step 5: Seed database
 Write-Host "`n[5/7] Seeding database..." -ForegroundColor Yellow
 try {
-    docker exec ts-backend-flask python seed_challenges.py 2>&1 | Out-Null
+    docker exec ts-ai-service python seed_challenges.py 2>&1 | Out-Null
     Write-Host "  Challenges seeded" -ForegroundColor Green
 } catch {
     Write-Host "  Challenge seed skipped (may already exist)" -ForegroundColor Gray
 }
 
 try {
-    docker exec ts-backend-flask python seed_courses.py 2>&1
+    docker exec ts-ai-service python seed_courses.py 2>&1
     Write-Host "  Courses seeded" -ForegroundColor Green
 } catch {
     Write-Host "  Course seed skipped (may already exist)" -ForegroundColor Gray

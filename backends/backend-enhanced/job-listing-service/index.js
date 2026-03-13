@@ -24,7 +24,7 @@ class JobListingService extends EnhancedServiceWithTracing {
             serviceName: 'job-listing-service',
             version: '1.0.0',
             environment: process.env.NODE_ENV || 'development',
-            port: process.env.JOB_LISTING_PORT || 3008,
+            port: process.env.JOB_LISTING_PORT || 3007,
             tracing: {
                 enabled: true,
                 samplingRate: 1.0

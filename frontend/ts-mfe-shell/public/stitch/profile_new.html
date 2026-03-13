@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere V2 - Deep Space Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --space-bg: #020205;
+            --brand-primary: #8c25f4;
+            --brand-cyan: #13ecec;
+            --glass-deep: rgba(10, 10, 20, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+        }
+        @layer utilities {
+            .glass-panel-deep {
+                background: var(--glass-deep);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            }
+            .glow-cyan {
+                box-shadow: 0 0 20px rgba(19, 236, 236, 0.3);
+                border: 2px solid var(--brand-cyan);
+            }
+            .glow-purple-tag {
+                background: rgba(140, 37, 244, 0.1);
+                border: 1px solid rgba(140, 37, 244, 0.3);
+                box-shadow: 0 0 10px rgba(140, 37, 244, 0.2);
+            }
+            .neural-particle {
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: var(--brand-cyan);
+                border-radius: 50%;
+                opacity: 0.4;
+            }
+        }
+        body {
+            background-color: var(--space-bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .bg-space-pattern {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(140, 37, 244, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(19, 236, 236, 0.05) 0%, transparent 40%);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "cyan-brand": "#13ecec",
+                        "space-black": "#020205",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24 bg-space-pattern relative">
+<div class="fixed inset-0 pointer-events-none overflow-hidden opacity-30">
+<div class="neural-particle top-[10%] left-[20%]"></div>
+<div class="neural-particle top-[40%] left-[80%]"></div>
+<div class="neural-particle top-[70%] left-[15%]"></div>
+<div class="neural-particle top-[85%] left-[60%]"></div>
+<div class="neural-particle top-[30%] left-[45%]"></div>
+</div>
+<div class="relative z-20 flex justify-between items-center px-[var(--space-6)] pt-[var(--space-6)]">
+<button class="size-10 flex items-center justify-center rounded-full glass-panel-deep">
+<span class="material-symbols-outlined text-white">chevron_left</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-full glass-panel-deep">
+<span class="material-symbols-outlined text-white">more_vert</span>
+</button>
+</div>
+<div class="relative z-10 px-[var(--space-6)] pt-[var(--space-8)] flex flex-col items-center">
+<div class="relative">
+<div class="size-32 rounded-full glow-cyan p-1 bg-space-black">
+<img alt="Alex Rivers Profile" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxwMgoDfFfOYjERAjS4ARaBlEy0_NocaCVkx5haiU_TbRvJBGrYylRyeJU5nE9RFT146YePk9X5xVFEMNrz3Y9QPVtkJfPflckbhM3iRSqNBBUsSavCeHeK45hm0zy59Z-f5rPZM9k2FHFq67OvRFYmweQHJUm2YeC-kg1qGoC0QGrYwr5k9pIXkjKF4tCFkgmN8iORHS_Z2_Zei8WbTIrLCEKVLWZICWb8EZO7vFHj16h0cH7FWsH3HKVO-TiXZnSIuj4rnFriDw"/>
+</div>
+<div class="absolute bottom-1 right-1 size-6 bg-cyan-brand rounded-full border-4 border-space-black"></div>
+</div>
+<div class="mt-[var(--space-6)] text-center">
+<h1 class="text-3xl font-bold italic tracking-tighter uppercase leading-none text-white">Alex Rivers</h1>
+<h2 class="text-lg italic font-medium tracking-wide text-cyan-brand mt-[var(--space-2)] opacity-90">Senior Full-Stack Engineer</h2>
+<div class="flex items-center justify-center gap-1 text-slate-400 text-xs mt-[var(--space-2)] font-medium">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>SAN FRANCISCO, CA</span>
+</div>
+</div>
+<div class="flex w-full gap-[var(--space-4)] mt-[var(--space-8)]">
+<button class="flex-1 bg-[var(--brand-primary)] text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(140,37,244,0.4)] transition-transform active:scale-95 uppercase text-xs tracking-widest">
+                Connect
+            </button>
+<button class="flex-1 glass-panel-deep text-white font-bold py-4 rounded-xl transition-transform active:scale-95 uppercase text-xs tracking-widest">
+                Message
+            </button>
+</div>
+</div>
+<div class="px-[var(--space-6)] mt-[var(--space-8)] space-y-[var(--space-6)]">
+<section class="glass-panel-deep p-[var(--space-6)] rounded-2xl">
+<h3 class="text-xs font-bold text-cyan-brand uppercase tracking-widest mb-[var(--space-4)] flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">terminal</span>
+                About Me
+            </h3>
+<p class="text-slate-300 leading-relaxed text-sm font-light">
+                Passionate engineer with 8+ years of experience building scalable web applications. Specialist in distributed systems and crafting delightful user experiences. Previously led teams at leading tech innovators.
+            </p>
+</section>
+<section class="glass-panel-deep p-[var(--space-6)] rounded-2xl">
+<h3 class="text-xs font-bold text-cyan-brand uppercase tracking-widest mb-[var(--space-4)] flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">sdk</span>
+                Core Tech Stack
+            </h3>
+<div class="flex flex-wrap gap-[var(--space-2)]">
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">React</span>
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">TypeScript</span>
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">GraphQL</span>
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">Node.js</span>
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">PostgreSQL</span>
+<span class="glow-purple-tag px-3 py-1.5 rounded-lg text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">AWS</span>
+</div>
+</section>
+<section class="glass-panel-deep p-[var(--space-6)] rounded-2xl">
+<h3 class="text-xs font-bold text-cyan-brand uppercase tracking-widest mb-[var(--space-6)] flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">history_edu</span>
+                Experience
+            </h3>
+<div class="space-y-[var(--space-8)] relative before:absolute before:left-[1.25rem] before:top-2 before:bottom-2 before:w-[1px] before:bg-gradient-to-b before:from-[var(--brand-cyan)] before:to-transparent">
+<div class="relative pl-12">
+<div class="absolute left-0 top-0 size-10 rounded-full bg-space-black border border-white/10 flex items-center justify-center z-10 overflow-hidden">
+<img alt="Company" class="size-6 grayscale invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsmQWu737RU3qVGyXXNDXxITWON4YStxxhisZ5W5wksQJTT4hy4vX-UXjV5Dkcdxt3vaV9Yycfm2-9XPCMfc3A6hTR_cBEvSdXe2acs62vOqV5hnPoq-QdBvkV1Byr993t-vaT7zNB81S6x3UR-BhF8Hb6PIXwvDQzskPiMkDgC4JCC8GLxm-oiC2DID-mRjtGNeBPGSrrrwkuLbFBGW0EyMplazB76bAi6JlrVbAic-YA-Xyw2UCznOMU7h_DSW9EfVOP_tmXb2E"/>
+</div>
+<div>
+<h4 class="font-bold text-sm text-white">Staff Software Engineer</h4>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest mb-1">Company A • 2021 — Present</p>
+<p class="text-xs text-slate-400 font-light">Leading core billing infrastructure and improving API latency by 40%.</p>
+</div>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-0 top-0 size-10 rounded-full bg-space-black border border-white/10 flex items-center justify-center z-10 overflow-hidden">
+<img alt="Company" class="size-6 grayscale invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNqJbbK5ATKe7kuq0bG-q8UeWECgBvNH4SXQGOwTQj8QC_jfHkq7OzPj65CNVXGnAY7FZTeU3bxl9yvr7j5RzAimT8XlCHc_Bk7KSYduYYq9tI5K7vHFiD8w_utWDAZHYFTdT8X1GyxvfCWScbe5-QnkCfzx5Y5KXRtFAPXgkmtYQvkwXbseBrbK5gj6pzGSPGhpIotjhOQEKo7lMupWXST1FEDBXdJ7DyQ2yyNQ5pAoJmGHmLQs7ZOn-JbLFEgaeOKssk0GJqxbI"/>
+</div>
+<div>
+<h4 class="font-bold text-sm text-white">Senior Developer</h4>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest mb-1">Company B • 2018 — 2021</p>
+<p class="text-xs text-slate-400 font-light">Worked on browser devtools and internal framework modernization projects.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<nav class="fixed bottom-6 left-6 right-6 z-50 glass-panel-deep rounded-2xl border-white/5 px-6 py-4 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+</a>
+<div class="size-12 bg-[var(--brand-primary)] rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-primary/40 border-4 border-space-black">
+<span class="material-symbols-outlined text-white">add</span>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">chat_bubble</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-cyan-brand" href="#">
+<span class="material-symbols-outlined text-2xl fill-[1]">person</span>
+</a>
+</nav>
+
+</body></html>

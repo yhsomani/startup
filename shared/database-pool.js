@@ -30,8 +30,10 @@ class DatabaseConnectionManager {
                 database: process.env.DB_NAME || "talentsphere",
                 password: process.env.DB_PASSWORD || "password",
                 port: parseInt(process.env.DB_PORT) || 5432,
+                // TS-2024-006 Workaround: Option for primary DB url
+                primaryUrl: process.env.PRIMARY_DATABASE_URL || null,
                 // Pool configuration
-                max: parseInt(process.env.DB_POOL_MAX) || 20,
+                max: parseInt(process.env.DB_POOL_MAX) || 50, // TS-2024-005: Bump max from 20 to 50
                 min: parseInt(process.env.DB_POOL_MIN) || 5,
                 idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT) || 30000,
                 connectionTimeoutMillis: parseInt(process.env.DB_CONNECT_TIMEOUT) || 10000,
@@ -56,6 +58,7 @@ class DatabaseConnectionManager {
                 database: parseInt(process.env.REDIS_DB) || 0,
                 // Pool configuration
                 maxRetriesPerRequest: 3,
+                max: parseInt(process.env.REDIS_POOL_MAX) || 50, // TS-2024-005 workaround
                 retryDelayOnFailover: 100,
                 enableOfflineQueue: false,
                 // Connection limits
@@ -227,6 +230,54 @@ class DatabaseConnectionManager {
         }
 
         return pool;
+    }
+
+    /**
+     * Get Primary PostgreSQL pool for critical reads (TS-2024-006)
+     */
+    getPrimaryPostgresPool(serviceName = "default") {
+        const poolKey = `postgres_primary_${serviceName}`;
+        const pool = this.pools.get(poolKey);
+
+        if (!pool) {
+            // Fallback to the standard read-replica/default pool
+            return this.getPostgresPool(serviceName);
+        }
+        return pool;
+    }
+
+    /**
+     * Initialize Primary PostgreSQL pool (TS-2024-006)
+     */
+    async initPrimaryPostgresPool(serviceName = "default") {
+        const poolKey = `postgres_primary_${serviceName}`;
+
+        if (this.pools.has(poolKey)) {
+            return this.pools.get(poolKey);
+        }
+
+        if (!this.config.postgres.primaryUrl) {
+            console.warn(`PRIMARY_DATABASE_URL not configured. primaryUrl fallback to standard pool for ${serviceName}`);
+            return this.initPostgresPool(serviceName);
+        }
+
+        try {
+            const pool = new Pool({
+                connectionString: this.config.postgres.primaryUrl,
+                max: this.config.postgres.max,
+                min: this.config.postgres.min,
+                idleTimeoutMillis: this.config.postgres.idleTimeoutMillis,
+            });
+
+            await pool.query("SELECT NOW()");
+            this.pools.set(poolKey, pool);
+            console.log(`Primary PostgreSQL pool initialized for ${serviceName}`);
+
+            return pool;
+        } catch (error) {
+            console.error(`Failed to init Primary PG pool for ${serviceName}:`, error);
+            throw error;
+        }
     }
 
     /**

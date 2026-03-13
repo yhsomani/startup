@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere V2 Deep Space Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "secondary": "#13ecec",
+                        "deep-space": "#020205",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: 16px;
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 1.25rem;
+        }
+        .cinematic-header {
+            font-style: italic;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom right, #ffffff, #a5a5a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .cyan-toggle:checked {
+            background-color: #13ecec !important;
+            border-color: #13ecec !important;
+        }
+        .cyan-checkbox {
+            color: #13ecec !important;
+        }
+        .cyan-checkbox:focus {
+            --tw-ring-color: #13ecec !important;
+        }
+        body {
+            background-color: #020205;
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-icon {
+            background: rgba(19, 236, 236, 0.1);
+            border: 1px solid rgba(13, 236, 236, 0.2);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 flex items-center bg-deep-space/80 backdrop-blur-xl p-[var(--space-sm)] justify-between border-b border-white/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary cursor-pointer">arrow_back_ios_new</span>
+<h1 class="cinematic-header text-xl font-bold">Settings</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-slate-400">search</button>
+<div class="size-9 rounded-full ring-2 ring-primary/30 overflow-hidden">
+<img alt="User" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXNNEtYneJ_XdacqR-vFFfHXUZGree69NSNTpg1XuSkdIVQwW6if2OE0dExFYXl4E1aMG0vcycnKzzQsPo02BXqPFnJ5ao5ppzFMqJTLaLNRc_FmHy-iON-SSIQKIvHE-UG7ssz91GzQvzH1851h445eL9-y-mAdzWsHz7xRD09ukZucBKHnwN0MsPYr0RynaCWx7Zco4M5fuY_c0ZDNlaO052e7XMS0-gF-5T4QgdPEV-I6vSdIhUIddrwaelMY5iEx-gU7gPw_c"/>
+</div>
+</div>
+</header>
+<main class="flex-1 p-[var(--space-md)] space-y-[var(--space-md)] pb-32">
+<div class="mb-[var(--space-sm)]">
+<h2 class="cinematic-header text-2xl font-bold italic">Account Core</h2>
+<p class="text-slate-500 text-xs tracking-widest uppercase mt-1">Management Console</p>
+</div>
+<div class="glass-panel p-[var(--space-md)]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="size-11 rounded-xl glass-icon flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined font-light">visibility</span>
+</div>
+<div>
+<h3 class="cinematic-header text-sm font-bold italic">Stealth Protocol</h3>
+<p class="text-xs text-slate-400">Public visibility status</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</div>
+<div class="glass-panel p-[var(--space-md)] space-y-[var(--space-md)]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">alternate_email</span>
+<h4 class="cinematic-header text-xs font-bold italic">Communications</h4>
+</div>
+<div class="space-y-[var(--space-sm)]">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-medium text-slate-200">Opportunities</p>
+<p class="text-[10px] text-slate-500 italic">Daily signal matching</p>
+</div>
+<input checked="" class="rounded border-white/10 bg-white/5 text-secondary focus:ring-secondary/50 size-5 cyan-checkbox" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-medium text-slate-200">Network Flux</p>
+<p class="text-[10px] text-slate-500 italic">Connection activity logs</p>
+</div>
+<input checked="" class="rounded border-white/10 bg-white/5 text-secondary focus:ring-secondary/50 size-5 cyan-checkbox" type="checkbox"/>
+</div>
+</div>
+</div>
+<div class="glass-panel p-[var(--space-md)] relative overflow-hidden">
+<div class="absolute -top-4 -right-4 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-8xl">verified_user</span>
+</div>
+<div class="relative z-10 space-y-[var(--space-md)]">
+<div class="flex items-center gap-4">
+<div class="size-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined font-light">lock_person</span>
+</div>
+<div>
+<h5 class="cinematic-header text-sm font-bold italic">Security Shield</h5>
+<p class="text-xs text-slate-400">Two-Factor Authentication</p>
+</div>
+</div>
+<button class="w-full bg-primary hover:brightness-110 text-white text-xs font-bold py-4 rounded-xl transition-all shadow-xl shadow-primary/20 uppercase tracking-widest">
+                    Setup 2FA Now
+                </button>
+</div>
+</div>
+<div class="glass-panel overflow-hidden">
+<div class="p-[var(--space-md)] border-b border-white/5 flex justify-between items-center">
+<h6 class="cinematic-header text-xs font-bold italic">Neural Sessions</h6>
+<button class="text-secondary text-[10px] font-bold uppercase tracking-tighter">Terminate All</button>
+</div>
+<div class="divide-y divide-white/5">
+<div class="p-[var(--space-md)] flex items-center gap-4">
+<div class="size-10 rounded-full glass-icon flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">smartphone</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold cinematic-header italic">iPhone 15 Pro • London, UK</p>
+<p class="text-[10px] text-secondary/80 font-medium tracking-widest uppercase mt-0.5">Active Link</p>
+</div>
+</div>
+<div class="p-[var(--space-md)] flex items-center gap-4">
+<div class="size-10 rounded-full glass-icon flex items-center justify-center text-slate-500">
+<span class="material-symbols-outlined text-lg">terminal</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold cinematic-header italic opacity-70">Chrome Console • New York, US</p>
+<p class="text-[10px] text-slate-500 mt-0.5 uppercase tracking-tighter">Last Pulse: 120m ago</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 z-50 flex w-full border-t border-white/5 bg-deep-space/90 backdrop-blur-2xl px-4 pb-8 pt-4">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined font-light">home</span>
+<p class="text-[9px] font-bold uppercase tracking-widest">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined font-light">hub</span>
+<p class="text-[9px] font-bold uppercase tracking-widest">Pulse</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined fill-[1] font-light">settings_accessibility</span>
+<p class="text-[9px] font-bold uppercase tracking-widest">System</p>
+</a>
+</nav>
+</div>
+
+</body></html>

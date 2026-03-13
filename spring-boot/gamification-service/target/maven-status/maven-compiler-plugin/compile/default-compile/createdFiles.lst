@@ -1,1 +1,15 @@
+com\talentsphere\gamification\dto\AwardBadgeRequest.class
+com\talentsphere\gamification\dto\BadgeDTO.class
+com\talentsphere\gamification\entity\Badge$BadgeCategory.class
+com\talentsphere\gamification\entity\UserPoints.class
+com\talentsphere\gamification\repository\UserPointsRepository.class
+com\talentsphere\gamification\service\GamificationService.class
+com\talentsphere\gamification\repository\BadgeRepository.class
+com\talentsphere\gamification\dto\AddPointsRequest.class
+com\talentsphere\gamification\dto\UserPointsDTO.class
+com\talentsphere\gamification\controller\GamificationController.class
+com\talentsphere\gamification\entity\UserBadge.class
+com\talentsphere\gamification\exception\GlobalExceptionHandler.class
+com\talentsphere\gamification\entity\Badge.class
+com\talentsphere\gamification\repository\UserBadgeRepository.class
 com\talentsphere\gamification\GamificationServiceApplication.class

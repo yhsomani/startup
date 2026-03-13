@@ -5,8 +5,8 @@ Write-Host "==============================" -ForegroundColor Cyan
 
 # 1. Backend Feature Flags
 Write-Host "`n[Test 1] Backend Feature Flags" -ForegroundColor Yellow
-if (Test-Path "backends/backend-flask") {
-    Push-Location "backends/backend-flask"
+if (Test-Path "backends/ai-service") {
+    Push-Location "backends/ai-service"
     try {
         # Using the dedicated python script we created earlier
         python verify_flags.py
@@ -25,7 +25,7 @@ if (Test-Path "backends/backend-flask") {
     Pop-Location
 }
 else {
-    Write-Host "  [FAIL] backends/backend-flask directory not found" -ForegroundColor Red
+    Write-Host "  [FAIL] backends/ai-service directory not found" -ForegroundColor Red
     exit 1
 }
 

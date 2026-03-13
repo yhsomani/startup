@@ -374,6 +374,67 @@ CREATE INDEX document_downloads_user_id_idx ON document_downloads(user_id, docum
 CREATE INDEX search_history_user_id_idx ON search_history(user_id, search_query);
 CREATE INDEX user_activities_entity_id_idx ON user_activities(user_id, entity_id, timestamp);
 CREATE INDEX user_analytics_user_id_idx ON user_analytics(user_id);
+
+-- ==========================================
+-- PHASE 7: EXTENDED UI FEATURES SCHEMA
+-- ==========================================
+
+-- AI Assistant Chat History & Prompts
+CREATE TABLE ai_chat_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) DEFAULT 'New Chat',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ai_chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES ai_chat_sessions(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+    content TEXT NOT NULL,
+    tokens_used INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX ai_chat_messages_session_idx ON ai_chat_messages(session_id, created_at);
+
+-- LMS Course Progress & Video Bookmarks
+CREATE TABLE lms_course_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    course_id UUID NOT NULL, -- Assuming courses table exists elsewhere or uses generic UUID
+    status VARCHAR(20) DEFAULT 'enrolled' CHECK (status IN ('enrolled', 'in_progress', 'completed')),
+    completion_percentage DECIMAL(5,2) DEFAULT 0.00,
+    enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE (user_id, course_id)
+);
+
+CREATE TABLE lms_video_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    progress_id UUID REFERENCES lms_course_progress(id) ON DELETE CASCADE,
+    video_id UUID NOT NULL,
+    watched_seconds INTEGER DEFAULT 0,
+    is_completed BOOLEAN DEFAULT false,
+    last_watched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (progress_id, video_id)
+);
+
+-- Professional Networking (Connections)
+CREATE TABLE user_connections (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    requester_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    recipient_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'blocked')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (requester_id, recipient_id)
+);
+
+CREATE INDEX user_connections_requester_idx ON user_connections(requester_id, status);
+CREATE INDEX user_connections_recipient_idx ON user_connections(recipient_id, status);
+
 ```
 
 ### **Database Migration Strategy**

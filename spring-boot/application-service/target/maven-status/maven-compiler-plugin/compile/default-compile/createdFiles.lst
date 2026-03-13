@@ -1,1 +1,10 @@
 com\talentsphere\application\ApplicationServiceApplication.class
+com\talentsphere\application\repository\ApplicationTimelineRepository.class
+com\talentsphere\application\entity\JobApplication.class
+com\talentsphere\application\entity\JobApplication$StringListConverter.class
+com\talentsphere\application\repository\JobApplicationRepository.class
+com\talentsphere\application\exception\GlobalExceptionHandler.class
+com\talentsphere\application\controller\ApplicationController.class
+com\talentsphere\application\entity\JobApplication$ApplicationStatus.class
+com\talentsphere\application\entity\ApplicationTimeline.class
+com\talentsphere\application\service\ApplicationService.class

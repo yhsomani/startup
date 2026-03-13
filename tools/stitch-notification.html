@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5211d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#161022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-effect {
+            background: rgba(22, 16, 34, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(82, 17, 212, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Navigation Bar -->
+<header class="flex items-center justify-between border-b border-primary/20 px-10 py-3 bg-background-light dark:bg-background-dark/50 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">TalentSphere</h2>
+</div>
+<label class="flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden">
+<div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-200 dark:bg-primary/10 items-center justify-center pl-4">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-slate-200 dark:bg-primary/10 text-slate-900 dark:text-white focus:ring-0 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-sm font-normal" placeholder="Search talents, jobs..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<div class="flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Jobs</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Network</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Messages</a>
+</div>
+<div class="flex gap-3">
+<button class="relative flex items-center justify-center rounded-lg h-10 w-10 bg-primary text-white transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-200 dark:bg-primary/10 text-slate-600 dark:text-slate-300 hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/30" data-alt="Professional user profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0UHPlY-3vHX46ylA1WBiJEidvw57hzEV7N6XcOUn_WsaWRRdVI3uQI9Z5ajem2ZghkpLEARjxJlgXf9UGFD66kk53DjJnVJ2aKessashWH_TNodMoITbVzjbjurQG8gdFolb_RT_kF8Zj0iA1Y1Q4q4jCmsXR3AXbyQ-1HW5eGyZ6l-Ja0W9g3lqE9xqw-IfvTpofvkScykqGFJA3vU7GY3h8X9QZ_f_F2bYkg97NyWQDvJxBbSIZlwJvGjNIUP3bwzEKYf5QoWk");'>
+</div>
+</div>
+</header>
+<!-- Main Content Area (Background Context) -->
+<main class="flex-1 px-40 py-10 relative">
+<div class="max-w-[1200px] mx-auto opacity-20 pointer-events-none">
+<h1 class="text-4xl font-bold mb-8">Dashboard Overview</h1>
+<div class="grid grid-cols-3 gap-6">
+<div class="h-40 bg-primary/10 rounded-xl border border-primary/20"></div>
+<div class="h-40 bg-primary/10 rounded-xl border border-primary/20"></div>
+<div class="h-40 bg-primary/10 rounded-xl border border-primary/20"></div>
+</div>
+</div>
+<!-- Notifications Dropdown (Floating Popover) -->
+<div class="absolute right-10 top-2 w-[400px] glass-effect rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+<!-- Dropdown Header -->
+<div class="flex items-center justify-between p-4 border-b border-primary/20">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Notifications</h3>
+<button class="text-primary text-xs font-semibold hover:underline bg-primary/10 px-2 py-1 rounded">Mark all as read</button>
+</div>
+<!-- Notification List -->
+<div class="max-h-[480px] overflow-y-auto">
+<!-- Item 1: System Alert -->
+<div class="flex items-start gap-4 p-4 hover:bg-primary/10 transition-colors cursor-pointer group relative">
+<div class="flex items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 shrink-0 size-12 border border-amber-500/30">
+<span class="material-symbols-outlined">info</span>
+</div>
+<div class="flex flex-col flex-1 gap-0.5">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-snug group-hover:text-primary transition-colors">Security update available</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">Your account security settings require a brief review.</p>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] font-medium mt-1 uppercase tracking-wider">2m ago</p>
+</div>
+<div class="shrink-0 pt-1">
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- Item 2: New Job Application -->
+<div class="flex items-start gap-4 p-4 hover:bg-primary/10 transition-colors cursor-pointer group border-t border-primary/10 relative">
+<div class="flex items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-500 shrink-0 size-12 border border-emerald-500/30">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex flex-col flex-1 gap-0.5">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-snug group-hover:text-primary transition-colors">Sarah applied for Frontend Engineer</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">A new application matching your open position is ready for review.</p>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] font-medium mt-1 uppercase tracking-wider">15m ago</p>
+</div>
+<div class="shrink-0 pt-1">
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- Item 3: Connection Request -->
+<div class="flex items-start gap-4 p-4 hover:bg-primary/10 transition-colors cursor-pointer group border-t border-primary/10 relative">
+<div class="flex items-center justify-center rounded-lg bg-blue-500/20 text-blue-500 shrink-0 size-12 border border-blue-500/30">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div class="flex flex-col flex-1 gap-0.5">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-snug group-hover:text-primary transition-colors">Marcus sent you a request</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">Marcus (Lead UI Designer at TechFlow) wants to connect.</p>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] font-medium mt-1 uppercase tracking-wider">1h ago</p>
+</div>
+<div class="shrink-0 pt-1">
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- Item 4: Direct Message -->
+<div class="flex items-start gap-4 p-4 hover:bg-primary/10 transition-colors cursor-pointer group border-t border-primary/10 relative">
+<div class="flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 size-12 border border-primary/30">
+<span class="material-symbols-outlined">chat_bubble</span>
+</div>
+<div class="flex flex-col flex-1 gap-0.5">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-snug group-hover:text-primary transition-colors">New message from Alex</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed italic">"Hey! I've attached the portfolio we discussed..."</p>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] font-medium mt-1 uppercase tracking-wider">3h ago</p>
+</div>
+<div class="shrink-0 pt-1">
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+</div>
+<!-- Dropdown Footer -->
+<div class="p-4 border-t border-primary/20 text-center">
+<button class="text-slate-600 dark:text-slate-400 text-sm font-semibold hover:text-primary transition-colors">
+                            View all notifications
+                        </button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

@@ -1,1 +1,14 @@
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\dto\BadgeDTO.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\dto\AddPointsRequest.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\exception\GlobalExceptionHandler.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\dto\UserPointsDTO.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\entity\UserBadge.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\entity\UserPoints.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\repository\UserPointsRepository.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\repository\BadgeRepository.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\entity\Badge.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\service\GamificationService.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\dto\AwardBadgeRequest.java
 C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\GamificationServiceApplication.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\controller\GamificationController.java
+C:\Users\yashs\OneDrive\Documents\Startup\TalentSphere\spring-boot\gamification-service\src\main\java\com\talentsphere\gamification\repository\UserBadgeRepository.java

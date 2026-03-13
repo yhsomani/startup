@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: talentsphere
+  labels:
+    name: talentsphere
+    environment: production
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: talentsphere-secrets
+  namespace: talentsphere
+type: Opaque
+stringData:
+  jwt-secret: "talentsphere-secret-key-for-jwt-signing-minimum-256-bits"
+  database-url: "jdbc:postgresql://postgres:5432/talentsphere"
+  database-username: "talentsphere"
+  database-password: "changeme"
+  redis-password: "changeme"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: talentsphere-config
+  namespace: talentsphere
+data:
+  SPRING_PROFILES_ACTIVE: "production"
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"

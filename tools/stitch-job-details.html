@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TalentSphere Detailed Job View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#0a0610",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(140, 37, 244, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(140, 37, 244, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased selection:bg-primary/30">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Hero Header -->
+<div class="relative h-64 w-full overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/20 to-background-dark"></div>
+<div class="absolute inset-0 opacity-40 grayscale" data-alt="Modern tech office with glass walls" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDAbTpPZ9fwLqnmksLZb42sJvOv7xejAa45ZBNIBDOJQIG2QnQPIg9co4odyGKmEdTJX6ghkSi4bP7crGOWMm_Bxji2AyUAsnRkrZEB5MQ-rIIPElYqUuDu7Bo1aA9Ev_UCDlUErrAaX7wzqunZZ1TfnLL8ntC61R5pPjsRdbQamLRgiXmSnHOH3NFBSmtCfrC8FmTTu-qqzlf2kypz-zYvmygNmCb4j0hXWRvIWYr9ThxGZdlzXySil4MuVQ60VlSe2y_L3IK82go");'></div>
+<!-- Top App Bar Content -->
+<div class="relative z-10 flex items-center p-4 justify-between">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full glass text-slate-100">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-white text-lg font-bold leading-tight tracking-tight sr-only">Job Details</h2>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full glass text-slate-100">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-full glass text-slate-100">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Job Identity -->
+<div class="relative -mt-20 px-6 pb-6">
+<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-4">
+<div class="size-24 rounded-2xl bg-slate-800 p-1 shadow-2xl border border-white/10 overflow-hidden">
+<div class="w-full h-full bg-cover rounded-xl" data-alt="TalentSphere abstract brand logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCEW_Z1H-TnHTR7fXukRP_8WCSN62smmM2GIWxCW0QGyWO3EFiTch_1_xz7kIiJK3-jb0md1WmbVbYFhvUrYWnY-__h8xs2XWbWJdTZ2nKARxc4KSogkmDoeuf5sJ_RZT2cn7JzZVpMzaSLRyHElX6ky3Aab1UsTPhN6WjFt-gfGvQJjcu-UTVkup3CYrNpuA5133GCfR_DVVYo8Kz2oBPxxCYjQfeRryHIQjuTP5Hp5PqlfH6UJnqNPMhz51pvU56RWhtjW4ThnG0");'></div>
+</div>
+<div class="space-y-1">
+<h1 class="text-white text-3xl font-extrabold tracking-tight">Lead Backend Architect</h1>
+<div class="flex items-center gap-2 text-primary font-semibold text-lg">
+<span>TalentSphere</span>
+<span class="size-1 rounded-full bg-slate-500/50"></span>
+<span class="text-slate-400 font-medium">Tech Division</span>
+</div>
+</div>
+</div>
+<!-- Glassmorphic Tags -->
+<div class="flex flex-wrap gap-2">
+<div class="glass flex items-center gap-2 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">payments</span>
+<span class="text-slate-100 text-sm font-semibold">$180k - $240k</span>
+</div>
+<div class="glass flex items-center gap-2 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">location_on</span>
+<span class="text-slate-100 text-sm font-semibold">San Francisco</span>
+</div>
+<div class="glass flex items-center gap-2 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">cloud_done</span>
+<span class="text-slate-100 text-sm font-semibold">Remote Friendly</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Layout -->
+<div class="px-6 grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24">
+<!-- Left Column: Details -->
+<div class="lg:col-span-2 space-y-10">
+<!-- About the Role -->
+<section>
+<h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+<span class="size-2 bg-primary rounded-full"></span>
+                        About the Role
+                    </h3>
+<p class="text-slate-400 leading-relaxed text-lg">
+                        We are seeking a visionary Lead Backend Architect to spearhead our core infrastructure evolution. You'll be responsible for designing high-throughput distributed systems that power the next generation of professional networking for the global elite.
+                    </p>
+</section>
+<!-- Key Responsibilities -->
+<section>
+<h3 class="text-xl font-bold text-white mb-4">Key Responsibilities</h3>
+<ul class="space-y-4">
+<li class="flex gap-4">
+<span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+<p class="text-slate-300">Design and implement scalable microservices architectures using Rust and Node.js.</p>
+</li>
+<li class="flex gap-4">
+<span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+<p class="text-slate-300">Optimize database performance for multi-region low-latency access.</p>
+</li>
+<li class="flex gap-4">
+<span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+<p class="text-slate-300">Mentor senior engineers and establish architectural best practices across the engineering org.</p>
+</li>
+</ul>
+</section>
+<!-- Tech Stack Section -->
+<section>
+<h3 class="text-xl font-bold text-white mb-4">Tech Stack</h3>
+<div class="flex flex-wrap gap-3">
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">Node.js</span>
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">Rust</span>
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">AWS EKS</span>
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">PostgreSQL</span>
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">Redis</span>
+<span class="px-5 py-2 rounded-full bg-primary/20 border border-primary/50 text-primary font-bold text-sm neon-glow">GraphQL</span>
+</div>
+</section>
+</div>
+<!-- Right Column: Sidebar (Sticky-like feel on larger screens) -->
+<div class="space-y-6">
+<!-- Apply Card -->
+<div class="glass p-6 rounded-2xl border-white/5 space-y-4">
+<button class="w-full h-14 bg-gradient-to-r from-primary to-[#b066ff] hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-primary/25 transition-all">
+                        Apply Now
+                    </button>
+<p class="text-center text-slate-500 text-xs">Posted 2 days ago • 142 applicants</p>
+</div>
+<!-- Benefits -->
+<div class="glass p-6 rounded-2xl border-white/5">
+<h4 class="text-white font-bold mb-4">Benefits</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">health_and_safety</span>
+</div>
+<span class="text-slate-300 text-sm">Premium Healthcare</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">flight</span>
+</div>
+<span class="text-slate-300 text-sm">Unlimited PTO</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">laptop_mac</span>
+</div>
+<span class="text-slate-300 text-sm">$5k Tech Stipend</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">home_work</span>
+</div>
+<span class="text-slate-300 text-sm">WFA Allowance</span>
+</div>
+</div>
+</div>
+<!-- About Company Mini Card -->
+<div class="glass p-6 rounded-2xl border-white/5">
+<div class="flex items-center gap-3 mb-4">
+<div class="size-12 rounded-xl bg-slate-800 p-0.5 overflow-hidden">
+<div class="w-full h-full bg-cover rounded-lg" data-alt="Company logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC-gTKEQUCtgKvzum14n22qy_mlXohkQTfWJ-jivKXX4vIG3zmUdxtQE1ToMP42wCmeiE0b_7qNYrYbr1Rph0P3SxYee-gwVoFWoAEs1liSIwaaUwLAsrGjIKc--hRDb3whKv2f0x3Wj_ynLej95XFxy176of26_5dgXEJP6kksTYcamat7SPD6anEIKUrQYFL1ERLsQuJ1Zfz_aVvY9HjrEFux6mgv0IEHwikF-_qZazyjsiuXFVFG7eJmCenM6bik9zp4HramWcc");'></div>
+</div>
+<div>
+<h4 class="text-white font-bold leading-none">TalentSphere</h4>
+<span class="text-slate-500 text-xs">500-1000 employees</span>
+</div>
+</div>
+<p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                        Leading the evolution of professional networking with privacy-first technology and AI-driven matchmaking.
+                    </p>
+<a class="inline-flex items-center gap-1 text-primary text-sm font-bold hover:underline" href="#">
+                        View Profile
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Mobile Sticky Bottom (iOS style) -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-dark/80 backdrop-blur-xl border-t border-white/5 lg:hidden z-50">
+<div class="max-w-md mx-auto flex gap-4">
+<button class="flex-1 h-12 bg-primary text-white font-bold rounded-xl">
+                    Quick Apply
+                </button>
+<button class="size-12 rounded-xl glass flex items-center justify-center text-white">
+<span class="material-symbols-outlined">bookmark_add</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

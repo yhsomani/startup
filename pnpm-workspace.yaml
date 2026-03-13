@@ -16,7 +16,7 @@ packages:
   - 'frontend/packages/*'
 
   # NOTE: These are archived/experimental implementations (not currently in use)
-  # - 'backends/backend-flask'
-  # - 'backends/backend-dotnet'
-  # - 'backends/backend-springboot'
+  # - 'backends/ai-service'
+  # - 'backends/challenge-service'
+  # - 'backends/lms-service'
   # - 'backends/collaboration-service'

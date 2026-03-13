@@ -35,8 +35,8 @@ services:
 
     # Flask Backend (Auth Service, Challenges)
     flask:
-        build: ./backends/backend-flask
-        container_name: ts-backend-flask
+        build: ./backends/ai-service
+        container_name: ts-ai-service
         ports:
             - "5000:5000"
         environment:
@@ -49,7 +49,7 @@ services:
             REDIS_URL: redis://redis:6379/0
             RABBITMQ_URL: amqp://rabbitmq:5672
         volumes:
-            - ./backends/backend-flask/instance:/app/instance
+            - ./backends/ai-service/instance:/app/instance
         depends_on:
             db:
                 condition: service_healthy
@@ -60,8 +60,8 @@ services:
 
     # .NET Backend (Courses Service)
     dotnet:
-        build: ./backends/backend-dotnet
-        container_name: ts-backend-dotnet
+        build: ./backends/challenge-service
+        container_name: ts-challenge-service
         ports:
             - "5062:8080"
         environment:
@@ -79,8 +79,8 @@ services:
 
     # Spring Boot Backend (Progress Service)
     springboot:
-        build: ./backends/backend-springboot
-        container_name: ts-backend-springboot
+        build: ./backends/lms-service
+        container_name: ts-lms-service
         ports:
             - "8080:8080"
         environment:

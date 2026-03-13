@@ -17,9 +17,8 @@ Exit Codes:
     0 - Validation passed
     1 - Validation failed with errors
     2 - Validation failed with warnings only
-"""
-    1: Drift detected (use --fix to update)
-    2: Error during validation
+    3 - Drift detected (use --fix to update)
+    4 - Error during validation
 """
 
 import os
@@ -211,7 +210,7 @@ class APIContractValidator:
         
         # Flask backends
         flask_services = [
-            BACKENDS_PATH / "backend-flask" / "app",
+            BACKENDS_PATH / "ai-service" / "app",
             BACKENDS_PATH / "backend-assistant",
             BACKENDS_PATH / "backend-recruitment",
             BACKENDS_PATH / "backend-gamification",
@@ -222,7 +221,7 @@ class APIContractValidator:
                 for py_file in service_path.rglob("*.py"):
                     for ep in self.extract_flask_routes(py_file):
                         path = ep.path
-                        if "backend-flask" in str(service_path):
+                        if "ai-service" in str(service_path):
                             # Add prefixes based on blueprint/folder
                             if "auth" in str(py_file): path = f"/api/v1/auth{path}"
                             elif "courses" in str(py_file): path = f"/api/v1/courses{path}"
@@ -234,14 +233,14 @@ class APIContractValidator:
                         endpoints.add(f"{ep.method} {path}")
         
         # Spring Boot
-        springboot_path = BACKENDS_PATH / "backend-springboot" / "src" / "main" / "java"
+        springboot_path = BACKENDS_PATH / "lms-service" / "src" / "main" / "java"
         if springboot_path.exists():
             for java_file in springboot_path.rglob("*Controller.java"):
                 for ep in self.extract_springboot_routes(java_file):
                     endpoints.add(f"{ep.method} {ep.path}")
         
         # .NET
-        dotnet_path = BACKENDS_PATH / "backend-dotnet" / "Controllers"
+        dotnet_path = BACKENDS_PATH / "challenge-service" / "Controllers"
         if dotnet_path.exists():
             for cs_file in dotnet_path.rglob("*.cs"):
                 for ep in self.extract_dotnet_routes(cs_file):

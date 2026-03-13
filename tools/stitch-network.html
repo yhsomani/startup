@@ -1,0 +1,208 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c25f4",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#191022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light-leak {
+            background: radial-gradient(circle at top right, rgba(140, 37, 244, 0.15), transparent 60%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+<!-- Top Navigation / Header -->
+<header class="sticky top-0 z-50 glass border-b border-primary/20 px-4 py-4">
+<div class="flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">diversity_3</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tight">TalentSphere</h1>
+<p class="text-[10px] uppercase tracking-widest text-primary font-semibold">Candidate Directory</p>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-800/50 hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto light-leak pb-24">
+<!-- Search & Filter Bar -->
+<div class="px-4 py-6 space-y-4">
+<div class="glass rounded-xl p-4 space-y-4">
+<!-- Search Input -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
+<input class="w-full bg-slate-900/40 border-slate-700/50 rounded-lg pl-10 pr-4 py-3 text-sm focus:ring-primary focus:border-primary text-slate-200 placeholder:text-slate-600" placeholder="Search Role (e.g. DevOps Engineer)" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Location Filter -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">location_on</span>
+<select class="w-full bg-slate-900/40 border-slate-700/50 rounded-lg pl-9 pr-4 py-2.5 text-xs focus:ring-primary focus:border-primary text-slate-300 appearance-none">
+<option>Location</option>
+<option>Remote</option>
+<option>New York, NY</option>
+<option>London, UK</option>
+</select>
+</div>
+<!-- Skills Multi-select (Simplified for Mobile UI) -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">filter_list</span>
+<select class="w-full bg-slate-900/40 border-slate-700/50 rounded-lg pl-9 pr-4 py-2.5 text-xs focus:ring-primary focus:border-primary text-slate-300 appearance-none">
+<option>Skills</option>
+<option>Kubernetes</option>
+<option>Go</option>
+<option>AWS</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Active Filter Chips -->
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-medium whitespace-nowrap">
+                    Kubernetes <span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-medium whitespace-nowrap">
+                    Go <span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-medium whitespace-nowrap">
+                    AWS <span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+<!-- Candidate Cards Grid -->
+<div class="px-4 space-y-4">
+<!-- Candidate Card 1 -->
+<div class="glass rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3">
+<div class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                        94% Match
+                    </div>
+</div>
+<div class="flex flex-col items-center text-center">
+<div class="relative p-1 rounded-full border border-primary/30 mb-4">
+<img class="size-20 rounded-full object-cover" data-alt="Professional portrait of Elena Soroka" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcLRLaatYwLRl9RFPyGLuQ0DNN6OHnT_CiPKU-5WU5HSy1HhJ6T-pwzw47nCuy1zl1HUuCBfdiH_nSEWy0zh1P4X4zGP9ir4G-re0n2xtVCF9j1HulyzvzN7-h58yP0Zx-ZlcRqrQ2PnUbjYMamY_Jg0RIYGv8HcSbmdjwOW7Xyy40KAsjSkZmaf4UUtscPvYK53NpgRIH2GaNqhpoqmBf5go2KbstsYsvvHhzjvg66eXjxTJZSze-XZU8lRDdPCrbRSeDHtE-G8k"/>
+<div class="absolute bottom-1 right-1 size-4 bg-emerald-500 rounded-full border-2 border-background-dark"></div>
+</div>
+<h3 class="text-xl font-bold">Elena Soroka</h3>
+<p class="text-slate-400 text-sm mb-4">Senior DevOps Engineer</p>
+<div class="flex flex-wrap justify-center gap-2 mb-6">
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Kubernetes</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Go</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">AWS</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Python</span>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-xl">person_add</span>
+                        Connect
+                    </button>
+</div>
+</div>
+<!-- Candidate Card 2 -->
+<div class="glass rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3">
+<div class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                        89% Match
+                    </div>
+</div>
+<div class="flex flex-col items-center text-center">
+<div class="relative p-1 rounded-full border border-primary/30 mb-4">
+<img class="size-20 rounded-full object-cover" data-alt="Professional portrait of Marcus Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyn4NKqlCzWJ8MxZesNNV0u3Wz-vq9q1Sxmsb_Mla8yHz47cgWFEoMbR9rUi7I0DIyePTPZoLhscxFc9nEXQBFV7aiFS-HAB2C378jW2n01Easn9SWaY3FJp3Lgz0GVlMnqdH0SV0gyTFaw-k8vLQzFpT-wDKOgQXMLmvtJztZeLLrLkkdi2Y1JLcw_M4brwhlO1NnKU0GKXFUkZ9fWUuso9MKZZtZBhLu619iTG7YK5-jsA_5JeMnZgahCksfWz3GztxnLC-aovY"/>
+<div class="absolute bottom-1 right-1 size-4 bg-slate-500 rounded-full border-2 border-background-dark"></div>
+</div>
+<h3 class="text-xl font-bold">Marcus Chen</h3>
+<p class="text-slate-400 text-sm mb-4">Cloud Infrastructure Lead</p>
+<div class="flex flex-wrap justify-center gap-2 mb-6">
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Terraform</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Azure</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Docker</span>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-xl">person_add</span>
+                        Connect
+                    </button>
+</div>
+</div>
+<!-- Candidate Card 3 -->
+<div class="glass rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3">
+<div class="bg-primary/20 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full border border-primary/30 uppercase tracking-wider">
+                        Top Talent
+                    </div>
+</div>
+<div class="flex flex-col items-center text-center">
+<div class="relative p-1 rounded-full border border-primary/30 mb-4">
+<img class="size-20 rounded-full object-cover" data-alt="Professional portrait of Sarah Jenkins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsFWCvw1zQMoLwn0Ik7Zr3I4E2oJcy5MIRNHNF68tNFrORYsgUlK_dd3IiyLKgYdsCyfS6x2AeZ3vww5dFV3e_M-VpR9UftaUC2NEQao7cQ_H5PE-w5665FnXy6XJUIHB0BGCLgizzski4-z99tHUeXz8l5xfGuUccQj6KjDFJ54VWCrq7ZswWKROhm4xtfd53Ay_KAkUvvLf11jwblGdfJzXggk5sooPvWE8mATTwH571FCmtzKwjy8eP8t1uxuukgGVTpKGmnJo"/>
+<div class="absolute bottom-1 right-1 size-4 bg-emerald-500 rounded-full border-2 border-background-dark"></div>
+</div>
+<h3 class="text-xl font-bold">Sarah Jenkins</h3>
+<p class="text-slate-400 text-sm mb-4">Site Reliability Engineer</p>
+<div class="flex flex-wrap justify-center gap-2 mb-6">
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Prometheus</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Linux</span>
+<span class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-medium text-slate-300">Istio</span>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-xl">person_add</span>
+                        Connect
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 glass border-t border-white/5 pb-6 pt-2">
+<div class="flex items-center justify-around px-4">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">home</span>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">Feed</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">group</span>
+<span class="text-[10px] font-bold">Talent</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">chat_bubble</span>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">Messages</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">account_circle</span>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">Profile</span>
+</a>
+</div>
+</nav>
+
+```</body></html>
