@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-    Trophy, Medal, Star, ChevronUp, ChevronDown, Minus, 
-    Flame, Target, Zap, Activity, Globe, Cpu, Crown,
-    Bot, User, Sparkles, Orbit, Rocket, Brain
+    Trophy, Medal, ChevronUp, ChevronDown, Minus, 
+    Flame, Zap, Globe, Crown,
+    Sparkles, Rocket, Brain
 } from 'lucide-react';
 import { Typography } from '../../components/atoms/Typography';
-import { Button } from '../../components/atoms/Button';
 import { cn } from '../../utils/cn';
 
 const MOCK_LEADERBOARD = [

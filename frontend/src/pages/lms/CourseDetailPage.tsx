@@ -138,7 +138,7 @@ export const CourseDetailPage: React.FC = () => {
                 onClick={() => navigate('/courses')} 
                 className="flex items-center gap-3 text-slate-500 hover:text-white transition-all group"
             >
-                <div className="p-2 rounded-xl bg-white/5 border border-white/5 group-hover:border-[#13ecec]/30 transition-all">
+                <div className="p-2 rounded-xl bg-white/5 border border-white/5 group-hover:border-[var(--color-secondary)]/30 transition-all">
                     <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Knowledge Nexus_</span>
@@ -149,15 +149,15 @@ export const CourseDetailPage: React.FC = () => {
                 <div className="lg:col-span-8 space-y-12">
                     {/* Hero Module */}
                     <motion.section variants={itemVariants} className="relative p-12 glass-panel rounded-[3.5rem] border-white/10 overflow-hidden shadow-2xl">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/15 via-transparent to-[#13ecec]/10 pointer-events-none" />
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#8c25f4]/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/15 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
                         
                         <div className="relative z-10 flex flex-col gap-8">
                             <div className="flex flex-wrap gap-3">
                                 {course.tags.map(t => (
-                                    <span key={t} className="px-4 py-1.5 bg-[#8c25f4]/15 border border-[#8c25f4]/30 text-[#8c25f4] text-[9px] font-black uppercase tracking-widest italic rounded-xl">{t}</span>
+                                    <span key={t} className="px-4 py-1.5 bg-[var(--color-primary)]/15 border border-[var(--color-primary)]/30 text-[var(--color-primary)] text-[9px] font-black uppercase tracking-widest italic rounded-xl">{t}</span>
                                 ))}
-                                <span className="px-4 py-1.5 bg-white/5 border border-white/10 text-[#13ecec] text-[9px] font-black uppercase tracking-widest italic rounded-xl">{course.level} Sequence</span>
+                                <span className="px-4 py-1.5 bg-white/5 border border-white/10 text-[var(--color-secondary)] text-[9px] font-black uppercase tracking-widest italic rounded-xl">{course.level} Sequence</span>
                             </div>
                             
                             <div className="space-y-4">
@@ -167,14 +167,15 @@ export const CourseDetailPage: React.FC = () => {
                             
                             <div className="flex flex-wrap items-center gap-8 pt-4 border-t border-white/5">
                                 <div className="flex items-center gap-3">
-                                    <Star size={18} className="text-[#13ecec] fill-[#13ecec]/40" />
+                                    <Star size={18} className="text-[var(--color-secondary)] fill-[var(--color-secondary)]/40" />
                                     <div className="flex flex-col">
                                         <span className="text-white font-black italic text-sm leading-none">{course.rating}</span>
                                         <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">Reliability Rank</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <Users size={18} className="text-[#8c25f4]" />
+                                    <Users size={18} className="text-[var(--color-primary)]" />
+ pieces of info
                                     <div className="flex flex-col">
                                         <span className="text-white font-black italic text-sm leading-none">{course.enrolledCount.toLocaleString()}</span>
                                         <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">Active Synchronizations</span>
@@ -188,7 +189,7 @@ export const CourseDetailPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <Brain size={18} className="text-[#13ecec]" />
+                                    <Brain size={18} className="text-[var(--color-secondary)]" />
                                     <div className="flex flex-col">
                                         <span className="text-white font-black italic text-sm leading-none">{totalLessons} Nodes</span>
                                         <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">Architecture Depth</span>
@@ -201,7 +202,7 @@ export const CourseDetailPage: React.FC = () => {
                     {/* Matrix Learning Objectives */}
                     <motion.section variants={itemVariants} className="glass-panel p-16 rounded-[3.5rem] border-white/5 bg-black/40 shadow-2xl space-y-12">
                         <div className="flex items-center gap-4 border-b border-white/5 pb-8">
-                            <div className="p-3 rounded-2xl bg-[#13ecec]/10 text-[#13ecec] border border-[#13ecec]/30 shadow-lg">
+                            <div className="p-3 rounded-2xl bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/30 shadow-lg">
                                 <Rocket size={28} />
                             </div>
                             <Typography variant="h2" className="m-0 italic tracking-tighter">Acquisition Targets_</Typography>
@@ -209,8 +210,8 @@ export const CourseDetailPage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {course.whatYoullLearn.map((item, i) => (
                                 <div key={i} className="flex items-start gap-4 group">
-                                    <div className="size-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-[#13ecec]/40 transition-all">
-                                        <Target size={20} className="text-[#13ecec] group-hover:scale-110 transition-transform" />
+                                    <div className="size-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-[var(--color-secondary)]/40 transition-all">
+                                        <Target size={20} className="text-[var(--color-secondary)] group-hover:scale-110 transition-transform" />
                                     </div>
                                     <span className="text-lg font-bold text-slate-400 italic leading-snug group-hover:text-white transition-colors">
                                         {item}
@@ -222,7 +223,7 @@ export const CourseDetailPage: React.FC = () => {
 
                     {/* Neural Curriculum Matrix */}
                     <motion.section variants={itemVariants} className="glass-panel rounded-[3.5rem] border-white/10 overflow-hidden shadow-2xl bg-black/40">
-                        <div className="p-12 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-br from-[#8c25f4]/10 to-transparent">
+                        <div className="p-12 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-br from-[var(--color-primary)]/10 to-transparent">
                             <div className="space-y-2 text-center md:text-left">
                                 <Typography variant="h2" className="m-0 italic tracking-tighter">Neural Stream Architecture_</Typography>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Sequential Data Extraction Protocol</p>
@@ -233,7 +234,7 @@ export const CourseDetailPage: React.FC = () => {
                                     <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">Sectors</span>
                                 </div>
                                 <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/5 flex flex-col items-center">
-                                    <span className="text-xl font-black text-[#13ecec] italic leading-none">{totalLessons}</span>
+                                    <span className="text-xl font-black text-[var(--color-secondary)] italic leading-none">{totalLessons}</span>
                                     <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">Nodes</span>
                                 </div>
                             </div>
@@ -247,15 +248,15 @@ export const CourseDetailPage: React.FC = () => {
                                         className="w-full flex items-center justify-between p-10 hover:bg-white/5 transition-all text-left outline-none group"
                                     >
                                         <div className="space-y-2">
-                                            <p className="text-2xl font-black text-white italic tracking-tighter group-hover:text-[#13ecec] transition-colors">{section.section}_</p>
+                                            <p className="text-2xl font-black text-white italic tracking-tighter group-hover:text-[var(--color-secondary)] transition-colors">{section.section}_</p>
                                             <div className="flex items-center gap-3">
-                                                <div className="size-1.5 bg-[#8c25f4] rounded-full animate-pulse" />
+                                                <div className="size-1.5 bg-[var(--color-primary)] rounded-full animate-pulse" />
                                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">{section.lessons.length} Core Nodes</span>
                                             </div>
                                         </div>
                                         <div className={cn(
                                             "p-4 rounded-full transition-all duration-500 border shadow-2xl",
-                                            openSections.includes(i) ? "bg-[#8c25f4]/20 border-[#8c25f4]/40 text-[#8c25f4] rotate-180" : "bg-white/5 border-white/5 text-slate-600 group-hover:text-white"
+                                            openSections.includes(i) ? "bg-[var(--color-primary)]/20 border-[var(--color-primary)]/40 text-[var(--color-primary)] rotate-180" : "bg-white/5 border-white/5 text-slate-600 group-hover:text-white"
                                         )}>
                                             <ChevronDown size={24} />
                                         </div>
@@ -276,27 +277,27 @@ export const CourseDetailPage: React.FC = () => {
                                                         className={cn(
                                                             "flex items-center gap-8 p-6 rounded-[2rem] border-2 transition-all duration-300 relative group/lesson",
                                                             (lesson.free || course.isEnrolled) 
-                                                                ? "cursor-pointer bg-black/40 border-white/5 hover:border-[#13ecec]/40 hover:bg-[#13ecec]/05 shadow-xl hover:shadow-[#13ecec]/10" 
+                                                                ? "cursor-pointer bg-black/40 border-white/5 hover:border-[var(--color-secondary)]/40 hover:bg-[var(--color-secondary)]/05 shadow-xl hover:shadow-[var(--color-secondary)]/10" 
                                                                 : "cursor-default bg-white/05 border-transparent opacity-40 grayscale"
                                                         )}
                                                     >
-                                                        <div className="size-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover/lesson:border-[#13ecec]/40 transition-colors">
+                                                    <div className="size-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover/lesson:border-[var(--color-secondary)]/40 transition-colors">
                                                             <span className="text-xs font-black text-slate-500 group-hover/lesson:text-white transition-colors">{String(idx + 1).padStart(2, '0')}</span>
                                                         </div>
                                                         
                                                         <div className="flex-1 min-w-0 space-y-1">
-                                                            <p className={cn("text-xl font-black italic tracking-tighter truncate", (lesson.free || course.isEnrolled) ? "text-white group-hover/lesson:text-[#13ecec]" : "text-slate-600")}>{lesson.title}_</p>
+                                                            <p className={cn("text-xl font-black italic tracking-tighter truncate", (lesson.free || course.isEnrolled) ? "text-white group-hover/lesson:text-[var(--color-secondary)]" : "text-slate-600")}>{lesson.title}_</p>
                                                             <div className="flex items-center gap-4">
                                                                 <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest italic">{lesson.duration} Sequential Flow</span>
                                                                 {lesson.free && !course.isEnrolled && (
-                                                                    <span className="bg-[#13ecec]/15 text-[#13ecec] px-3 py-1 rounded-lg border border-[#13ecec]/30 text-[9px] font-black uppercase italic tracking-widest shadow-lg">Open Node</span>
+                                                                    <span className="bg-[var(--color-secondary)]/15 text-[var(--color-secondary)] px-3 py-1 rounded-lg border border-[var(--color-secondary)]/30 text-[9px] font-black uppercase italic tracking-widest shadow-lg">Open Node</span>
                                                                 )}
                                                             </div>
                                                         </div>
                                                         
                                                         <div className="shrink-0">
                                                             {(lesson.free || course.isEnrolled) ? (
-                                                                <div className="size-14 rounded-full bg-[#13ecec]/20 flex items-center justify-center text-[#13ecec] group-hover/lesson:bg-[#13ecec] group-hover/lesson:text-black transition-all duration-500 shadow-2xl">
+                                                                <div className="size-14 rounded-full bg-[var(--color-secondary)]/20 flex items-center justify-center text-[var(--color-secondary)] group-hover/lesson:bg-[var(--color-secondary)] group-hover/lesson:text-black transition-all duration-500 shadow-2xl">
                                                                     <Play size={24} className="ml-1 fill-current" />
                                                                 </div>
                                                             ) : (
@@ -319,8 +320,8 @@ export const CourseDetailPage: React.FC = () => {
                 {/* Acquisition Control (4 cols) */}
                 <div className="lg:col-span-4 space-y-12">
                     <motion.section variants={itemVariants} className="sticky top-24">
-                        <div className="glass-panel rounded-[3.5rem] border-[#13ecec]/40 shadow-[0_30px_60px_-15px_rgba(19,236,236,0.15)] relative overflow-hidden bg-black/60 backdrop-blur-3xl group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#13ecec]/10 via-transparent to-transparent pointer-events-none" />
+                        <div className="glass-panel rounded-[3.5rem] border-[var(--color-secondary)]/40 shadow-[0_30px_60px_-15px_rgba(19,236,236,0.15)] relative overflow-hidden bg-black/60 backdrop-blur-3xl group">
+                            <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-secondary)]/10 via-transparent to-transparent pointer-events-none" />
                             
                             <div className="relative aspect-video w-full overflow-hidden bg-black cursor-pointer" onClick={() => !course.isEnrolled && handleEnroll()}>
                                 <motion.div 
@@ -328,7 +329,7 @@ export const CourseDetailPage: React.FC = () => {
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black to-transparent z-10" />
                                 <div className="absolute inset-0 z-20 flex items-center justify-center">
-                                    <div className="size-20 rounded-full bg-[#13ecec]/90 text-black flex items-center justify-center shadow-[0_0_40px_rgba(19,236,236,0.8)] backdrop-blur-sm group-hover:scale-110 transition-transform">
+                                    <div className="size-20 rounded-full bg-[var(--color-secondary)]/90 text-black flex items-center justify-center shadow-[0_0_40px_rgba(19,236,236,0.8)] backdrop-blur-sm group-hover:scale-110 transition-transform">
                                         <Play size={32} className="ml-1 fill-current" />
                                     </div>
                                 </div>
@@ -343,7 +344,7 @@ export const CourseDetailPage: React.FC = () => {
                                         <Typography variant="h1" className="text-white text-6xl tracking-tighter italic m-0">{course.isFree ? 'FREE' : `$${course.price || '89.99'}`}</Typography>
                                         {!course.isFree && <span className="text-xl font-black text-slate-700 line-through italic mb-2">$149.99</span>}
                                     </div>
-                                    <p className="text-[10px] font-black text-[#13ecec] uppercase tracking-widest italic animate-pulse">Neural Value Acquisition Active</p>
+                                    <p className="text-[10px] font-black text-[var(--color-secondary)] uppercase tracking-widest italic animate-pulse">Neural Value Acquisition Active</p>
                                 </div>
                                 
                                 <div className="space-y-4">
@@ -378,8 +379,8 @@ export const CourseDetailPage: React.FC = () => {
                                     <Typography variant="label" className="text-slate-400 uppercase tracking-widest text-[9px] font-black italic">Stream Specifications:</Typography>
                                     <div className="space-y-4">
                                         {[
-                                            { icon: Play, text: `${course.duration} On-Demand Stream`, color: '#8c25f4' },
-                                            { icon: BookOpen, text: `${totalLessons} Integrated Nodes`, color: '#13ecec' },
+                                            { icon: Play, text: `${course.duration} On-Demand Stream`, color: 'var(--color-primary)' },
+                                            { icon: BookOpen, text: `${totalLessons} Integrated Nodes`, color: 'var(--color-secondary)' },
                                             { icon: Award, text: 'Persistence Certificate', color: '#fbbf24' },
                                             { icon: ShieldCheck, text: 'LIFETIME MESH ACCESS', color: '#10b981' }
                                         ].map((spec, i) => (
@@ -399,20 +400,20 @@ export const CourseDetailPage: React.FC = () => {
                         <div className="mt-12 glass-panel p-10 rounded-[3rem] border-white/5 bg-black/40 shadow-2xl space-y-8">
                              <Typography variant="label" className="text-slate-600 uppercase tracking-widest text-[9px] font-black italic">Architect_</Typography>
                              <div className="flex items-center gap-6">
-                                <div className="size-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-[#8c25f4] p-[2px] shadow-2xl relative">
+                                <div className="size-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-[var(--color-primary)] p-[2px] shadow-2xl relative">
                                     <div className="w-full h-full bg-slate-900 rounded-[1.4rem] flex items-center justify-center text-2xl font-black text-white italic">
                                         {course.instructor.initials}
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 size-5 bg-[#13ecec] rounded-lg border-2 border-slate-950 shadow-lg" />
+                                    <div className="absolute -bottom-1 -right-1 size-5 bg-[var(--color-secondary)] rounded-lg border-2 border-slate-950 shadow-lg" />
                                 </div>
                                 <div className="space-y-1">
                                     <Typography variant="h3" className="text-white m-0 italic tracking-tighter">{course.instructor.name}_</Typography>
-                                    <p className="text-[10px] font-black text-[#8c25f4] uppercase tracking-widest italic leading-none">{course.instructor.role}</p>
+                                    <p className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest italic leading-none">{course.instructor.role}</p>
                                 </div>
                              </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                                    <span className="block text-lg font-black text-[#13ecec] italic leading-none">{course.instructor.rating}</span>
+                                    <span className="block text-lg font-black text-[var(--color-secondary)] italic leading-none">{course.instructor.rating}</span>
                                     <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Reliability</span>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">

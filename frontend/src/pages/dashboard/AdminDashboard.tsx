@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+    Activity, Shield, Database, Settings, 
+    Zap, Wrench, Share2,
+    TrendingUp
+} from 'lucide-react';
+import { Typography } from '../../components/atoms/Typography';
+import { Button } from '../../components/atoms/Button';
+import { cn } from '../../utils/cn';
 
 interface SystemMetric {
     label: string;
@@ -18,9 +26,9 @@ interface ServiceHealth {
 }
 
 const MOCK_METRICS: SystemMetric[] = [
-    { label: 'CPU Usage', value: '42%', status: 'optimal', trend: '+2% from last hr', color: '#13ecec' },
+    { label: 'CPU Usage', value: '42%', status: 'optimal', trend: '+2% from last hr', color: 'var(--color-secondary)' },
     { label: 'Memory', value: '7.8GB', status: 'optimal', trend: 'Stable', color: '#10b981' },
-    { label: 'API Latency', value: '124ms', status: 'optimal', trend: '-12ms', color: '#8b5cf6' },
+    { label: 'API Latency', value: '124ms', status: 'optimal', trend: '-12ms', color: 'var(--color-primary)' },
     { label: 'Error Rate', value: '0.02%', status: 'optimal', trend: 'N/A', color: '#f59e0b' },
 ];
 
@@ -38,7 +46,8 @@ const Sparkline = ({ color }: { color: string }) => (
             d="M0 25 Q 10 20, 20 28 T 40 10 T 60 22 T 80 5 T 100 18"
             fill="none"
             stroke={color}
-            strokeWidth="2"
+            strokeWidth="3"
+            strokeLinecap="round"
         />
     </svg>
 );
@@ -51,165 +60,211 @@ const ServiceBadge = ({ status }: { status: ServiceHealth['status'] }) => {
     };
     const config = configs[status];
     return (
-        <span className={`px-2 py-0.5 ${config.bg} ${config.text} text-[10px] font-black uppercase tracking-widest rounded`}>
+        <span className={cn(
+            "px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded italic border border-white/5",
+            config.bg, config.text
+        )}>
             {config.label}
         </span>
     );
 };
 
 export const AdminDashboard: React.FC = () => {
-    const navigate = useNavigate();
     const [maintenanceMode, setMaintenanceMode] = useState(false);
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+    };
+
     return (
-        <div className="flex flex-col gap-6 w-full font-sans text-slate-100 p-2 sm:p-0">
-            {/* Enterprise Header */}
-            <header className="relative overflow-hidden p-8 bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
-                <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full"></div>
-                <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full"></div>
+        <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col gap-8 w-full pb-12"
+        >
+            {/* Enterprise Header Area */}
+            <motion.section 
+                variants={itemVariants}
+                className="relative overflow-hidden p-8 md:p-12 glass-panel rounded-[2rem] border-white/10 group bg-black/40 shadow-2xl"
+            >
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/5 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-primary)]/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
                 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-widest rounded-full border border-purple-500/30">
-                                System Orchestrator
-                            </span>
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
+                    <div className="flex-1 space-y-6">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="px-3 py-1 bg-[var(--color-primary)]/10 rounded-full border border-[var(--color-primary)]/30 flex items-center gap-2">
+                                <Shield size={12} className="text-[var(--color-primary)]" />
+                                <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest italic">Orchestrator Level 10</span>
+                            </div>
                             {maintenanceMode && (
-                                <span className="px-3 py-1 bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-widest rounded-full border border-red-500/30 animate-pulse">
-                                    Maintenance Active
-                                </span>
+                                <div className="px-3 py-1 bg-red-500/10 rounded-full border border-red-500/30 flex items-center gap-2 animate-pulse">
+                                    <Activity size={12} className="text-red-400" />
+                                    <span className="text-[10px] font-black text-red-400 uppercase tracking-widest italic">Maintenance Active</span>
+                                </div>
                             )}
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tighter">Admin Control Center</h2>
-                        <p className="text-slate-400 text-sm mt-2 max-w-md">
-                            Monitor platform health, manage microservices, and oversee global talent operations.
-                        </p>
+                        
+                        <div className="space-y-4">
+                            <Typography variant="h1" className="text-white">
+                                Admin Control_
+                            </Typography>
+                            <p className="text-slate-400 text-lg max-w-2xl leading-relaxed font-medium">
+                                Directing global microservices. The platform is currently operating at 
+                                <span className="text-[var(--color-secondary)] font-black ml-2 bg-[var(--color-secondary)]/10 px-2 py-0.5 rounded italic">99.98% Efficiency</span>
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                        <Button 
+                            variant="primary" 
+                            size="lg"
+                            className="flex-1 lg:flex-none"
+                        >
+                            <Share2 size={18} className="mr-2" />
+                            Global Broadcast
+                        </Button>
                         <button 
                             onClick={() => setMaintenanceMode(!maintenanceMode)}
-                            className={`px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border ${maintenanceMode ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}`}
+                            className={cn(
+                                "px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border flex items-center gap-2",
+                                maintenanceMode 
+                                    ? "bg-red-500/20 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]" 
+                                    : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                            )}
                         >
-                            <span className="material-symbols-outlined text-lg align-middle mr-2">engineering</span>
-                            {maintenanceMode ? 'Disable Maint Mode' : 'Enter Maint Mode'}
-                        </button>
-                        <button className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-widest px-8 py-4 rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transform hover:-translate-y-1 transition-all">
-                            Global Broadcast
+                            <Wrench size={18} />
+                            {maintenanceMode ? 'Disable Maint' : 'Enter Maint Mode'}
                         </button>
                     </div>
                 </div>
-            </header>
+            </motion.section>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                
-                {/* Left: System Health & Metrics (8 cols) */}
-                <div className="xl:col-span-8 flex flex-col gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                {/* Metrics & Cluster (8 cols) */}
+                <div className="xl:col-span-8 space-y-8">
                     
                     {/* Metrics Grid */}
-                    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {MOCK_METRICS.map((m) => (
-                            <div key={m.label} className="bg-slate-900/60 backdrop-blur-lg p-5 rounded-2xl border border-white/5 group hover:border-white/20 transition-all">
+                            <motion.div 
+                                key={m.label} 
+                                variants={itemVariants}
+                                className="glass-panel p-6 rounded-3xl border-white/5 hover:border-[var(--color-secondary)]/20 transition-all group/card bg-black/40 shadow-xl"
+                            >
                                 <div className="flex justify-between items-start mb-3">
-                                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{m.label}</div>
+                                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{m.label}</div>
                                     <Sparkline color={m.color} />
                                 </div>
-                                <div className="text-2xl font-black text-white">{m.value}</div>
-                                <div className="text-[10px] font-bold text-emerald-400 mt-2 flex items-center gap-1 uppercase tracking-tighter">
-                                    <span className="material-symbols-outlined text-xs">trending_up</span> {m.trend}
+                                <div className="text-2xl font-black text-white italic tracking-tighter">{m.value}</div>
+                                <div className="text-[10px] font-black text-emerald-400 mt-2 flex items-center gap-1 uppercase tracking-widest italic">
+                                    <TrendingUp size={12} /> {m.trend}
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
-                    </section>
+                    </div>
 
-                    {/* Service Orchestration Table */}
-                    <section className="bg-slate-900/60 backdrop-blur-lg rounded-3xl border border-white/5 overflow-hidden">
-                        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-cyan-400">hub</span>
-                                Microservice Cluster
-                            </h3>
-                            <button className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors">Refresh Cluster Status</button>
+                    {/* Service Table */}
+                    <motion.section variants={itemVariants} className="glass-panel rounded-[2rem] border-white/5 overflow-hidden bg-black/40 shadow-xl">
+                        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Zap className="text-[var(--color-secondary)]" size={20} />
+                                <Typography variant="h3">Microservice Cluster</Typography>
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-[10px] font-black italic uppercase tracking-widest">
+                                Sync Cluster_
+                            </Button>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-white/5">
+                                <thead className="bg-[var(--color-primary)]/5">
                                     <tr>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Service Name</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Stack</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Status</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Uptime</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 text-right">Latency</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic border-b border-white/5">Service</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic border-b border-white/5">Stack</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic border-b border-white/5">Status</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic border-b border-white/5">Uptime</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic border-b border-white/5 text-right">Latency</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y divide-white/5">
                                     {MOCK_SERVICES.map((srv) => (
-                                        <tr key={srv.name} className="hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 group cursor-pointer">
-                                            <td className="px-6 py-4 font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">{srv.name}</td>
-                                            <td className="px-6 py-4 text-xs font-bold text-slate-500 tracking-tighter uppercase">{srv.type}</td>
-                                            <td className="px-6 py-4">
+                                        <tr key={srv.name} className="hover:bg-white/5 transition-all group cursor-pointer">
+                                            <td className="px-8 py-4 text-sm font-black text-white italic group-hover:text-[var(--color-secondary)] transition-colors">{srv.name}</td>
+                                            <td className="px-8 py-4 text-[10px] font-black text-slate-500 italic uppercase tracking-widest">{srv.type}</td>
+                                            <td className="px-8 py-4">
                                                 <ServiceBadge status={srv.status} />
                                             </td>
-                                            <td className="px-6 py-4 text-xs text-slate-400 font-medium">{srv.uptime}</td>
-                                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-400">{srv.latency}</td>
+                                            <td className="px-8 py-4 text-xs text-slate-400 font-medium italic">{srv.uptime}</td>
+                                            <td className="px-8 py-4 text-right text-xs font-black text-emerald-400 italic tracking-tight">{srv.latency}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                    </section>
+                    </motion.section>
                 </div>
 
-                {/* Right: Security & Alerts (4 cols) */}
-                <div className="xl:col-span-4 flex flex-col gap-6">
+                {/* Right: Actions (4 cols) */}
+                <div className="xl:col-span-4 space-y-8">
                     
-                    {/* Action Required Box */}
-                    <section className="bg-gradient-to-br from-red-500/10 to-transparent backdrop-blur-xl p-6 rounded-3xl border border-red-500/20 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-red-500">warning</span>
+                    {/* Critical Pulse */}
+                    <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2rem] border-red-500/20 bg-red-500/5 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none transform group-hover:rotate-12 transition-transform duration-700">
+                            <Activity size={120} className="text-red-500" />
                         </div>
-                        <div className="relative z-10">
-                            <h3 className="text-xl font-black text-white mb-2 flex items-center gap-3 italic tracking-tighter">
-                                <span className="material-symbols-outlined text-red-500">priority_high</span>
-                                Critical Actions
-                            </h3>
-                            <div className="flex flex-col gap-4 mt-6">
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
-                                    <p className="text-xs font-bold text-white mb-1 uppercase tracking-tight">Verify New Partner</p>
-                                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">InnovateTech LLC requested enterprise verification (Pending 14h).</p>
+                        <div className="relative z-10 space-y-8">
+                            <div className="flex items-center gap-3">
+                                <Activity size={20} className="text-red-500" />
+                                <Typography variant="h3">Critical Signals</Typography>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group/alert">
+                                    <p className="text-xs font-black text-white uppercase italic tracking-widest mb-1 group-hover/alert:text-red-400">Enterprise Sync Fail</p>
+                                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">7 nodes reported latency sweep (Pending 14h).</p>
                                 </div>
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
-                                    <p className="text-xs font-bold text-white mb-1 uppercase tracking-tight">Reported Job Sweep</p>
-                                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">12 listings flagged for spam in the last 2 hours. Review queue active.</p>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group/alert">
+                                    <p className="text-xs font-black text-white uppercase italic tracking-widest mb-1 group-hover/alert:text-red-400">Security Pulse</p>
+                                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Unknown protocol attempt blocked in EU-WEST-1.</p>
                                 </div>
                             </div>
-                            <button className="w-full mt-6 py-4 bg-red-500 hover:bg-red-400 text-slate-950 text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg transition-all">
-                                Open Audit Console
-                            </button>
+                            <Button variant="ghost" className="w-full text-red-400 border-red-500/20 hover:bg-red-500/10 italic uppercase font-black text-[10px] tracking-widest">
+                                Open Audit Console_
+                            </Button>
                         </div>
-                    </section>
+                    </motion.section>
 
-                    {/* Quick Access Grid */}
-                    <section className="grid grid-cols-2 gap-4">
+                    {/* Quick Control Grid */}
+                    <div className="grid grid-cols-2 gap-4">
                         {[
-                            { icon: 'group', label: 'Users', path: '/admin/users' },
-                            { icon: 'security', label: 'Permissions', path: '/admin/security' },
-                            { icon: 'database', label: 'Backups', path: '/admin/backups' },
-                            { icon: 'settings', label: 'Config', path: '/admin/settings' },
-                        ].map((item) => (
-                            <button 
-                                key={item.label}
-                                onClick={() => navigate(item.path)}
-                                className="bg-slate-900/40 p-5 rounded-2xl border border-white/5 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all group flex flex-col items-center gap-3"
+                            { icon: Activity, label: 'Protocols', path: '/admin/users', color: 'text-[var(--color-secondary)]' },
+                            { icon: Shield, label: 'Security', path: '/admin/security', color: 'text-[var(--color-primary)]' },
+                            { icon: Database, label: 'Bases', path: '/admin/backups', color: 'text-emerald-400' },
+                            { icon: Settings, label: 'Ops', path: '/admin/settings', color: 'text-amber-400' },
+                        ].map((node) => (
+                            <motion.button 
+                                key={node.label}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="glass-panel p-6 rounded-[2rem] border-white/5 hover:border-white/20 transition-all group flex flex-col items-center gap-4 text-center bg-black/40 shadow-xl"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-cyan-400 transition-colors text-2xl">{item.icon}</span>
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-white transition-colors">{item.label}</span>
-                            </button>
+                                <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors", node.color)}>
+                                    <node.icon size={24} />
+                                </div>
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic group-hover:text-white transition-colors leading-tight">{node.label}</span>
+                            </motion.button>
                         ))}
-                    </section>
-
+                    </div>
                 </div>
-
             </div>
-        </div>
+        </motion.div>
     );
 };
+

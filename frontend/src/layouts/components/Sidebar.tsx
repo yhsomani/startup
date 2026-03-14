@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, r
             <item.icon size={20} className={cn('transition-all duration-300 group-hover:scale-110', isActive(item) ? 'text-white' : 'text-slate-500')} />
             <span className="flex-1">{item.label}</span>
             {item.badge != null && item.badge > 0 && (
-                <span className="text-[9px] bg-[#8c25f4] text-white rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center font-black animate-pulse shadow-lg shadow-[#8c25f4]/40">
+                <span className="text-[9px] bg-[var(--color-primary)] text-white rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center font-black animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
                     {item.badge}
                 </span>
             )}
@@ -89,7 +89,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, r
                             </div>
                             <Link to="/jobs/new" className="nav-item group" onClick={() => setSidebarOpen(false)}>
                                 <div className="w-5 h-5 flex items-center justify-center">
-                                    <PlusCircle size={18} className="text-[#13ecec] group-hover:scale-110 transition-all duration-300" />
+                                    <PlusCircle size={18} className="text-[var(--color-secondary)] group-hover:scale-110 transition-all duration-300" />
                                 </div>
                                 <span className="text-sm">Post Neural Job</span>
                             </Link>

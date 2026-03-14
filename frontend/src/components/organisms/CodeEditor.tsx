@@ -32,9 +32,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         style={{ height }}
                         className="bg-[#0a070d] flex flex-col items-center justify-center space-y-4"
                     >
-                        <div className="w-16 h-16 border-2 border-[#8c25f4]/30 border-t-[#8c25f4] rounded-full animate-spin"></div>
+                        <div className="w-16 h-16 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
                         <div className="flex flex-col items-center gap-1">
-                            <span className="text-[10px] font-black text-[#8c25f4] uppercase tracking-[0.3em] italic animate-pulse">Initializing IDE_</span>
+                            <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] italic animate-pulse">Initializing IDE_</span>
                             <span className="text-[8px] font-mono text-slate-700 uppercase tracking-widest italic">NEURAL_SYNC_ACTUALIZING</span>
                         </div>
                     </div>
@@ -43,7 +43,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                 <div className="relative group h-full">
                     {/* Minimalist Editor Overlay for Cinematic Feel */}
                     <div className="absolute top-0 right-0 p-4 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/5 text-[9px] font-black text-[#13ecec] uppercase italic tracking-widest shadow-2xl">
+                        <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/5 text-[9px] font-black text-[var(--color-secondary)] uppercase italic tracking-widest shadow-2xl">
                             Live Matrix Sync
                         </div>
                     </div>

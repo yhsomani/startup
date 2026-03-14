@@ -37,8 +37,8 @@ export const Topbar: React.FC<TopbarProps> = ({ setSidebarOpen, setSearchOpen })
                     </Link>
                 </div>
 
-                <div className="hidden md:flex flex-1 max-w-xl mx-12 px-5 py-2.5 bg-black/30 border border-white/5 rounded-2xl items-center gap-4 cursor-pointer hover:border-[#8c25f4]/40 hover:bg-black/40 transition-all group" onClick={() => setSearchOpen(true)}>
-                    <Search size={18} className="text-slate-500 group-hover:text-[#13ecec] transition-colors" />
+                <div className="hidden md:flex flex-1 max-w-xl mx-12 px-5 py-2.5 bg-black/30 border border-white/5 rounded-2xl items-center gap-4 cursor-pointer hover:border-[var(--color-primary)]/40 hover:bg-black/40 transition-all group" onClick={() => setSearchOpen(true)}>
+                    <Search size={18} className="text-slate-500 group-hover:text-[var(--color-secondary)] transition-colors" />
                     <span className="text-sm font-bold text-slate-500 flex-1 italic uppercase tracking-wider">Initiate Quantum Search...</span>
                     <div className="flex gap-1.5 opacity-40">
                         <kbd className="px-2 py-0.5 rounded-lg border border-white/20 bg-black/40 text-[10px] font-black text-slate-400 tracking-tighter">CTRL</kbd>
@@ -52,7 +52,7 @@ export const Topbar: React.FC<TopbarProps> = ({ setSidebarOpen, setSearchOpen })
                     <div className="h-6 w-px bg-white/10 mx-1"></div>
 
                     <div className="flex items-center gap-4">
-                        <Link to="/profile" className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8c25f4] to-[#13ecec] p-[2px] hover:scale-110 transition-transform shadow-lg shadow-[#8c25f4]/20">
+                        <Link to="/profile" className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] p-[2px] hover:scale-110 transition-transform shadow-lg shadow-[var(--color-primary)]/20">
                             <div className="w-full h-full rounded-full bg-[#050510] flex items-center justify-center text-slate-200 overflow-hidden">
                                 {(user as any)?.avatar ? (
                                     <img src={(user as any).avatar} className="w-full h-full object-cover" alt="Profile" />

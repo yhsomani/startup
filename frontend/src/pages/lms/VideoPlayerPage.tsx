@@ -86,8 +86,8 @@ export const VideoPlayerPage: React.FC = () => {
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#050510] space-y-8">
             <div className="relative size-20">
-                <div className="absolute inset-0 border-4 border-[#8c25f4]/10 rounded-full animate-ping" />
-                <div className="absolute inset-0 border-4 border-t-[#8c25f4] border-transparent rounded-full animate-spin" />
+                <div className="absolute inset-0 border-4 border-[var(--color-primary)]/10 rounded-full animate-ping" />
+                <div className="absolute inset-0 border-4 border-t-[var(--color-primary)] border-transparent rounded-full animate-spin" />
             </div>
             <Typography variant="label" className="text-slate-600 italic uppercase tracking-[0.4em] text-[10px] font-black">Initializing Neural Stream_</Typography>
         </div>
@@ -104,8 +104,8 @@ export const VideoPlayerPage: React.FC = () => {
         <div className="flex flex-col h-screen overflow-hidden bg-[#050510] text-slate-100 font-sans fixed inset-0 z-50">
             {/* Cinematic Background Elements */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                <div className="absolute top-[10%] left-[-5%] w-[500px] h-[500px] bg-[#8c25f4]/05 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-[#13ecec]/05 blur-[120px] rounded-full" />
+                <div className="absolute top-[10%] left-[-5%] w-[500px] h-[500px] bg-[var(--color-primary)]/05 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-[var(--color-secondary)]/05 blur-[120px] rounded-full" />
             </div>
 
             {/* Neural Player Header */}
@@ -113,7 +113,7 @@ export const VideoPlayerPage: React.FC = () => {
                 <div className="flex items-center gap-6">
                     <button 
                         onClick={() => navigate(`/lms/course/${courseId}`)} 
-                        className="p-3 rounded-2xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-[#13ecec]/30 transition-all hover:scale-110 active:scale-95"
+                        className="p-3 rounded-2xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-[var(--color-secondary)]/30 transition-all hover:scale-110 active:scale-95"
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -125,18 +125,18 @@ export const VideoPlayerPage: React.FC = () => {
 
                 <div className="flex-1 flex justify-center px-10 overflow-hidden hidden md:flex">
                     <div className="px-6 py-2.5 rounded-2xl bg-white/05 border border-white/05 backdrop-blur-3xl flex items-center gap-4">
-                        <Activity size={14} className="text-[#13ecec] animate-pulse" />
+                        <Activity size={14} className="text-[var(--color-secondary)] animate-pulse" />
                         <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic truncate max-w-md">
                             {currentLesson.title}_
                         </span>
-                        <div className="size-2 bg-[#8c25f4] rounded-full animate-pulse" />
+                        <div className="size-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:flex flex-col items-end mr-4">
                         <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest italic">Sync Progress</span>
-                        <span className="text-sm font-black text-[#13ecec] italic leading-none">{Math.round((completedCount / totalCount) * 100)}%</span>
+                        <span className="text-sm font-black text-[var(--color-secondary)] italic leading-none">{Math.round((completedCount / totalCount) * 100)}%</span>
                     </div>
                     <button className="p-3 rounded-2xl bg-white/5 border border-white/5 text-slate-400 hover:text-white transition-all">
                         <Share2 size={20} />
@@ -166,7 +166,7 @@ export const VideoPlayerPage: React.FC = () => {
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => setIsPlaying(!isPlaying)} 
-                                    className="size-28 rounded-full bg-[#13ecec]/90 text-black flex items-center justify-center shadow-[0_0_60px_rgba(19,236,236,0.6)] backdrop-blur-md transition-all hover:bg-[#13ecec]"
+                                    className="size-28 rounded-full bg-[var(--color-secondary)]/90 text-black flex items-center justify-center shadow-[0_0_60px_rgba(19,236,236,0.6)] backdrop-blur-md transition-all hover:bg-[var(--color-secondary)]"
                                 >
                                     {isPlaying ? <Pause size={48} className="fill-current" /> : <Play size={48} className="ml-2 fill-current" />}
                                 </motion.button>
@@ -178,7 +178,7 @@ export const VideoPlayerPage: React.FC = () => {
                                     {/* Progressive Trace */}
                                     <div className="flex items-center gap-6">
                                         <div className="flex-1 h-3 bg-white/5 rounded-full relative overflow-hidden cursor-pointer group/progress shadow-inner">
-                                            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#8c25f4] to-[#13ecec] rounded-full shadow-[0_0_20px_#13ecec]" />
+                                            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-full shadow-[0_0_20px_var(--color-secondary)]" />
                                             <div className="absolute left-1/3 -ml-2 top-1/2 -translate-y-1/2 size-4 bg-white rounded-full shadow-[0_0_15px_#fff] scale-0 group-hover/progress:scale-100 transition-transform" />
                                         </div>
                                         <span className="text-[11px] font-black text-white italic tracking-widest whitespace-nowrap">42:12 / {currentLesson.duration}</span>
@@ -186,25 +186,25 @@ export const VideoPlayerPage: React.FC = () => {
                                     
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-8">
-                                            <button disabled={!prevLesson} onClick={() => navigate(`/lms/course/${courseId}/lesson/${prevLesson?.id}`)} className="text-white hover:text-[#13ecec] transition-all disabled:opacity-20 hover:scale-125">
+                                            <button disabled={!prevLesson} onClick={() => navigate(`/lms/course/${courseId}/lesson/${prevLesson?.id}`)} className="text-white hover:text-[var(--color-secondary)] transition-all disabled:opacity-20 hover:scale-125">
                                                 <SkipBack size={24} className="fill-current" />
                                             </button>
-                                            <button onClick={() => setIsPlaying(!isPlaying)} className="text-white hover:text-[#13ecec] transition-all hover:scale-125">
+                                            <button onClick={() => setIsPlaying(!isPlaying)} className="text-white hover:text-[var(--color-secondary)] transition-all hover:scale-125">
                                                 {isPlaying ? <Pause size={32} className="fill-current" /> : <Play size={32} className="fill-current" />}
                                             </button>
-                                            <button disabled={!nextLesson} onClick={() => navigate(`/lms/course/${courseId}/lesson/${nextLesson?.id}`)} className="text-white hover:text-[#13ecec] transition-all disabled:opacity-20 hover:scale-125">
+                                            <button disabled={!nextLesson} onClick={() => navigate(`/lms/course/${courseId}/lesson/${nextLesson?.id}`)} className="text-white hover:text-[var(--color-secondary)] transition-all disabled:opacity-20 hover:scale-125">
                                                 <SkipForward size={24} className="fill-current" />
                                             </button>
                                             <div className="w-[1px] h-8 bg-white/10 mx-2" />
-                                            <button onClick={() => setIsMuted(!isMuted)} className="text-white hover:text-[#13ecec] transition-all hover:scale-125">
+                                            <button onClick={() => setIsMuted(!isMuted)} className="text-white hover:text-[var(--color-secondary)] transition-all hover:scale-125">
                                                 {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                                             </button>
                                         </div>
                                         
                                         <div className="flex items-center gap-8">
-                                            <button className="px-4 py-2 bg-white/10 rounded-xl text-[10px] font-black text-white italic border border-white/10 hover:border-[#13ecec]/40 transition-all">1.25x SPEED</button>
-                                            <button className="text-white hover:text-[#13ecec] transition-all hover:rotate-90"><Settings size={24} /></button>
-                                            <button className="text-white hover:text-[#13ecec] transition-all hover:scale-125"><Maximize size={24} /></button>
+                                            <button className="px-4 py-2 bg-white/10 rounded-xl text-[10px] font-black text-white italic border border-white/10 hover:border-[var(--color-secondary)]/40 transition-all">1.25x SPEED</button>
+                                            <button className="text-white hover:text-[var(--color-secondary)] transition-all hover:rotate-90"><Settings size={24} /></button>
+                                            <button className="text-white hover:text-[var(--color-secondary)] transition-all hover:scale-125"><Maximize size={24} /></button>
                                         </div>
                                     </div>
                                 </div>
@@ -215,7 +215,7 @@ export const VideoPlayerPage: React.FC = () => {
                     {/* Metadata Node */}
                     <section className="px-12 py-8 space-y-4">
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className="px-3 py-1 bg-[#8c25f4]/15 border border-[#8c25f4]/30 rounded-lg text-[9px] font-black text-[#8c25f4] uppercase tracking-widest italic">Sector 0{currentIdx + 1}</span>
+                            <span className="px-3 py-1 bg-[var(--color-primary)]/15 border border-[var(--color-primary)]/30 rounded-lg text-[9px] font-black text-[var(--color-primary)] uppercase tracking-widest italic">Sector 0{currentIdx + 1}</span>
                             <span className="text-slate-700 font-bold">•</span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Extraction Active</span>
                         </div>
@@ -229,14 +229,14 @@ export const VideoPlayerPage: React.FC = () => {
                 {/* Vertical Matrix Controller (Curriculum/Notes) */}
                 <div className="w-full lg:w-[450px] flex-shrink-0 border-l border-white/5 bg-black/60 backdrop-blur-3xl flex flex-col hidden lg:flex relative z-10 shadow-2xl">
                     {/* Header Metrics */}
-                    <div className="p-10 border-b border-white/5 space-y-8 bg-gradient-to-br from-[#8c25f4]/10 to-transparent">
+                    <div className="p-10 border-b border-white/5 space-y-8 bg-gradient-to-br from-[var(--color-primary)]/10 to-transparent">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
                                 <h3 className="text-lg font-black text-white italic tracking-tighter">Stream Progress_</h3>
                                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Node Accumulation Rank</p>
                             </div>
                             <div className="text-right">
-                                <span className="text-2xl font-black text-[#13ecec] italic leading-none">{completedCount}</span>
+                                <span className="text-2xl font-black text-[var(--color-secondary)] italic leading-none">{completedCount}</span>
                                 <span className="text-slate-600 font-bold mx-1">/</span>
                                 <span className="text-sm font-black text-slate-500 italic">{totalCount}</span>
                             </div>
@@ -246,7 +246,7 @@ export const VideoPlayerPage: React.FC = () => {
                                 initial={{ width: 0 }}
                                 animate={{ width: `${(completedCount / totalCount) * 100}%` }}
                                 transition={{ duration: 1.5, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-[#8c25f4] to-[#13ecec] rounded-full shadow-[0_0_15px_rgba(19,236,236,0.3)]" 
+                                className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-full shadow-[0_0_15px_rgba(19,236,236,0.3)]" 
                             />
                         </div>
                     </div>
@@ -260,7 +260,7 @@ export const VideoPlayerPage: React.FC = () => {
                                 className={cn(
                                     "flex-1 py-6 text-[10px] font-black uppercase tracking-[0.2em] italic transition-all border-b-2",
                                     activeTab === tab 
-                                        ? "text-[#13ecec] border-[#13ecec] bg-[#13ecec]/05" 
+                                        ? "text-[var(--color-secondary)] border-[var(--color-secondary)] bg-[var(--color-secondary)]/05" 
                                         : "text-slate-600 border-transparent hover:text-slate-300 hover:bg-white/02"
                                 )}
                             >
@@ -274,7 +274,7 @@ export const VideoPlayerPage: React.FC = () => {
                         {activeTab === 'curriculum' && course?.curriculum.map((section, sIdx) => (
                             <div key={sIdx} className="space-y-4">
                                 <div className="flex items-center gap-3 py-2 sticky top-0 bg-[#050510] z-20 px-4 mt-2">
-                                    <div className="size-1.5 bg-[#8c25f4] rounded-full" />
+                                    <div className="size-1.5 bg-[var(--color-primary)] rounded-full" />
                                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{section.section}</span>
                                 </div>
                                 
@@ -286,7 +286,7 @@ export const VideoPlayerPage: React.FC = () => {
                                         className={cn(
                                             "rounded-[1.5rem] p-5 flex items-center gap-5 cursor-pointer transition-all duration-300 border",
                                             lesson.id === lessonId 
-                                                ? "bg-[#13ecec]/10 border-[#13ecec]/30 shadow-[0_0_20px_rgba(19,236,236,0.1)]" 
+                                                ? "bg-[var(--color-secondary)]/10 border-[var(--color-secondary)]/30 shadow-[0_0_20px_rgba(19,236,236,0.1)]" 
                                                 : "bg-white/02 border-white/05 hover:border-white/10 hover:bg-white/05"
                                         )}
                                     >
@@ -296,7 +296,7 @@ export const VideoPlayerPage: React.FC = () => {
                                                     <CheckCircle size={18} className="text-emerald-400" />
                                                 </div>
                                             ) : lesson.id === lessonId ? (
-                                                <div className="size-10 rounded-xl bg-[#13ecec] flex items-center justify-center shadow-[0_0_15px_#13ecec]">
+                                                <div className="size-10 rounded-xl bg-[var(--color-secondary)] flex items-center justify-center shadow-[0_0_15px_var(--color-secondary)]">
                                                     <Zap size={18} className="text-black" />
                                                 </div>
                                             ) : (
@@ -312,7 +312,7 @@ export const VideoPlayerPage: React.FC = () => {
                                         </div>
                                         
                                         {lesson.id === lessonId && (
-                                            <div className="size-2 bg-[#13ecec] rounded-full animate-ping" />
+                                            <div className="size-2 bg-[var(--color-secondary)] rounded-full animate-ping" />
                                         )}
                                     </motion.div>
                                 ))}
@@ -324,7 +324,7 @@ export const VideoPlayerPage: React.FC = () => {
                                 <div className="space-y-4">
                                     <Typography variant="label" className="text-slate-600 uppercase tracking-widest text-[9px] font-black italic">Active Buffer_</Typography>
                                     <textarea
-                                        className="w-full bg-black/40 border border-white/10 rounded-3xl p-8 text-white text-sm font-medium italic focus:outline-none focus:border-[#13ecec]/40 transition-all min-h-[350px] resize-none placeholder:text-slate-800 shadow-inner"
+                                        className="w-full bg-black/40 border border-white/10 rounded-3xl p-8 text-white text-sm font-medium italic focus:outline-none focus:border-[var(--color-secondary)]/40 transition-all min-h-[350px] resize-none placeholder:text-slate-800 shadow-inner"
                                         placeholder="Synchronize your insights... Persistence guaranteed."
                                         value={notes}
                                         onChange={e => setNotes(e.target.value)}
@@ -338,7 +338,7 @@ export const VideoPlayerPage: React.FC = () => {
                                     <Typography variant="label" className="text-slate-700 uppercase tracking-widest text-[8px] font-black">HISTORICAL PERSISTENCE</Typography>
                                     <div className="glass-panel p-6 rounded-2xl border-white/5 bg-black/20 opacity-40 hover:opacity-100 transition-opacity space-y-3">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[10px] font-black text-[#8c25f4] italic tracking-tighter">@ 04:20 MARK_</span>
+                                            <span className="text-[10px] font-black text-[var(--color-primary)] italic tracking-tighter">@ 04:20 MARK_</span>
                                             <span className="text-[8px] font-black text-slate-700">COORD: AX-402</span>
                                         </div>
                                         <p className="text-xs text-slate-400 font-medium italic italic">Encapsulate all side-effects within local controllers to ensure deterministic rendering flow.</p>
@@ -352,11 +352,11 @@ export const VideoPlayerPage: React.FC = () => {
                                 {['Structural Architecture.pdf', 'Node Schematics.zip', 'Logic Protocol.tsx'].map(r => (
                                     <motion.div 
                                         key={r} 
-                                        whileHover={{ scale: 1.02, borderLeftColor: '#13ecec' }}
+                                        whileHover={{ scale: 1.02, borderLeftColor: 'var(--color-secondary)' }}
                                         className="glass-panel p-6 rounded-3xl border-white/5 border-l-4 border-l-transparent bg-black/40 hover:bg-white/05 cursor-pointer transition-all flex items-center justify-between group shadow-xl"
                                     >
                                         <div className="flex items-center gap-6">
-                                            <div className="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-600 group-hover:text-[#13ecec] group-hover:bg-[#13ecec]/10 transition-all">
+                                            <div className="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-600 group-hover:text-[var(--color-secondary)] group-hover:bg-[var(--color-secondary)]/10 transition-all">
                                                 <Download size={20} />
                                             </div>
                                             <div className="space-y-1">
@@ -364,7 +364,7 @@ export const VideoPlayerPage: React.FC = () => {
                                                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest italic">Encrypted Payload</span>
                                             </div>
                                         </div>
-                                        <ChevronRight size={20} className="text-slate-800 group-hover:text-[#13ecec] transition-all" />
+                                        <ChevronRight size={20} className="text-slate-800 group-hover:text-[var(--color-secondary)] transition-all" />
                                     </motion.div>
                                 ))}
                             </div>

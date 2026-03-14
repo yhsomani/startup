@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-    Zap, Target, TrendingUp, Activity, 
-    ChevronRight, Lock, Unlock, Clock, 
+    Zap, Target, Activity, 
+    ChevronRight, Lock, Unlock, 
     Sparkles, Brain, Code, Cpu 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -58,6 +58,9 @@ export const DeveloperDashboard: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    console.log('Dashboard Sync:', loading);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stats, setStats] = useState<DashStats>({
         profileViews: 1240,
         xp: 8450,
@@ -93,21 +96,21 @@ export const DeveloperDashboard: React.FC = () => {
             {/* Neural Hero Section */}
             <motion.section 
                 variants={itemVariants}
-                className="relative overflow-hidden p-8 md:p-12 glass-panel rounded-[2rem] border-white/10 group"
+                className="relative overflow-hidden p-8 md:p-12 glass-panel rounded-[2rem] border-white/10 group shadow-2xl bg-black/40"
             >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/10 via-transparent to-[#13ecec]/5 pointer-events-none" />
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#13ecec]/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-[#13ecec]/20 transition-colors duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 via-transparent to-[var(--color-secondary)]/5 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--color-secondary)]/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-[var(--color-secondary)]/20 transition-colors duration-700" />
                 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
                     <div className="flex-1 space-y-6">
                         <div className="flex flex-wrap items-center gap-3">
-                            <div className="px-3 py-1 bg-[#13ecec]/10 rounded-full border border-[#13ecec]/30 flex items-center gap-2">
-                                <Zap size={12} className="text-[#13ecec]" />
-                                <span className="text-[10px] font-black text-[#13ecec] uppercase tracking-widest italic">Neural Connection Stable</span>
+                            <div className="px-3 py-1 bg-[var(--color-secondary)]/10 rounded-full border border-[var(--color-secondary)]/30 flex items-center gap-2">
+                                <Zap size={12} className="text-[var(--color-secondary)]" />
+                                <span className="text-[10px] font-black text-[var(--color-secondary)] uppercase tracking-widest italic">Neural Connection Stable</span>
                             </div>
-                            <div className="px-3 py-1 bg-[#8c25f4]/10 rounded-full border border-[#8c25f4]/30 flex items-center gap-2">
-                                <Target size={12} className="text-[#8c25f4]" />
-                                <span className="text-[10px] font-black text-[#8c25f4] uppercase tracking-widest italic">Global Top 2.4%</span>
+                            <div className="px-3 py-1 bg-[var(--color-primary)]/10 rounded-full border border-[var(--color-primary)]/30 flex items-center gap-2">
+                                <Target size={12} className="text-[var(--color-primary)]" />
+                                <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest italic">Global Top 2.4%</span>
                             </div>
                         </div>
                         
@@ -117,7 +120,7 @@ export const DeveloperDashboard: React.FC = () => {
                             </Typography>
                             <p className="text-slate-400 text-lg max-w-2xl leading-relaxed font-medium">
                                 Your professional neural mesh is expanding. 
-                                <span className="text-[#13ecec] font-black ml-2 bg-[#13ecec]/10 px-2 py-0.5 rounded italic">12 New Matches Detected</span>
+                                <span className="text-[var(--color-secondary)] font-black ml-2 bg-[var(--color-secondary)]/10 px-2 py-0.5 rounded italic">12 New Matches Detected</span>
                             </p>
                         </div>
                     </div>
@@ -135,7 +138,7 @@ export const DeveloperDashboard: React.FC = () => {
                                             initial={{ strokeDashoffset: 226 }}
                                             animate={{ strokeDashoffset: 226 * (1 - 0.85) }}
                                             transition={{ duration: 1.5, ease: "easeOut" }}
-                                            className="text-[#13ecec] drop-shadow-[0_0_8px_rgba(19,236,236,0.5)]" 
+                                            className="text-[var(--color-secondary)] drop-shadow-[0_0_8px_var(--color-secondary-glow)]" 
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -143,11 +146,11 @@ export const DeveloperDashboard: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <Typography variant="label" className="text-[#8c25f4] mb-1">Matrix Progress</Typography>
+                                    <Typography variant="label" className="text-[var(--color-primary)] mb-1">Matrix Progress</Typography>
                                     <p className="text-lg font-black text-white italic uppercase tracking-tighter truncate">{stats.rank}</p>
                                     <div className="flex justify-between mt-2">
                                         <span className="text-[10px] font-bold text-slate-500 italic">LVL 42</span>
-                                        <span className="text-[10px] font-black text-[#13ecec] italic">{stats.xp.toLocaleString()} XP</span>
+                                        <span className="text-[10px] font-black text-[var(--color-secondary)] italic">{stats.xp.toLocaleString()} XP</span>
                                     </div>
                                 </div>
                             </div>
@@ -171,21 +174,21 @@ export const DeveloperDashboard: React.FC = () => {
                     {/* Metrics Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
-                            { label: 'Visibility', value: '1,240', trend: '+12%', icon: Activity, color: '#13ecec' },
-                            { label: 'Neural Rank', value: '#4,092', trend: '+84', icon: Target, color: '#8c25f4' },
+                            { label: 'Visibility', value: '1,240', trend: '+12%', icon: Activity, color: 'var(--color-secondary)' },
+                            { label: 'Neural Rank', value: '#4,092', trend: '+84', icon: Target, color: 'var(--color-primary)' },
                             { label: 'Velocity', value: '3.2/wk', trend: 'Stable', icon: Zap, color: '#10b981' },
                             { label: 'Mastery', value: '985', trend: 'Top 1%', icon: Brain, color: '#f59e0b' },
-                        ].map((metric, i) => (
+                        ].map((metric) => (
                             <motion.div 
                                 key={metric.label}
                                 variants={itemVariants}
-                                className="glass-panel p-6 rounded-3xl border-white/5 hover:border-[#8c25f4]/30 group/card transition-all"
+                                className="glass-panel p-6 rounded-3xl border-white/5 hover:border-[var(--color-primary)]/30 group/card transition-all bg-black/40 shadow-xl"
                             >
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="p-3 rounded-2xl bg-white/5 text-slate-400 group-hover/card:text-white group-hover/card:bg-[#8c25f4]/20 transition-all">
+                                    <div className="p-3 rounded-2xl bg-white/5 text-slate-400 group-hover/card:text-white group-hover/card:bg-[var(--color-primary)]/20 transition-all">
                                         <metric.icon size={20} />
                                     </div>
-                                    <div className="text-[10px] font-black text-[#13ecec] italic bg-[#13ecec]/10 px-2 py-1 rounded">
+                                    <div className="text-[10px] font-black text-[var(--color-secondary)] italic bg-[var(--color-secondary)]/10 px-2 py-1 rounded">
                                         {metric.trend}
                                     </div>
                                 </div>
@@ -196,10 +199,10 @@ export const DeveloperDashboard: React.FC = () => {
                     </div>
 
                     {/* Growth Protocol Timeline */}
-                    <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2rem] border-white/5">
+                    <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2rem] border-white/5 bg-black/40 shadow-xl">
                         <div className="flex items-center justify-between mb-10">
                             <div className="flex items-center gap-3">
-                                <Cpu className="text-[#13ecec]" size={20} />
+                                <Cpu className="text-[var(--color-secondary)]" size={20} />
                                 <Typography variant="h3">Growth Protocol</Typography>
                             </div>
                             <Button variant="ghost" size="sm" className="italic uppercase font-black text-[10px] tracking-widest">
@@ -212,13 +215,13 @@ export const DeveloperDashboard: React.FC = () => {
                                 <div key={milestone.label} className="relative">
                                     <div className={cn(
                                         "glass-panel p-6 rounded-3xl border-white/5 transition-all relative z-10",
-                                        milestone.status === 'active' ? "border-[#13ecec]/40 bg-[#13ecec]/5" : "hover:border-white/10"
+                                        milestone.status === 'active' ? "border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/5" : "hover:border-white/10"
                                     )}>
                                         <div className="flex justify-between items-start mb-4">
                                             <span className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded italic",
                                                 milestone.status === 'unlocked' ? "bg-emerald-500/10 text-emerald-400" : 
-                                                milestone.status === 'active' ? "bg-[#13ecec]/20 text-[#13ecec]" : 
+                                                milestone.status === 'active' ? "bg-[var(--color-secondary)]/20 text-[var(--color-secondary)]" : 
                                                 "bg-slate-800 text-slate-500"
                                             )}>
                                                 {milestone.status}
@@ -238,17 +241,17 @@ export const DeveloperDashboard: React.FC = () => {
                     </motion.section>
 
                     {/* Neural Activity Stream */}
-                    <motion.section variants={itemVariants} className="glass-panel rounded-[2rem] border-white/5 overflow-hidden">
+                    <motion.section variants={itemVariants} className="glass-panel rounded-[2rem] border-white/5 overflow-hidden bg-black/40 shadow-xl">
                         <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <Activity className="text-[#8c25f4]" size={20} />
+                                <Activity className="text-[var(--color-primary)]" size={20} />
                                 <Typography variant="h3">System Activity</Typography>
                             </div>
                         </div>
                         <div className="divide-y divide-white/5">
                             {[
-                                { title: 'Algorithm Optimized: Matrix Sort', desc: 'Achieved O(n log n) efficiency in cinematic renderer.', time: '2h ago', icon: Code, color: 'text-[#13ecec]' },
-                                { title: 'Neural PR Merged', desc: 'Integration of TalentSphere V2 design system core.', time: 'Yesterday', icon: GitMerge, color: 'text-[#8c25f4]' },
+                                { title: 'Algorithm Optimized: Matrix Sort', desc: 'Achieved O(n log n) efficiency in cinematic renderer.', time: '2h ago', icon: Code, color: 'text-[var(--color-secondary)]' },
+                                { title: 'Neural PR Merged', desc: 'Integration of TalentSphere V2 design system core.', time: 'Yesterday', icon: GitMerge, color: 'text-[var(--color-primary)]' },
                                 { title: 'Quantum Certification', desc: 'Neural Network Architect - Level 4 Verified.', time: '2 days ago', icon: Award, color: 'text-emerald-400' },
                             ].map((activity, i) => (
                                 <div key={i} className="p-8 hover:bg-white/5 transition-all flex gap-6 cursor-pointer group">
@@ -261,13 +264,13 @@ export const DeveloperDashboard: React.FC = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h4 className="text-lg font-black text-white italic transition-colors group-hover:text-[#13ecec]">{activity.title}</h4>
+                                            <h4 className="text-lg font-black text-white italic transition-colors group-hover:text-[var(--color-secondary)]">{activity.title}</h4>
                                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{activity.time}</span>
                                         </div>
                                         <p className="text-slate-400 font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">{activity.desc}</p>
                                     </div>
                                     <div className="self-center transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                                        <ChevronRight size={20} className="text-[#8c25f4]" />
+                                        <ChevronRight size={20} className="text-[var(--color-primary)]" />
                                     </div>
                                 </div>
                             ))}
@@ -280,15 +283,15 @@ export const DeveloperDashboard: React.FC = () => {
                     {/* Neural Matches Widget */}
                     <motion.section 
                         variants={itemVariants} 
-                        className="glass-panel p-8 rounded-[2rem] border-[#13ecec]/20 relative overflow-hidden group/matches"
+                        className="glass-panel p-8 rounded-[2rem] border-[var(--color-secondary)]/20 relative overflow-hidden group/matches bg-black/40 shadow-xl"
                     >
                         <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none transform group-hover:rotate-12 transition-transform duration-700">
-                            <Brain size={120} className="text-[#13ecec]" />
+                            <Brain size={120} className="text-[var(--color-secondary)]" />
                         </div>
                         
                         <div className="relative z-10 space-y-8">
                             <div className="flex items-center gap-3">
-                                <Sparkles className="text-[#13ecec]" size={20} />
+                                <Sparkles className="text-[var(--color-secondary)]" size={20} />
                                 <Typography variant="h3">Neural Matches</Typography>
                             </div>
                             
@@ -298,14 +301,14 @@ export const DeveloperDashboard: React.FC = () => {
                                     { role: 'System Architect', company: 'Vector', match: '95%', type: 'Priority' },
                                     { role: 'Interface Specialist', company: 'Nexus', match: '92%', type: 'Matching' },
                                 ].map((job, i) => (
-                                    <div key={i} className="glass-panel p-5 rounded-[1.5rem] border-white/5 hover:border-[#13ecec]/40 transition-all group/job cursor-pointer">
+                                    <div key={i} className="glass-panel p-5 rounded-[1.5rem] border-white/5 hover:border-[var(--color-secondary)]/40 transition-all group/job cursor-pointer bg-black/20">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-[#13ecec]/10 text-[#13ecec] flex items-center justify-center font-black text-sm border border-[#13ecec]/20">
+                                                <div className="w-10 h-10 rounded-xl bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] flex items-center justify-center font-black text-sm border border-[var(--color-secondary)]/20">
                                                     {job.company[0]}
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-[#13ecec] uppercase tracking-[0.2em] italic mb-1">{job.company}</p>
+                                                    <p className="text-[10px] font-black text-[var(--color-secondary)] uppercase tracking-[0.2em] italic mb-1">{job.company}</p>
                                                     <p className="text-white font-black italic tracking-tight truncate">{job.role}</p>
                                                 </div>
                                             </div>
@@ -313,14 +316,14 @@ export const DeveloperDashboard: React.FC = () => {
                                                 {job.match}
                                             </div>
                                         </div>
-                                        <Button variant="ghost" size="sm" className="w-full text-[10px] italic border-white/5 group-hover/job:border-[#13ecec]/30">
+                                        <Button variant="ghost" size="sm" className="w-full text-[10px] italic border-white/5 group-hover/job:border-[var(--color-secondary)]/30">
                                             Sync Trajectory_
                                         </Button>
                                     </div>
                                 ))}
                             </div>
 
-                            <Button variant="secondary" className="w-full group/btn shadow-[0_0_30px_rgba(19,236,236,0.2)]">
+                            <Button variant="secondary" className="w-full group/btn shadow-[0_0_30px_var(--color-secondary-glow)]">
                                 <span className="flex items-center justify-center gap-2">
                                     Access Global Mesh
                                     <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
@@ -333,9 +336,9 @@ export const DeveloperDashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {[
                             { label: 'Artifacts', icon: Award, color: 'text-amber-400' },
-                            { label: 'Source', icon: Code, color: 'text-[#8c25f4]' },
+                            { label: 'Source', icon: Code, color: 'text-[var(--color-primary)]' },
                             { label: 'Protocol', icon: Target, color: 'text-emerald-400' },
-                            { label: 'Nodes', icon: Activity, color: 'text-[#13ecec]' },
+                            { label: 'Nodes', icon: Activity, color: 'text-[var(--color-secondary)]' },
                         ].map((node) => (
                             <motion.button 
                                 key={node.label}

@@ -73,22 +73,22 @@ export const CourseCatalogPage: React.FC = () => {
         >
             {/* Atmospheric Background Layers */}
             <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#8c25f4]/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#13ecec]/10 blur-[120px] rounded-full animate-pulse delay-700" />
+                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-[var(--color-primary)]/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[var(--color-secondary)]/10 blur-[120px] rounded-full animate-pulse delay-700" />
             </div>
 
             {/* Oracle Interface Section */}
             <motion.section variants={nodeVariants} className="relative p-12 glass-panel rounded-[3.5rem] border-white/10 overflow-hidden group shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/20 via-transparent to-[#13ecec]/10 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/20 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
                 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
                     <div className="flex-1 space-y-8">
                         <div className="flex items-center gap-4">
-                            <div className="p-4 rounded-2xl bg-[#8c25f4]/15 text-[#13ecec] border border-[#13ecec]/20 shadow-[0_0_20px_rgba(19,236,236,0.2)]">
+                            <div className="p-4 rounded-2xl bg-[var(--color-primary)]/15 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20 shadow-[0_0_20px_rgba(19,236,236,0.2)]">
                                 <Brain size={32} />
                             </div>
                             <div className="px-4 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
-                                <span className="text-[10px] font-black text-[#8c25f4] uppercase tracking-[0.3em] italic">Knowledge Nexus Architecture</span>
+                                <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] italic">Knowledge Nexus Architecture</span>
                             </div>
                         </div>
                         <div className="space-y-4">
@@ -102,8 +102,8 @@ export const CourseCatalogPage: React.FC = () => {
                     </div>
 
                     <div className="w-full lg:w-[500px] space-y-6">
-                        <div className="glass-panel p-2 rounded-[2.5rem] border-white/10 flex items-center bg-black/40 backdrop-blur-3xl shadow-2xl group focus-within:border-[#13ecec]/40 transition-all">
-                            <Search className="text-[#8c25f4] ml-6 group-focus-within:text-[#13ecec] transition-colors" size={24} />
+                        <div className="glass-panel p-2 rounded-[2.5rem] border-white/10 flex items-center bg-black/40 backdrop-blur-3xl shadow-2xl group focus-within:border-[var(--color-secondary)]/40 transition-all">
+                            <Search className="text-[var(--color-primary)] ml-6 group-focus-within:text-[var(--color-secondary)] transition-colors" size={24} />
                             <input
                                 type="text"
                                 placeholder="Neural Query Sequence..."
@@ -117,11 +117,11 @@ export const CourseCatalogPage: React.FC = () => {
                         </div>
                         <div className="flex gap-6 justify-center lg:justify-start">
                             <div className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-md">
-                                <Activity size={16} className="text-[#13ecec] animate-pulse" />
+                                <Activity size={16} className="text-[var(--color-secondary)] animate-pulse" />
                                 <span className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest">2,482 Synchronized</span>
                             </div>
                             <div className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-md">
-                                <Trophy size={16} className="text-[#8c25f4]" />
+                                <Trophy size={16} className="text-[var(--color-primary)]" />
                                 <span className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest">Elite Tiers</span>
                             </div>
                         </div>
@@ -138,7 +138,7 @@ export const CourseCatalogPage: React.FC = () => {
                         className={cn(
                             "flex h-16 shrink-0 items-center justify-center px-10 rounded-2xl font-black text-xs uppercase tracking-widest italic transition-all whitespace-nowrap border-2",
                             activeCategory === category
-                                ? "bg-[#8c25f4] text-white border-[#8c25f4] shadow-[0_0_30px_rgba(140,37,244,0.4)] scale-105"
+                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[0_0_30px_rgba(140,37,244,0.4)] scale-105"
                                 : "glass-panel border-white/5 text-slate-500 hover:text-white hover:border-white/20 hover:bg-white/5"
                         )}
                     >
@@ -151,12 +151,12 @@ export const CourseCatalogPage: React.FC = () => {
             <main className="space-y-12">
                 <div className="flex items-center justify-between border-b border-white/5 pb-8">
                     <div className="flex items-center gap-4">
-                        <div className="p-2 rounded-xl bg-[#13ecec]/10 text-[#13ecec] border border-[#13ecec]/20">
+                        <div className="p-2 rounded-xl bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20">
                             <BookOpen size={20} />
                         </div>
                         <Typography variant="h3" className="mb-0 italic tracking-tighter text-white">Active Curriculums_</Typography>
                     </div>
-                    <Button variant="ghost" className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[#8c25f4] hover:text-[#13ecec] transition-colors">
+                    <Button variant="ghost" className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors">
                         Expand All Nodes →
                     </Button>
                 </div>
@@ -175,7 +175,7 @@ export const CourseCatalogPage: React.FC = () => {
                                     layout
                                     whileHover={{ y: -15, scale: 1.02 }}
                                     onClick={() => navigate(`/lms/course/${course.id}`)}
-                                    className="glass-panel rounded-[3rem] overflow-hidden flex flex-col group border-white/5 hover:border-[#8c25f4]/40 transition-all duration-500 cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-black/40 relative"
+                                    className="glass-panel rounded-[3rem] overflow-hidden flex flex-col group border-white/5 hover:border-[var(--color-primary)]/40 transition-all duration-500 cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-black/40 relative"
                                 >
                                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#050510]">
                                         {course.image ? (
@@ -183,10 +183,10 @@ export const CourseCatalogPage: React.FC = () => {
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a1024] to-[#050510]">
                                                 <Typography variant="h1" className="text-9xl text-white/[0.03] m-0 italic">{course.title.substring(0, 1)}</Typography>
-                                                <PlayCircle className="absolute text-white/10 group-hover:text-[#8c25f4]/60 transition-all duration-500" size={64} strokeWidth={1} />
+                                                <PlayCircle className="absolute text-white/10 group-hover:text-[var(--color-primary)]/60 transition-all duration-500" size={64} strokeWidth={1} />
                                             </div>
                                         )}
-                                        <div className="absolute top-6 right-6 bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-2xl text-[#13ecec] text-[10px] font-black tracking-widest uppercase border border-[#13ecec]/30 italic shadow-xl">
+                                        <div className="absolute top-6 right-6 bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-2xl text-[var(--color-secondary)] text-[10px] font-black tracking-widest uppercase border border-[var(--color-secondary)]/30 italic shadow-xl">
                                             {course.level}
                                         </div>
                                     </div>
@@ -194,17 +194,17 @@ export const CourseCatalogPage: React.FC = () => {
                                     <div className="p-10 flex-1 flex flex-col space-y-6">
                                         <div className="flex flex-wrap gap-2">
                                             {course.tags.slice(0, 2).map(tag => (
-                                                <span key={tag} className="text-[9px] font-black text-[#8c25f4] bg-[#8c25f4]/15 border border-[#8c25f4]/30 px-3 py-1 rounded-xl uppercase tracking-wider italic">
+                                                <span key={tag} className="text-[9px] font-black text-[var(--color-primary)] bg-[var(--color-primary)]/15 border border-[var(--color-primary)]/30 px-3 py-1 rounded-xl uppercase tracking-wider italic">
                                                     #{tag}
                                                 </span>
                                             ))}
                                         </div>
-                                        <h4 className="font-black text-2xl text-white leading-tight group-hover:text-[#13ecec] transition-colors italic tracking-tighter">
+                                        <h4 className="font-black text-2xl text-white leading-tight group-hover:text-[var(--color-secondary)] transition-colors italic tracking-tighter">
                                             {course.title}_
                                         </h4>
                                         
                                         <div className="flex items-center gap-4">
-                                            <div className="size-10 rounded-2xl bg-gradient-to-br from-[#8c25f4] to-[#13ecec] p-[2px] shadow-lg">
+                                            <div className="size-10 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] p-[2px] shadow-lg">
                                                 <div className="w-full h-full rounded-[1.1rem] bg-black flex items-center justify-center text-[11px] font-black text-white italic">
                                                     {course.instructor.charAt(0)}
                                                 </div>
@@ -220,7 +220,7 @@ export const CourseCatalogPage: React.FC = () => {
 
                                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
                                             <div className="flex items-center gap-2 text-slate-500">
-                                                <Clock size={14} className="text-[#8c25f4]" />
+                                                <Clock size={14} className="text-[var(--color-primary)]" />
                                                 <span className="text-[10px] font-black uppercase italic tracking-widest">{course.duration} Session</span>
                                             </div>
                                             <div className="text-2xl font-black text-white italic tracking-tighter">
@@ -232,7 +232,7 @@ export const CourseCatalogPage: React.FC = () => {
                                         <Button 
                                             variant="primary" 
                                             fullWidth 
-                                            className="py-5 rounded-2xl text-[10px] font-black uppercase italic tracking-[0.2em] shadow-[0_10px_30px_rgba(140,37,244,0.3)] hover:shadow-[#13ecec]/20"
+                                            className="py-5 rounded-2xl text-[10px] font-black uppercase italic tracking-[0.2em] shadow-[0_10px_30px_rgba(140,37,244,0.3)] hover:shadow-[var(--color-secondary)]/20"
                                         >
                                             Synchronize_
                                         </Button>
@@ -268,13 +268,13 @@ export const CourseCatalogPage: React.FC = () => {
             </main>
 
             {/* Elite Contest Module - Synchronized Footer */}
-            <motion.section variants={nodeVariants} className="relative p-12 glass-panel rounded-[4rem] border-[#8c25f4]/30 overflow-hidden shadow-2xl group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#8c25f4]/15 via-transparent to-[#13ecec]/15 pointer-events-none" />
+            <motion.section variants={nodeVariants} className="relative p-12 glass-panel rounded-[4rem] border-[var(--color-primary)]/30 overflow-hidden shadow-2xl group">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)]/15 via-transparent to-[var(--color-secondary)]/15 pointer-events-none" />
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
                     <div className="space-y-4">
                         <Typography variant="h2" className="text-white mb-0 italic tracking-tighter">Global Hack Protocol 350_</Typography>
                         <p className="text-slate-400 font-medium italic text-lg max-w-xl">
-                            Elite synchronization event starts in <span className="text-[#13ecec] font-black">2d 14h</span>. Elevate your status to Arch-Tier.
+                            Elite synchronization event starts in <span className="text-[var(--color-secondary)] font-black">2d 14h</span>. Elevate your status to Arch-Tier.
                         </p>
                     </div>
                     <Button variant="primary" className="px-16 py-6 text-xs italic tracking-[0.3em] shadow-[0_0_40px_rgba(140,37,244,0.4)]">

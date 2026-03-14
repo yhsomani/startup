@@ -98,23 +98,23 @@ export const JobPostingFlowPage: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="relative min-h-screen w-full flex flex-col space-y-12 selection:bg-[#8c25f4]/30 pb-24"
+            className="relative min-h-screen w-full flex flex-col space-y-12 selection:bg-[var(--color-primary)]/30 pb-24"
         >
             {/* Cinematic Background Elements */}
             <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-[#8c25f4]/10 blur-[150px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] bg-[#13ecec]/10 blur-[150px] rounded-full animate-pulse delay-700" />
+                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-[var(--color-primary)]/10 blur-[150px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] bg-[var(--color-secondary)]/10 blur-[150px] rounded-full animate-pulse delay-700" />
             </div>
 
             {/* Header Module */}
             <motion.section variants={itemVariants} className="relative p-12 lg:p-16 glass-panel rounded-[3.5rem] border-white/10 overflow-hidden group shadow-3xl bg-black/40">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/10 via-transparent to-[#13ecec]/10 pointer-events-none" />
-                <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#8c25f4]/10 blur-[150px] rounded-full translate-x-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
+                <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[var(--color-primary)]/10 blur-[150px] rounded-full translate-x-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
                 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-10">
                     <div className="space-y-6 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-6">
-                            <div className="p-4 rounded-2xl bg-[#8c25f4]/15 text-[#8c25f4] border border-[#8c25f4]/30 shadow-[0_0_20px_rgba(140,37,244,0.2)]">
+                            <div className="p-4 rounded-2xl bg-[var(--color-primary)]/15 text-[var(--color-primary)] border border-[var(--color-primary)]/30 shadow-[0_0_20px_rgba(140,37,244,0.2)]">
                                 <Rocket size={28} className="animate-pulse" />
                             </div>
                             <div className="px-5 py-2 bg-white/5 rounded-full border border-white/10 flex items-center gap-3">
@@ -140,7 +140,7 @@ export const JobPostingFlowPage: React.FC = () => {
 
             {/* Vector Path (Progress Track) */}
             <motion.section variants={itemVariants} className="px-12 py-10 glass-panel rounded-[2.5rem] border-white/5 bg-black/60 shadow-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#8c25f4]/5 to-[#13ecec]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)]/5 to-[var(--color-secondary)]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="flex justify-between items-end relative z-10">
                     <div className="flex items-center gap-10 overflow-x-auto no-scrollbar pb-2">
                         {STEPS.map((s, i) => (
@@ -149,15 +149,15 @@ export const JobPostingFlowPage: React.FC = () => {
                                     <div className={cn(
                                         "size-12 rounded-2xl border-2 transition-all duration-700 rotate-[45deg] flex items-center justify-center relative group/node",
                                         step === s.id 
-                                            ? "bg-[#8c25f4] border-white shadow-[0_0_30px_rgba(140,37,244,0.5)]" 
+                                            ? "bg-[var(--color-primary)] border-white shadow-[0_0_30px_rgba(140,37,244,0.5)]" 
                                             : step > s.id 
-                                                ? "bg-[#13ecec] border-transparent" 
+                                                ? "bg-[var(--color-secondary)] border-transparent" 
                                                 : "bg-[#0a070d] border-white/10 hover:border-white/30"
                                     )}>
                                         <s.icon size={20} className={cn("-rotate-[45deg] transition-all duration-500", step === s.id ? "text-white scale-110" : step > s.id ? "text-black" : "text-slate-700 group-hover/node:text-slate-300")} />
                                         {step === s.id && <div className="absolute inset-0 bg-white/20 blur-md rounded-2xl animate-pulse" />}
                                     </div>
-                                    <p className={cn("text-[9px] font-black uppercase tracking-widest italic transition-colors", step === s.id ? "text-[#8c25f4]" : "text-slate-600")}>0{s.id}</p>
+                                    <p className={cn("text-[9px] font-black uppercase tracking-widest italic transition-colors", step === s.id ? "text-[var(--color-primary)]" : "text-slate-600")}>0{s.id}</p>
                                 </div>
                                 <div className={cn("hidden xl:block transition-all duration-700", step === s.id ? "opacity-100 translate-x-0" : "opacity-40 -translate-x-2")}>
                                     <p className="text-[10px] font-bold text-white italic uppercase tracking-tighter mb-1">{s.title}</p>
@@ -165,7 +165,7 @@ export const JobPostingFlowPage: React.FC = () => {
                                 </div>
                                 {i < STEPS.length - 1 && (
                                     <div className="hidden lg:block w-16 h-[2px] relative bg-white/5 overflow-hidden">
-                                        {step > s.id && <div className="absolute inset-0 bg-gradient-to-r from-[#8c25f4] to-[#13ecec] animate-slide-right" />}
+                                        {step > s.id && <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] animate-slide-right" />}
                                     </div>
                                 )}
                             </div>
@@ -173,7 +173,7 @@ export const JobPostingFlowPage: React.FC = () => {
                     </div>
                     <div className="text-right pl-10 border-l border-white/5">
                         <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] italic leading-none mb-3">Sync Progress</p>
-                        <p className="text-4xl font-black text-[#13ecec] italic tracking-tighter leading-none">{Math.round(progressPercent)}%</p>
+                        <p className="text-4xl font-black text-[var(--color-secondary)] italic tracking-tighter leading-none">{Math.round(progressPercent)}%</p>
                     </div>
                 </div>
                 <div className="mt-8 h-[3px] w-full bg-[#0a070d] rounded-full overflow-hidden p-[1px] border border-white/5">
@@ -181,7 +181,7 @@ export const JobPostingFlowPage: React.FC = () => {
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.max(progressPercent, 5)}%` }}
                         transition={{ duration: 1, ease: "circOut" }}
-                        className="h-full bg-gradient-to-r from-[#8c25f4] via-[#8c25f4] to-[#13ecec] rounded-full shadow-[0_0_20px_rgba(140,37,244,0.4)]"
+                        className="h-full bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-secondary)] rounded-full shadow-[0_0_20px_rgba(140,37,244,0.4)]"
                     />
                 </div>
             </motion.section>
@@ -193,8 +193,8 @@ export const JobPostingFlowPage: React.FC = () => {
                         <div className="absolute -top-10 -right-10 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity duration-1000">
                             <HelpCircle size={160} />
                         </div>
-                        <div className="flex items-center gap-4 text-[#13ecec] relative z-10">
-                            <div className="p-2 bg-[#13ecec]/10 rounded-lg">
+                        <div className="flex items-center gap-4 text-[var(--color-secondary)] relative z-10">
+                            <div className="p-2 bg-[var(--color-secondary)]/10 rounded-lg">
                                 <HelpCircle size={20} />
                             </div>
                             <h4 className="text-sm font-black italic uppercase tracking-[0.2em] mb-0 leading-none">Protocol_</h4>
@@ -205,20 +205,20 @@ export const JobPostingFlowPage: React.FC = () => {
                                 { title: 'Yield Optima', text: 'Transparent yield strategies attract tier-1 neural nodes.' },
                             ].map((tip, idx) => (
                                 <div key={idx} className="p-6 rounded-[1.8rem] bg-white/5 border border-white/5 hover:border-white/10 transition-colors group/tip">
-                                    <p className="text-[10px] font-black text-[#8c25f4] uppercase italic tracking-[0.2em] mb-2 group-hover/tip:translate-x-1 transition-transform">{tip.title}</p>
+                                    <p className="text-[10px] font-black text-[var(--color-primary)] uppercase italic tracking-[0.2em] mb-2 group-hover/tip:translate-x-1 transition-transform">{tip.title}</p>
                                     <p className="text-[11px] text-slate-500 font-medium italic leading-relaxed">{tip.text}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
                     
-                    <div className="glass-panel p-10 rounded-[3rem] border-[#8c25f4]/30 bg-gradient-to-br from-[#8c25f4]/15 to-transparent space-y-6 shadow-xl relative group overflow-hidden">
-                        <div className="absolute inset-0 bg-[#8c25f4]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                        <h4 className="text-sm font-black italic uppercase tracking-[0.2em] text-[#8c25f4] relative z-10 leading-none">Neural Guard_</h4>
+                    <div className="glass-panel p-10 rounded-[3rem] border-[var(--color-primary)]/30 bg-gradient-to-br from-[var(--color-primary)]/15 to-transparent space-y-6 shadow-xl relative group overflow-hidden">
+                        <div className="absolute inset-0 bg-[var(--color-primary)]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                        <h4 className="text-sm font-black italic uppercase tracking-[0.2em] text-[var(--color-primary)] relative z-10 leading-none">Neural Guard_</h4>
                         <p className="text-[11px] text-slate-400 font-bold uppercase italic tracking-widest leading-relaxed relative z-10">Your deployment vector is automatically refined by the central swarm for maximum engagement.</p>
                         <div className="pt-4 relative z-10">
                             <div className="h-1 w-full bg-black/40 rounded-full overflow-hidden">
-                                <motion.div className="h-full bg-[#8c25f4] w-[60%]" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} />
+                                <motion.div className="h-full bg-[var(--color-primary)] w-[60%]" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} />
                             </div>
                         </div>
                     </div>
@@ -227,7 +227,7 @@ export const JobPostingFlowPage: React.FC = () => {
                 {/* Main Form Area */}
                 <motion.main variants={itemVariants} className="lg:col-span-3 space-y-12">
                     <div className="glass-panel p-12 lg:p-16 rounded-[4rem] border-white/5 bg-black/60 min-h-[600px] flex flex-col shadow-3xl relative overflow-hidden group">
-                        <div className="absolute -bottom-24 -right-24 size-96 bg-[#8c25f4]/5 blur-[100px] rounded-full pointer-events-none" />
+                        <div className="absolute -bottom-24 -right-24 size-96 bg-[var(--color-primary)]/5 blur-[100px] rounded-full pointer-events-none" />
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={step}
@@ -242,7 +242,7 @@ export const JobPostingFlowPage: React.FC = () => {
                                         <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white mb-0 leading-none">{currentStepConfig.subtitle}_</h2>
                                         <div className="h-[2px] flex-1 bg-gradient-to-r from-white/10 to-transparent" />
                                     </div>
-                                    <p className="text-[11px] font-black text-[#13ecec]/60 uppercase tracking-[0.4em] italic mb-0 leading-none">Processing deployment phase 0{step}...</p>
+                                    <p className="text-[11px] font-black text-[var(--color-secondary)]/60 uppercase tracking-[0.4em] italic mb-0 leading-none">Processing deployment phase 0{step}...</p>
                                 </div>
 
                                 <div className="relative">
@@ -279,7 +279,7 @@ export const JobPostingFlowPage: React.FC = () => {
                             <Button 
                                 fullWidth
                                 size="lg"
-                                className="h-24 rounded-[2.5rem] text-[11px] italic tracking-[0.4em] font-black uppercase shadow-[0_20px_40px_rgba(140,37,244,0.3)] hover:shadow-[0_25px_50px_rgba(140,37,244,0.4)] active:scale-95 transition-all bg-gradient-to-r from-[#8c25f4] to-indigo-600 border-none group/next"
+                                className="h-24 rounded-[2.5rem] text-[11px] italic tracking-[0.4em] font-black uppercase shadow-[0_20px_40px_rgba(140,37,244,0.3)] hover:shadow-[0_25px_50px_rgba(140,37,244,0.4)] active:scale-95 transition-all bg-gradient-to-r from-[var(--color-primary)] to-indigo-600 border-none group/next"
                                 disabled={!isStepValid()}
                                 onClick={() => setStep(s => s + 1)} 
                             >
@@ -292,7 +292,7 @@ export const JobPostingFlowPage: React.FC = () => {
                                     fullWidth
                                     size="lg"
                                     disabled={isSubmitting}
-                                    className="h-24 rounded-[2rem] border-[#13ecec]/40 text-[#13ecec] text-[11px] italic tracking-[0.4em] font-black uppercase hover:bg-[#13ecec]/5 transition-all"
+                                    className="h-24 rounded-[2rem] border-[var(--color-secondary)]/40 text-[var(--color-secondary)] text-[11px] italic tracking-[0.4em] font-black uppercase hover:bg-[var(--color-secondary)]/5 transition-all"
                                     onClick={() => handlePublish(true)} 
                                 >
                                     ARCHIVE AS DRAFT_
@@ -301,7 +301,7 @@ export const JobPostingFlowPage: React.FC = () => {
                                     fullWidth
                                     size="lg"
                                     disabled={isSubmitting || !isStepValid()}
-                                    className="h-24 rounded-[2.5rem] text-sm font-black uppercase italic tracking-[0.4em] shadow-[0_25px_50px_rgba(140,37,244,0.4)] hover:shadow-[0_30px_60px_rgba(140,37,244,0.6)] active:scale-95 transition-all bg-gradient-to-r from-[#8c25f4] to-purple-800 border-none relative overflow-hidden group/publish"
+                                    className="h-24 rounded-[2.5rem] text-sm font-black uppercase italic tracking-[0.4em] shadow-[0_25px_50px_rgba(140,37,244,0.4)] hover:shadow-[0_30px_60px_rgba(140,37,244,0.6)] active:scale-95 transition-all bg-gradient-to-r from-[var(--color-primary)] to-purple-800 border-none relative overflow-hidden group/publish"
                                     onClick={() => handlePublish(false)} 
                                 >
                                     <div className="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover/publish:opacity-100 transition-opacity" />

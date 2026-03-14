@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-    Trophy, Flame, ChevronRight, Search, 
-    Code2, Users, Map, User, Terminal, 
-    Filter, Clock, Award, CheckCircle,
-    Zap, Brain, Target, Activity, Cpu
+    Trophy, Flame, Search, 
+    Terminal, 
+    Award, CheckCircle,
+    Zap, Activity, Cpu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -165,7 +165,7 @@ export const ChallengeHubPage: React.FC = () => {
                                     <div key={i} className="h-24 animate-pulse bg-white/5 mx-6 my-4 rounded-3xl" />
                                 ))
                             ) : challenges.length > 0 ? (
-                                challenges.map((challenge, idx) => (
+                                challenges.map((challenge) => (
                                     <motion.div
                                         key={challenge.id}
                                         whileHover={{ x: 10, backgroundColor: 'rgba(255,255,255,0.02)' }}

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-    Eye, EyeOff, Layers, Code, UserSearch, X, Rocket, 
-    ShieldCheck, Zap, Globe, Sparkles, Orbit, Lock,
-    CheckCircle2, ArrowRight, UserPlus
+    Eye, EyeOff, Layers, Code, UserSearch, 
+    Orbit, CheckCircle2, UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -70,10 +69,10 @@ export const RegistrationPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-[#050510] relative overflow-hidden flex flex-col lg:flex-row">
+        <div className="min-h-screen w-full bg-[var(--space-bg)] relative overflow-hidden flex flex-col lg:flex-row">
             {/* Background Narrative Grid */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #8c25f4 1px, transparent 0)', backgroundSize: '48px 48px' }} />
-            <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-[#8c25f4]/5 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--color-primary-glow) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+            <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-[var(--color-primary)]/5 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
             
             {/* Left Side: Cinematic Narrative */}
             <motion.div 
@@ -84,20 +83,20 @@ export const RegistrationPage: React.FC = () => {
             >
                 <div className="space-y-12">
                     <div className="flex items-center gap-4 mb-20 group cursor-pointer" onClick={() => navigate('/')}>
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-[#13ecec] to-[#8c25f4] shadow-[0_0_30px_rgba(19,236,236,0.2)]">
+                        <div className="p-3 rounded-2xl bg-gradient-to-br from-[var(--color-secondary)] to-[var(--color-primary)] shadow-[0_0_30px_var(--color-secondary-glow)]">
                             <Layers className="text-white w-6 h-6" />
                         </div>
                         <Typography variant="h1" className="text-2xl mb-0 italic tracking-tighter text-white">TalentSphere_</Typography>
                     </div>
 
                     <div className="space-y-8">
-                        <div className="px-4 py-1 rounded-full border border-[#8c25f4]/30 bg-[#8c25f4]/5 inline-flex items-center gap-2">
-                            <Orbit size={14} className="text-[#8c25f4] animate-spin-slow" />
-                            <span className="text-[10px] font-black text-[#8c25f4] uppercase tracking-[0.3em] italic">Mesh Initialization</span>
+                        <div className="px-4 py-1 rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 inline-flex items-center gap-2">
+                            <Orbit size={14} className="text-[var(--color-primary)] animate-spin-slow" />
+                            <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] italic">Mesh Initialization</span>
                         </div>
                         <Typography variant="h1" className="text-6xl leading-tight text-white mb-4">
                             Define your <br /> 
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#13ecec] to-[#8c25f4]">Neural Signature_</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-primary)]">Neural Signature_</span>
                         </Typography>
                         <p className="text-slate-400 text-lg font-medium italic max-w-sm leading-relaxed">
                             Join the unified global workforce matrix and unlock high-affinity opportunities tailored to your core essence.
@@ -110,7 +109,7 @@ export const RegistrationPage: React.FC = () => {
                             { icon: CheckCircle2, text: 'Neural Resume Synthesis' },
                             { icon: CheckCircle2, text: 'Real-time Pipeline Sync' }
                         ].map((item, i) => (
-                            <div key={i} className="flex items-center gap-4 text-[#13ecec]">
+                            <div key={i} className="flex items-center gap-4 text-[var(--color-secondary)]">
                                 <item.icon size={20} className="opacity-60" />
                                 <span className="text-xs font-black uppercase tracking-widest italic text-slate-300">{item.text}</span>
                             </div>
@@ -120,7 +119,7 @@ export const RegistrationPage: React.FC = () => {
 
                 <div className="p-8 glass-panel rounded-[2rem] border-white/10 bg-black/20">
                     <div className="flex items-center gap-4">
-                        <div className="size-10 rounded-full bg-gradient-to-br from-[#13ecec] to-[#8c25f4] p-[2px]">
+                        <div className="size-10 rounded-full bg-gradient-to-br from-[var(--color-secondary)] to-[var(--color-primary)] p-[2px]">
                             <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-[10px] font-black italic text-white">TS</div>
                         </div>
                         <div>
@@ -141,9 +140,9 @@ export const RegistrationPage: React.FC = () => {
                     <div className="flex flex-col lg:flex-row justify-between items-end gap-6">
                         <div className="space-y-2">
                             <Typography variant="h2" className="text-white text-4xl mb-0 italic">Mesh Entry Request_</Typography>
-                            <p className="text-slate-500 font-medium italic">CONFIGURE CORE IDENTITY PARAMETERS</p>
+                            <p className="text-slate-500 font-medium italic uppercase tracking-widest text-[10px]">Configure Core Identity Parameters</p>
                         </div>
-                        <Link to="/login" className="text-[10px] font-black text-[#8c25f4] hover:text-[#13ecec] uppercase tracking-widest italic border-b border-[#8c25f4]/30 pb-1 transition-all">
+                        <Link to="/login" className="text-[10px] font-black text-[var(--color-primary)] hover:text-[var(--color-secondary)] uppercase tracking-widest italic border-b border-[var(--color-primary)]/30 pb-1 transition-all">
                             Exist in Matrix? Login_
                         </Link>
                     </div>
@@ -163,15 +162,15 @@ export const RegistrationPage: React.FC = () => {
                                 className={cn(
                                     "p-8 rounded-[2rem] glass-panel border transition-all text-left flex items-start gap-6 group",
                                     userType === 'developer' 
-                                        ? "border-[#13ecec]/40 bg-[#13ecec]/5 ring-4 ring-[#13ecec]/5" 
+                                        ? "border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/5 ring-4 ring-[var(--color-secondary)]/5" 
                                         : "border-white/5 bg-black/40 hover:border-white/20"
                                 )}
                             >
-                                <div className={cn("p-4 rounded-2xl transition-colors", userType === 'developer' ? "bg-[#13ecec] text-black" : "bg-white/5 text-slate-500 group-hover:text-white")}>
+                                <div className={cn("p-4 rounded-2xl transition-colors", userType === 'developer' ? "bg-[var(--color-secondary)] text-white shadow-[0_0_20px_var(--color-secondary-glow)]" : "bg-white/5 text-slate-500 group-hover:text-white")}>
                                     <Code size={24} />
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className={cn("font-black italic text-lg transition-colors", userType === 'developer' ? "text-[#13ecec]" : "text-white")}>Developer_</h3>
+                                    <h3 className={cn("font-black italic text-lg transition-colors", userType === 'developer' ? "text-[var(--color-secondary)]" : "text-white")}>Developer_</h3>
                                     <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest italic">Signal Integration</p>
                                 </div>
                             </button>
@@ -181,15 +180,15 @@ export const RegistrationPage: React.FC = () => {
                                 className={cn(
                                     "p-8 rounded-[2rem] glass-panel border transition-all text-left flex items-start gap-6 group",
                                     userType === 'recruiter' 
-                                        ? "border-[#8c25f4]/40 bg-[#8c25f4]/5 ring-4 ring-[#8c25f4]/5" 
+                                        ? "border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 ring-4 ring-[var(--color-primary)]/5" 
                                         : "border-white/5 bg-black/40 hover:border-white/20"
                                 )}
                             >
-                                <div className={cn("p-4 rounded-2xl transition-colors", userType === 'recruiter' ? "bg-[#8c25f4] text-white" : "bg-white/5 text-slate-500 group-hover:text-white")}>
+                                <div className={cn("p-4 rounded-2xl transition-colors", userType === 'recruiter' ? "bg-[var(--color-primary)] text-white shadow-[0_0_20px_var(--color-primary-glow)]" : "bg-white/5 text-slate-500 group-hover:text-white")}>
                                     <UserSearch size={24} />
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className={cn("font-black italic text-lg transition-colors", userType === 'recruiter' ? "text-[#8c25f4]" : "text-white")}>Recruiter_</h3>
+                                    <h3 className={cn("font-black italic text-lg transition-colors", userType === 'recruiter' ? "text-[var(--color-primary)]" : "text-white")}>Recruiter_</h3>
                                     <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest italic">Acquisition Sync</p>
                                 </div>
                             </button>
@@ -205,7 +204,7 @@ export const RegistrationPage: React.FC = () => {
                                     name="firstName"
                                     value={formData.firstName}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-white/20 transition-all outline-none font-bold italic"
+                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-[var(--color-secondary)]/30 transition-all outline-none font-bold italic"
                                     placeholder="ALEX"
                                 />
                             </div>
@@ -216,7 +215,7 @@ export const RegistrationPage: React.FC = () => {
                                     name="lastName"
                                     value={formData.lastName}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-white/20 transition-all outline-none font-bold italic"
+                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-[var(--color-secondary)]/30 transition-all outline-none font-bold italic"
                                     placeholder="MORGAN"
                                 />
                             </div>
@@ -230,7 +229,7 @@ export const RegistrationPage: React.FC = () => {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-white/20 transition-all outline-none font-bold italic"
+                                className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white placeholder:text-slate-900 focus:border-[var(--color-secondary)]/30 transition-all outline-none font-bold italic"
                                 placeholder="ALEX@MATRIX.SYSTEM"
                             />
                         </div>
@@ -245,10 +244,10 @@ export const RegistrationPage: React.FC = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white focus:border-white/20 transition-all outline-none font-bold italic"
+                                        className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white focus:border-[var(--color-primary)]/30 transition-all outline-none font-bold italic"
                                         placeholder="••••••••"
                                     />
-                                    <button onClick={() => setShowPassword(!showPassword)} type="button" className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-700">
+                                    <button onClick={() => setShowPassword(!showPassword)} type="button" className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-700 hover:text-white transition-colors">
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
@@ -261,7 +260,7 @@ export const RegistrationPage: React.FC = () => {
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white focus:border-white/20 transition-all outline-none font-bold italic"
+                                    className="w-full bg-black/40 border border-white/5 rounded-[1.5rem] px-8 py-5 text-white focus:border-[var(--color-primary)]/30 transition-all outline-none font-bold italic"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -273,19 +272,22 @@ export const RegistrationPage: React.FC = () => {
                                 disabled={isLoading}
                                 fullWidth
                                 size="lg"
-                                className="h-20 rounded-[2rem] bg-gradient-to-r from-[#13ecec] to-[#8c25f4] text-white text-sm font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(19,236,236,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                                className="h-20 rounded-[2rem] bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-primary)] text-white text-sm font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_var(--color-secondary-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 group/btn overflow-hidden"
                             >
-                                {isLoading ? 'SYNCHRONIZING CORE...' : 'ESTABLISH NEURAL IDENTITY'}
-                                {!isLoading && <UserPlus size={20} className="ml-4" />}
+                                <span className="relative z-10 flex items-center justify-center">
+                                    {isLoading ? 'SYNCHRONIZING CORE...' : 'ESTABLISH NEURAL IDENTITY'}
+                                    {!isLoading && <UserPlus size={20} className="ml-4" />}
+                                </span>
                             </Button>
                         </div>
                     </form>
 
                     <p className="text-center text-[10px] font-black italic text-slate-700 uppercase tracking-[0.3em]">
-                        By initializing, you agree to the <span className="text-white hover:text-[#13ecec] cursor-pointer transition-colors">Mesh Protocols</span> & <span className="text-white hover:text-[#13ecec] cursor-pointer transition-colors">Privacy Synthesis</span>.
+                        By initializing, you agree to the <span className="text-white hover:text-[var(--color-secondary)] cursor-pointer transition-colors">Mesh Protocols</span> & <span className="text-white hover:text-[var(--color-secondary)] cursor-pointer transition-colors">Privacy Synthesis</span>.
                     </p>
                 </motion.div>
             </div>
         </div>
     );
 };
+

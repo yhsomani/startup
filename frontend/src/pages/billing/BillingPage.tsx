@@ -61,8 +61,8 @@ const PLANS: Plan[] = [
         cta: 'Upgrade to Elite',
         highlighted: true,
         icon: Zap,
-        accent: 'text-[#8c25f4]',
-        glow: 'group-hover:border-[#8c25f4]/40',
+        accent: 'text-[var(--color-primary)]',
+        glow: 'group-hover:border-[var(--color-primary)]/40',
     },
     {
         id: 'enterprise',
@@ -81,8 +81,8 @@ const PLANS: Plan[] = [
         ],
         cta: 'Establish Contact',
         icon: Building2,
-        accent: 'text-[#13ecec]',
-        glow: 'group-hover:border-[#13ecec]/40',
+        accent: 'text-[var(--color-secondary)]',
+        glow: 'group-hover:border-[var(--color-secondary)]/40',
     },
 ];
 
@@ -118,15 +118,22 @@ export const BillingPage: React.FC = () => {
             animate="visible"
             className="max-w-6xl mx-auto pb-32 space-y-12"
         >
+            {/* Cinematic Background Elements */}
+            <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-[var(--color-background)]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,var(--color-primary-glow)_0%,transparent_40%),radial-gradient(circle_at_70%_80%,var(--color-secondary-glow)_0%,transparent_40%)]" />
+                <div className="absolute top-[20%] left-[10%] w-0.5 h-0.5 bg-[var(--color-secondary)] rounded-full opacity-30 animate-pulse" />
+                <div className="absolute top-[60%] left-[85%] w-0.5 h-0.5 bg-[var(--color-secondary)] rounded-full opacity-30 animate-pulse delay-75" />
+            </div>
+
             {/* Header Module */}
-            <motion.section variants={itemVariants} className="relative p-10 glass-panel rounded-[2.5rem] border-white/10 overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/15 via-transparent to-[#13ecec]/10 pointer-events-none" />
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#8c25f4]/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2 opacity-60" />
+            <motion.section variants={itemVariants} className="relative p-10 glass-panel rounded-[2.5rem] border-white/10 overflow-hidden group shadow-2xl bg-black/40">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/15 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--color-primary)]/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2 opacity-60" />
                 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 rounded-2xl bg-[#8c25f4]/10 text-[#8c25f4] border border-[#8c25f4]/20">
+                            <div className="p-3 rounded-2xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20 shadow-xl">
                                 <Wallet size={24} />
                             </div>
                             <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
@@ -138,8 +145,8 @@ export const BillingPage: React.FC = () => {
                     </div>
 
                     <div className="flex gap-4 w-full md:w-auto">
-                        <div className="glass-panel px-6 py-4 rounded-3xl border-white/5 flex flex-col items-center justify-center min-w-[140px]">
-                            <span className="text-2xl font-black text-[#13ecec] italic leading-none">FREE</span>
+                        <div className="glass-panel px-6 py-4 rounded-3xl border-white/5 flex flex-col items-center justify-center min-w-[140px] bg-black/20">
+                            <span className="text-2xl font-black text-[var(--color-secondary)] italic leading-none">FREE</span>
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Status: Basic</span>
                         </div>
                     </div>
@@ -165,7 +172,7 @@ export const BillingPage: React.FC = () => {
                             billingPeriod === 'annual' ? "bg-white/10 text-white shadow-xl shadow-black/40" : "text-slate-500 hover:text-white"
                         )}
                     >
-                        Annual Sync <span className="bg-[#13ecec]/20 text-[#13ecec] px-2 py-0.5 rounded-lg text-[8px] animate-pulse">Save 20%</span>
+                        Annual Sync <span className="bg-[var(--color-secondary)]/20 text-[var(--color-secondary)] px-2 py-0.5 rounded-lg text-[8px] animate-pulse">Save 20%</span>
                     </button>
                 </div>
             </motion.div>
@@ -178,13 +185,13 @@ export const BillingPage: React.FC = () => {
                         variants={itemVariants}
                         whileHover={{ y: -10 }}
                         className={cn(
-                            "relative glass-panel p-10 rounded-[3rem] border-white/5 flex flex-col transition-all duration-500 group overflow-hidden bg-black/40",
-                            plan.highlighted && "border-[#8c25f4]/30 shadow-[0_0_50px_rgba(140,37,244,0.1)]"
+                            "relative glass-panel p-10 rounded-[3rem] border-white/5 flex flex-col transition-all duration-500 group overflow-hidden bg-black/40 shadow-2xl",
+                            plan.highlighted && "border-[var(--color-primary)]/30 shadow-[0_0_50px_var(--color-primary-glow)]"
                         )}
                     >
                         {plan.highlighted && (
                             <div className="absolute top-0 right-0">
-                                <div className="bg-[#8c25f4] text-white text-[8px] font-black uppercase tracking-widest px-6 py-1 transform rotate-45 translate-x-4 translate-y-2 shadow-xl italic">
+                                <div className="bg-[var(--color-primary)] text-white text-[8px] font-black uppercase tracking-widest px-6 py-1 transform rotate-45 translate-x-4 translate-y-2 shadow-xl italic">
                                     Optimized Tier
                                 </div>
                             </div>
@@ -209,7 +216,7 @@ export const BillingPage: React.FC = () => {
                         <div className="flex-1 space-y-4 mb-10">
                             {plan.features.map(f => (
                                 <div key={f} className="flex items-start gap-3 text-xs font-bold text-slate-400 italic">
-                                    <div className={cn("size-2 rounded-full mt-1.5 flex-shrink-0 animate-pulse", plan.highlighted ? "bg-[#8c25f4]" : "bg-[#13ecec]")} />
+                                    <div className={cn("size-2 rounded-full mt-1.5 flex-shrink-0 animate-pulse", plan.highlighted ? "bg-[var(--color-primary)]" : "bg-[var(--color-secondary)]")} />
                                     <span>{f}</span>
                                 </div>
                             ))}
@@ -236,10 +243,10 @@ export const BillingPage: React.FC = () => {
                 <div className="lg:col-span-12 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Active Method */}
-                        <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-6">
+                        <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-6 bg-black/40 shadow-xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <CreditCard size={20} className="text-[#13ecec]" />
+                                    <CreditCard size={20} className="text-[var(--color-secondary)]" />
                                     <Typography variant="h4" className="mb-0 italic">Active Interface_</Typography>
                                 </div>
                                 <Button variant="ghost" size="sm" className="text-[9px] font-black italic border-white/5">UPDATE NODE</Button>
@@ -247,7 +254,7 @@ export const BillingPage: React.FC = () => {
                             
                             <div className="p-6 bg-black/40 rounded-2xl border border-white/5 flex items-center gap-6 relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="size-14 bg-gradient-to-br from-[#13ecec] to-blue-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-2xl">
+                                <div className="size-14 bg-gradient-to-br from-[var(--color-secondary)] to-blue-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-2xl">
                                     ELITE
                                 </div>
                                 <div>
@@ -261,9 +268,9 @@ export const BillingPage: React.FC = () => {
                         </motion.section>
 
                         {/* Security Protocol */}
-                        <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-6">
+                        <motion.section variants={itemVariants} className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-6 bg-black/40 shadow-xl">
                             <div className="flex items-center gap-3">
-                                <Shield size={20} className="text-[#8c25f4]" />
+                                <Shield size={20} className="text-[var(--color-primary)]" />
                                 <Typography variant="h4" className="mb-0 italic">Security Protocol_</Typography>
                             </div>
                             <div className="flex items-center gap-4 text-slate-500">
@@ -289,11 +296,11 @@ export const BillingPage: React.FC = () => {
                             {MOCK_INVOICES.map(inv => (
                                 <div key={inv.id} className="flex items-center gap-8 px-10 py-6 hover:bg-white/5 transition-all group">
                                     <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-black text-white italic tracking-tight group-hover:text-[#13ecec] transition-colors">{inv.plan}_</p>
+                                        <p className="text-sm font-black text-white italic tracking-tight group-hover:text-[var(--color-secondary)] transition-colors">{inv.plan}_</p>
                                         <p className="text-[10px] text-slate-500 font-black uppercase italic tracking-widest">{inv.date}</p>
                                     </div>
                                     <span className="text-sm font-black text-white italic">{inv.amount}</span>
-                                    <div className="px-3 py-1 bg-[#13ecec]/10 border border-[#13ecec]/20 text-[#13ecec] rounded-lg text-[8px] font-black uppercase tracking-widest italic">
+                                    <div className="px-3 py-1 bg-[var(--color-secondary)]/10 border border-[var(--color-secondary)]/20 text-[var(--color-secondary)] rounded-lg text-[8px] font-black uppercase tracking-widest italic">
                                         {inv.status}
                                     </div>
                                     <button className="p-3 bg-white/5 rounded-xl text-slate-500 hover:text-white transition-all">

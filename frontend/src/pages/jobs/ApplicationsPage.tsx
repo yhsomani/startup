@@ -42,7 +42,7 @@ const ProgressiveOrb: React.FC<{ status: ApplicationVector['status'] }> = ({ sta
                 <circle cx="48" cy="48" r="44" stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="none" />
                 <motion.circle 
                     cx="48" cy="48" r="44" 
-                    stroke={status === 'Rejected' ? '#ef4444' : '#13ecec'} 
+                    stroke={status === 'Rejected' ? '#ef4444' : 'var(--color-secondary)'} 
                     strokeWidth="6" 
                     fill="none"
                     strokeDasharray="276"
@@ -55,14 +55,14 @@ const ProgressiveOrb: React.FC<{ status: ApplicationVector['status'] }> = ({ sta
             
             <div className={cn(
                 "size-14 rounded-full flex items-center justify-center shadow-2xl relative z-10",
-                status === 'Rejected' ? "bg-red-500/20 text-red-400" : "bg-[#13ecec]/20 text-[#13ecec]"
+                status === 'Rejected' ? "bg-red-500/20 text-red-400" : "bg-[var(--color-secondary)]/20 text-[var(--color-secondary)]"
             )}>
                 <Target size={24} className={cn(status !== 'Rejected' && "animate-pulse")} />
             </div>
 
             {/* Pulsing Signal Glow */}
             {status !== 'Rejected' && (
-                <div className="absolute inset-0 bg-[#13ecec]/5 rounded-full blur-xl animate-pulse" />
+                <div className="absolute inset-0 bg-[var(--color-secondary)]/5 rounded-full blur-xl animate-pulse" />
             )}
         </div>
     );
@@ -116,22 +116,22 @@ export const ApplicationsPage: React.FC = () => {
         >
             {/* Atmospheric Background */}
             <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-                <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] bg-[#8c25f4]/05 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-[#13ecec]/05 blur-[100px] rounded-full" />
+                <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] bg-[var(--color-primary)]/05 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-[var(--color-secondary)]/05 blur-[100px] rounded-full" />
             </div>
 
             {/* Vector Tracking Header */}
             <motion.section variants={vectorVariants} className="relative p-12 glass-panel rounded-[3.5rem] border-white/10 overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8c25f4]/15 via-transparent to-[#13ecec]/10 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/15 via-transparent to-[var(--color-secondary)]/10 pointer-events-none" />
                 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 rounded-2xl bg-[#8c25f4]/15 text-[#8c25f4] border border-[#8c25f4]/20 shadow-lg">
+                            <div className="p-3 rounded-2xl bg-[var(--color-primary)]/15 text-[var(--color-primary)] border border-[var(--color-primary)]/20 shadow-lg">
                                 <Activity size={24} />
                             </div>
                             <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
-                                <span className="text-[10px] font-black text-[#13ecec] uppercase tracking-[0.3em] italic">Active Vector Streams</span>
+                                <span className="text-[10px] font-black text-[var(--color-secondary)] uppercase tracking-[0.3em] italic">Active Vector Streams</span>
                             </div>
                         </div>
                         <Typography variant="h1" className="text-white text-6xl tracking-tighter italic m-0">Vector Tracking_</Typography>
@@ -146,7 +146,7 @@ export const ApplicationsPage: React.FC = () => {
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Live Signals</span>
                         </div>
                         <div className="glass-panel px-8 py-6 rounded-3xl border-white/5 flex flex-col items-center justify-center min-w-[120px]">
-                            <span className="text-3xl font-black text-[#13ecec] italic leading-none">
+                            <span className="text-3xl font-black text-[var(--color-secondary)] italic leading-none">
                                 {applications.filter(a => a.status === 'Offered' || a.status === 'Interview').length}
                             </span>
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Acquisitions</span>
@@ -157,8 +157,8 @@ export const ApplicationsPage: React.FC = () => {
 
             {/* Matrix Operations: Search & Filter */}
             <motion.div variants={vectorVariants} className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1 glass-panel p-2 rounded-3xl border-white/5 flex items-center bg-black/40 group focus-within:border-[#13ecec]/40 transition-all">
-                    <Search className="text-[#8c25f4] ml-6 group-focus-within:text-[#13ecec] transition-colors" size={20} />
+                <div className="flex-1 glass-panel p-2 rounded-3xl border-white/5 flex items-center bg-black/40 group focus-within:border-[var(--color-secondary)]/40 transition-all">
+                    <Search className="text-[var(--color-primary)] ml-6 group-focus-within:text-[var(--color-secondary)] transition-colors" size={20} />
                     <input 
                         className="bg-transparent border-none focus:ring-0 text-white placeholder:text-slate-700 w-full py-5 px-4 font-black text-xs uppercase tracking-widest italic outline-none"
                         placeholder="Scan Specific Carrier Signal..."
@@ -175,7 +175,7 @@ export const ApplicationsPage: React.FC = () => {
                             className={cn(
                                 "h-16 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest italic transition-all whitespace-nowrap border-2",
                                 activeStatus === status
-                                    ? "bg-[#13ecec]/10 text-[#13ecec] border-[#13ecec]/40 shadow-[0_0_20px_rgba(19,236,236,0.1)]"
+                                    ? "bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/40 shadow-[0_0_20px_rgba(19,236,236,0.1)]"
                                     : "glass-panel border-white/5 text-slate-600 hover:text-white hover:border-white/20"
                             )}
                         >
@@ -198,18 +198,18 @@ export const ApplicationsPage: React.FC = () => {
                                 key={vector.id}
                                 variants={vectorVariants}
                                 layout
-                                whileHover={{ x: 10, borderLeftColor: '#13ecec' }}
-                                className="glass-panel p-10 rounded-[3rem] border-white/5 border-l-4 border-l-transparent hover:border-[#13ecec]/30 transition-all duration-300 bg-black/40 group flex flex-col md:flex-row items-center gap-12 relative overflow-hidden shadow-2xl"
+                                whileHover={{ x: 10, borderLeftColor: 'var(--color-secondary)' }}
+                                className="glass-panel p-10 rounded-[3rem] border-white/5 border-l-4 border-l-transparent hover:border-[var(--color-secondary)]/30 transition-all duration-300 bg-black/40 group flex flex-col md:flex-row items-center gap-12 relative overflow-hidden shadow-2xl"
                             >
                                 <ProgressiveOrb status={vector.status} />
 
                                 <div className="flex-1 space-y-4 text-center md:text-left">
                                     <div className="space-y-1">
-                                        <h3 className="text-3xl font-black text-white italic tracking-tighter group-hover:text-[#13ecec] transition-colors">
+                                        <h3 className="text-3xl font-black text-white italic tracking-tighter group-hover:text-[var(--color-secondary)] transition-colors">
                                             {vector.jobTitle}_
                                         </h3>
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-[#8c25f4] uppercase tracking-widest italic">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest italic">
                                                 <Building2 size={12} /> {vector.company}
                                             </div>
                                             <span className="text-slate-800 hidden md:inline">|</span>
@@ -235,7 +235,7 @@ export const ApplicationsPage: React.FC = () => {
                                 <div className="flex flex-col items-center md:items-end gap-6 shrink-0 w-full md:w-auto">
                                     <div className="text-right">
                                         <div className="text-4xl font-black text-white italic tracking-tighter leading-none">{vector.affinity}%</div>
-                                        <div className="text-[9px] font-black text-[#13ecec] uppercase tracking-widest mt-1 italic">Signal Strength</div>
+                                        <div className="text-[9px] font-black text-[var(--color-secondary)] uppercase tracking-widest mt-1 italic">Signal Strength</div>
                                     </div>
                                     
                                     <div className="flex gap-4 w-full md:w-auto">
